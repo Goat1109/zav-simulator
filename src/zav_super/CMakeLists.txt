@@ -14,6 +14,8 @@ install(PROGRAMS src/lio_adapter.py src/benchmark_mission.py DESTINATION lib/${P
 install(DIRECTORY config launch rviz meshes DESTINATION share/${PROJECT_NAME})
 if(BUILD_TESTING)
   enable_testing()
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  add_test(NAME bag_mission COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test/test_bag_mission.py)
   add_executable(control_math_test test/control_math.cpp)
   target_compile_features(control_math_test PUBLIC cxx_std_17)
   target_include_directories(control_math_test PRIVATE include)

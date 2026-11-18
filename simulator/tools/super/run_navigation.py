@@ -26,20 +26,24 @@ def preflight(workspace):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--scenario',choices=('high_speed','dense','mixed'),default='high_speed')
+    parser.add_argument('--scenario',choices=('high_speed','dense','mixed','dasan'),default='high_speed')
     parser.add_argument('--backend',choices=('super_lio','fastlivo','fastlio'),default='super_lio')
     parser.add_argument('--profile',choices=('legacy','common'),default='legacy',
                         help='common: one shared Super-LIO planner/controller YAML for all benchmark scenes')
     parser.add_argument('--config',type=Path,
                         help='Experimental shared YAML override; requires --profile common')
+    parser.add_argument('--mission',type=Path,help='Dasan mission JSON (default: generated dasan_mission.json)')
+    parser.add_argument('--route-source',choices=('bag','external'),default='bag',
+                        help='external: accept live world-frame nav_msgs/Path, do not auto-land at path end')
     parser.add_argument('--execute',action='store_true',help='Arm, take off and fly the original benchmark round trip')
     parser.add_argument('--no-rviz',action='store_true')
     parser.add_argument('--record-dir',type=Path,help='Flight data directory (default: log/super_flights/<timestamp>)')
     args=parser.parse_args()
-    if args.scenario=='mixed' and args.profile!='common':
-        parser.error('mixed requires --profile common (one YAML across all zones)')
+    if args.scenario in ('mixed','dasan') and args.profile!='common':
+        parser.error('mixed/dasan requires --profile common')
     if args.profile=='common' and args.backend!='super_lio':
         parser.error('--profile common currently requires --backend super_lio')
+    if args.mission and args.scenario!='dasan':parser.error('--mission requires --scenario dasan')
     if args.config:
         if args.profile!='common':parser.error('--config requires --profile common')
         args.config=args.config.expanduser().resolve()
@@ -58,7 +62,8 @@ def main():
            '--host',os.environ.get('ZAV_SENSOR_HOST','127.0.0.1'),'--camera-port','17443' if args.backend=='fastlivo' else '0',
            '--imu-port','17444','--livox-port','17445']
     command=['ros2','launch','zav_super','benchmark.launch.py',f'scenario:={args.scenario}',
-             f'backend:={args.backend}',f'profile:={args.profile}',f'execute:={str(args.execute).lower()}',f'rviz:={str(not args.no_rviz).lower()}']
+             f'backend:={args.backend}',f'profile:={args.profile}',f'execute:={str(args.execute).lower()}',f'rviz:={str(not args.no_rviz).lower()}',f'route_source:={args.route_source}']
+    if args.mission:command.append(f'mission:={args.mission.expanduser().resolve()}')
     if args.config:command.append(f'common_config:={args.config}')
     output=(args.record_dir or ws/'log/super_flights'/datetime.now(ZoneInfo('Asia/Seoul')).strftime('%Y%m%d-%H%M%S-%f')).resolve()
     if output.exists():parser.error(f'--record-dir must be a new directory: {output}')

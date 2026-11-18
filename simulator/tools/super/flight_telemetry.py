@@ -4,6 +4,7 @@ import argparse
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import json
+import math
 from pathlib import Path
 import time
 import sys
@@ -12,13 +13,17 @@ import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import Odometry, Path as NavPath
+from geometry_msgs.msg import PoseStamped
+from mars_quadrotor_msgs.msg import PolynomialTrajectory
+from rclpy.qos import QoSProfile, DurabilityPolicy
 from std_msgs.msg import String
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output',type=Path,required=True);p.add_argument('--config',type=Path,required=True)
+    p.add_argument('--mission',type=Path)
     p.add_argument('--scenario',required=True);p.add_argument('--backend',required=True)
     args=p.parse_args();args.output.mkdir(parents=True,exist_ok=True)
     ws=Path(__file__).resolve().parents[3]
@@ -34,16 +39,19 @@ def main():
         'frames':{'truth':'mounted IMU pose/twist in isaac_world/mid360_imu; converted offline to body origin/world ENU','lio':'body origin; linear velocity in world ENU'},
         'completion':'recording','samples':{'truth':0,'lio':0},'invalid_samples':0}
     def capture_scene():
-        if args.scenario != 'mixed' or 'map_recipe' in metadata:
+        if args.scenario not in ('mixed','dasan') or 'map_recipe' in metadata:
             return
         assets = ws / 'simulator/assets/super'
-        recipe, geometry = assets / 'mixed_recipe.json', assets / 'mixed.json'
+        recipe, geometry = assets / f'{args.scenario}_recipe.json', assets / f'{args.scenario}.json'
         if recipe.exists() and geometry.exists():
             recipe_data, geometry_data = json.loads(recipe.read_text()), json.loads(geometry.read_text())
             if recipe_data['generated_pcd_sha256'] == geometry_data['source_sha256']:
                 metadata['map_recipe'] = recipe_data
                 metadata['scene_geometry'] = geometry_data
     capture_scene()
+    if args.mission:
+        metadata['mission']=json.loads(args.mission.read_text())
+        metadata['mission_path']=str(args.mission.resolve())
     (args.output/'metadata.json').write_text(json.dumps(metadata,indent=2)+'\n')
     rclpy.init();node=Node('zav_super_flight_telemetry');state='UNKNOWN';finish=None;last_stamp=None
     file=(args.output/'samples.jsonl').open('w',buffering=65536)
@@ -66,6 +74,37 @@ def main():
     node.create_subscription(Odometry,'/zav/super/odom',lambda m:odom('lio',m),qos_profile_sensor_data)
     node.create_subscription(Odometry,'/drone0/ground_truth/odometry',lambda m:odom('truth',m),qos_profile_sensor_data)
     node.create_subscription(String,'/zav/super/controller_status',status,10)
+    def mission(msg):
+        try:metadata['last_mission_status']=json.loads(msg.data)
+        except ValueError:return
+        if metadata.get('_last_phase')!=metadata['last_mission_status'].get('phase') or metadata.get('_last_index')!=metadata['last_mission_status'].get('reached_waypoints'):
+            file.write(json.dumps({'event':'mission','stamp':last_stamp,**metadata['last_mission_status']})+'\n')
+            metadata['_last_phase']=metadata['last_mission_status'].get('phase')
+            metadata['_last_index']=metadata['last_mission_status'].get('reached_waypoints')
+    node.create_subscription(String,'/zav/super/mission_status',mission,10)
+    def goal(msg):
+        p,q=msg.pose.position,msg.pose.orientation
+        orientation=[q.x,q.y,q.z,q.w]
+        file.write(json.dumps({'event':'lookahead_goal','stamp':msg.header.stamp.sec+msg.header.stamp.nanosec*1e-9,
+            'frame':msg.header.frame_id,'p':[p.x,p.y,p.z],
+            'q':orientation if all(math.isfinite(v)for v in orientation)else None})+'\n')
+    last_path=None
+    def path(msg):
+        nonlocal last_path
+        vertices=[[p.pose.position.x,p.pose.position.y,p.pose.position.z,
+                   p.pose.orientation.x,p.pose.orientation.y,p.pose.orientation.z,p.pose.orientation.w]for p in msg.poses]
+        signature=(msg.header.frame_id,repr(vertices))
+        if signature==last_path:return
+        last_path=signature
+        file.write(json.dumps({'event':'global_path','stamp':last_stamp,'frame':msg.header.frame_id,'vertices':vertices})+'\n')
+    node.create_subscription(PoseStamped,'/planning/click_goal',goal,10)
+    def trajectory(msg):
+        if not msg.type & PolynomialTrajectory.POSITION_TRAJ:return
+        file.write(json.dumps({'event':'polynomial','stamp':last_stamp,'start':msg.start_wt_pos,
+            'duration':list(msg.time_pos),'x':list(msg.coef_pos_x),'y':list(msg.coef_pos_y),'z':list(msg.coef_pos_z),
+            'yaw_start':msg.start_wt_yaw,'yaw_duration':list(msg.time_yaw),'yaw':list(msg.coef_yaw)})+'\n')
+    node.create_subscription(PolynomialTrajectory,'/planning_cmd/poly_traj',trajectory,qos_profile_sensor_data)
+    node.create_subscription(NavPath,'/mission/global_path',path,QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
     node.create_timer(.5,file.flush)
     node.get_logger().info(f'Flight recording: {args.output}; report after landing or launcher Ctrl+C')
     completed=False

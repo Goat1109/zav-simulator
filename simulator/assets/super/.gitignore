@@ -2,3 +2,22 @@
 /mixed.usdc
 /mixed.json
 /mixed_recipe.json
+
+# Reconstructed from the user-provided raw Dasan bag.
+/dasan.usdc
+/dasan.tmp.usdc
+/dasan.json
+/dasan_recipe.json
+/dasan_trajectory.csv
+/dasan_mapping.yaml
+/dasan_color.npz
+/dasan_color.json
+/dasan_mission.json
+/dasan_mission.npz
+/dasan_people_filter.json
+/route-grid.npz
+
+/dasan_interior_sections.json
+
+/dasan_mission_*.json
+/dasan_mission_*.npz

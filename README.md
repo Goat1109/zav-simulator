@@ -109,6 +109,14 @@ cd ~/zenith_ws
 튜닝 진행 중입니다. 맵 구성·GUI 검증·성공 및 실패 주행 결과는
 [혼합 맵 안내](docs/super-mixed-map.md)에 정리했습니다.
 
+## Dasan 실측 bag 지도
+
+카메라 RGB를 포함한 Dasan 복원 지형은 `./run_super_sim.sh dasan --overview`로
+전체를 볼 수 있습니다. 기체 주변 시점은 `./run_super_sim.sh dasan`입니다.
+PCD·USD·복원 궤적·카메라 색상과 재생성 절차는 [Dasan 지도 안내](docs/dasan-map.md)에 있습니다.
+현재 기본 bag 경로는 약 117m 왕복입니다. [확장 경로와 시험 결과](docs/dasan-long-route.md)를 참고하세요.
+외부 탐사 경로의 연속 추종·갱신 입력과 복도 내부 bag 주행 구성·실험 결과는 [Dasan 주행 안내](docs/dasan-navigation.md)에 있습니다.
+
 ## LIO 이상 감시와 착륙
 
 `./run_fastlivo.sh`는 짧은 측정 간격에서 위치·자세가 갑자기 튀는 운동 연속성만 감시합니다.

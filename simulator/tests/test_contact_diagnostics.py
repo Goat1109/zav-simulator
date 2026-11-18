@@ -52,6 +52,38 @@ class ContactClassification(unittest.TestCase):
         self.assertEqual(event["strongest_contact"]["position"], [10., 0., 0.])
         self.assertEqual(event["closest_contact"]["separation"], -.001)
 
+    def test_skin_coalescing_checks_every_point_and_keeps_penetrations(self):
+        d = ContactDiagnostics.__new__(ContactDiagnostics)
+        d.clock = lambda: 1.
+        d.vehicle_root = "/World/quadrotor"
+        d.path_cache = {1: d.vehicle_root + "/body", 2: "/World/layout/surface_1"}
+        d.types = SimpleNamespace(CONTACT_FOUND=1, CONTACT_LOST=2)
+        d.counts = collections.Counter()
+        d.events = collections.deque()
+        d.skin = {}; d.skin_coalesced = 0
+        d.callback_histogram = collections.Counter()
+        d.callback_calls = d.callback_ns = d.callback_max_ns = 0
+        d.errors = d.dropped_events = 0
+        d.first_report_sim = d.last_report_sim = None
+        h = SimpleNamespace(collider0=1, collider1=2, actor0=1, actor1=2,
+                            type=3, num_contact_data=12, contact_data_offset=0)
+        points = [SimpleNamespace(impulse=(0., 0., 0.), position=(float(i), 0., 0.),
+                                  normal=(0., 0., 1.), separation=.01) for i in range(12)]
+        d._callback([h], points)
+        self.assertEqual(d.errors, 0)
+        self.assertEqual(len(d.events), 0)
+        self.assertEqual(d.skin_coalesced, 1)
+        self.assertEqual(next(iter(d.skin.values()))['native_points'], 12)
+        points[11].separation = -.002
+        d._callback([h], points)
+        self.assertEqual(d.errors, 0)
+        self.assertEqual(d.events[-1]['min_separation'], -.002)
+        self.assertEqual(d.counts['obstacle_penetration_reports'], 1)
+        points[11].separation = .01; points[11].impulse = (0., 0., 2.)
+        d._callback([h], points)
+        self.assertEqual(d.events[-1]['max_impulse_norm'], 2.)
+        self.assertEqual(d.counts['obstacle_impulse_reports'], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

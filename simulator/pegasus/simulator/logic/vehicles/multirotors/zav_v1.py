@@ -93,6 +93,7 @@ class ZAV_v1(Multirotor):
                 "connection_ip": os.environ.get("PEGASUS_BIND_HOST", "localhost"),
                 "px4_autolaunch": False,
                 "px4_vehicle_model": "isaac_zav",
+                "sensor_startup_delay_s": 1.0,
 
                 # 기본값 보존:
                 # "input_offset": [0.0, 0.0, 0.0, 0.0],

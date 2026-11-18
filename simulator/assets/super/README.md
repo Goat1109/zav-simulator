@@ -17,3 +17,7 @@ See docs/super-mixed-map.md for the common-YAML GUI mission and measured results
 The planner never reads these PCDs; Isaac's mounted LiDAR observes the converted
 physical surfaces. See docs/super-navigation.md for reconstruction error and
 continuous-floor handling.
+
+Dasan is reconstructed from the user-provided raw bag, with native FAST-LIVO2 camera RGB
+on the measured surfaces. Generated assets stay local. See
+[Dasan conversion](../../../docs/dasan-map.md) for reproduction and GUI validation.

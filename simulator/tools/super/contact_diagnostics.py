@@ -41,6 +41,8 @@ class ContactDiagnostics:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.file = self.path.open("x", buffering=65536)
         self.events = collections.deque()
+        self.skin = {}
+        self.skin_coalesced = 0
         self.counts = collections.Counter()
         self.path_cache = {}
         self.decode = PhysicsSchemaTools.intToSdfPath
@@ -73,7 +75,8 @@ class ContactDiagnostics:
                      "rigid_bodies": bodies, "threshold": 0.,
                      "stage_meters_per_unit": UsdGeom.GetStageMetersPerUnit(stage),
                      "clock": "world.current_time and host monotonic; frame clock may lag within render interval",
-                     "impulse_units": "PhysX native scene units", "visualization": False})
+                     "impulse_units": "PhysX native scene units", "visualization": False,
+                     "skin_reports": "Nonpenetrating zero-impulse persists are coalesced once per flush; EVERY native point is checked. Counts remain complete."})
         self.file.flush()
         self.subscription = get_physx_simulation_interface().subscribe_contact_report_events(self._callback)
 
@@ -114,29 +117,37 @@ class ContactDiagnostics:
                     self.last_floor_sim = stamp
                 if category in ("floor", "vehicle_self"):
                     continue
-                points = []
                 min_separation, max_impulse = None, 0.
-                strongest_contact = None
-                closest_contact = None
-                for i in range(h.contact_data_offset, h.contact_data_offset + h.num_contact_data):
-                    item = data[i]
-                    impulse = [float(item.impulse[j]) for j in range(3)]
-                    separation = float(item.separation)
-                    norm = math.sqrt(sum(v*v for v in impulse))
-                    is_closest = min_separation is None or separation < min_separation
-                    is_strongest = strongest_contact is None or norm > max_impulse
-                    if len(points) < 8 or is_closest or is_strongest:
-                        point = {"position": [float(item.position[j]) for j in range(3)],
-                                 "normal": [float(item.normal[j]) for j in range(3)],
-                                 "impulse": impulse, "separation": separation}
-                        if len(points) < 8:
-                            points.append(point)
-                        if is_closest:
-                            closest_contact = point
-                        if is_strongest:
-                            strongest_contact = point
-                    min_separation = separation if min_separation is None else min(min_separation, separation)
-                    max_impulse = max(max_impulse, norm)
+                closest_index = strongest_index = None
+                # Scan EVERY native point for impulse/penetration, but allocate
+                # detail dictionaries only for physical/penetrating reports.
+                for i in range(h.contact_data_offset, h.contact_data_offset+h.num_contact_data):
+                    item=data[i]
+                    ix,iy,iz=float(item.impulse[0]),float(item.impulse[1]),float(item.impulse[2])
+                    norm=math.sqrt(ix*ix+iy*iy+iz*iz);separation=float(item.separation)
+                    if min_separation is None or separation<min_separation:
+                        min_separation=separation;closest_index=i
+                    if strongest_index is None or norm>max_impulse:
+                        max_impulse=norm;strongest_index=i
+                if max_impulse>1e-9:self.counts[category+'_impulse_reports']+=1
+                if min_separation is not None and min_separation<0:self.counts[category+'_penetration_reports']+=1
+                if event=='persists' and max_impulse<=1e-9 and min_separation is not None and min_separation>=0:
+                    key=(c0,c1)
+                    entry=self.skin.setdefault(key,{'kind':'skin_contact_summary','category':category,
+                        'collider0':c0,'collider1':c1,'first_sim_time_s':stamp,'last_sim_time_s':stamp,
+                        'reports':0,'native_points':0,'min_separation':min_separation,'max_impulse_norm':0.})
+                    entry['reports']+=1;entry['native_points']+=int(h.num_contact_data)
+                    entry['last_sim_time_s']=stamp;entry['min_separation']=min(entry['min_separation'],min_separation)
+                    self.skin_coalesced+=1
+                    continue
+                def detail(index):
+                    if index is None:return None
+                    item=data[index]
+                    return {'position':[float(item.position[j])for j in range(3)],
+                            'normal':[float(item.normal[j])for j in range(3)],
+                            'impulse':[float(item.impulse[j])for j in range(3)],'separation':float(item.separation)}
+                points=[detail(i)for i in range(h.contact_data_offset,h.contact_data_offset+min(8,h.num_contact_data))]
+                strongest_contact=detail(strongest_index);closest_contact=detail(closest_index)
                 self._queue({"kind": "contact", "sim_time_s": stamp,
                              "wall_monotonic_s": time.monotonic(), "category": category,
                              "event": event, "raw_event_type": str(h.type),
@@ -166,6 +177,7 @@ class ContactDiagnostics:
                 "dropped_events": self.dropped_events,
                 "first_report_sim_s": self.first_report_sim, "last_report_sim_s": self.last_report_sim,
                 "first_floor_sim_s": self.first_floor_sim, "last_floor_sim_s": self.last_floor_sim,
+                "skin_reports_coalesced": self.skin_coalesced,
                 "callback_calls": self.callback_calls, "callback_total_ms": self.callback_ns/1e6,
                 "callback_max_ms": self.callback_max_ns/1e6,
                 "callback_histogram_upper_us": dict(self.callback_histogram),
@@ -180,6 +192,8 @@ class ContactDiagnostics:
         while self.events:
             self._write(self.events.popleft())
         if due:
+            for entry in self.skin.values():self._write(entry)
+            self.skin.clear()
             self._write(self.summary(closed))
             self.last_summary = now
         self.file.flush()

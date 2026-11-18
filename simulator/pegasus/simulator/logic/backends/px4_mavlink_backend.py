@@ -234,6 +234,9 @@ class PX4MavlinkBackendConfig(BackendConfig):
         # The update rate at which we will be sending data to mavlink (TODO - remove this from here in the future
         # and infer directly from the function calls)
         self.update_rate: float = self.config.get("update_rate", 250.0)  # [Hz]
+        self.sensor_startup_delay_s = float(self.config.get("sensor_startup_delay_s", 0.0))
+        if not np.isfinite(self.sensor_startup_delay_s) or self.sensor_startup_delay_s < 0:
+            raise ValueError("sensor_startup_delay_s must be finite and nonnegative")
 
 
 class PX4MavlinkBackend(Backend):
@@ -307,6 +310,7 @@ class PX4MavlinkBackend(Backend):
 
         # Auxiliar variables for setting the u_time when sending sensor data to px4
         self._current_utime: int = 0
+        self._sensor_startup_delay_us = round(self.config.sensor_startup_delay_s*1e6)
 
     def update_sensor(self, sensor_type: str, data):
         """Method that is used as callback for the vehicle for every iteration that a sensor produces new data. 
@@ -610,6 +614,12 @@ class PX4MavlinkBackend(Backend):
         # PhysX passes float32 dt: 0.01 can arrive as 0.009999999776.
         # Truncation turns a 100 Hz tick into 9999 us instead of 10000 us.
         self._current_utime += int(round(dt * 1000000))
+
+        # Let an initially spawned physical vehicle settle before EKF consumes
+        # its first accelerometer vector. No synthetic sensor values are sent;
+        # after this interval the latest actual measurements start the stream.
+        if self._current_utime < self._sensor_startup_delay_us:
+            return
 
         # Send sensor messages
         self.send_sensor_msgs(self._current_utime)

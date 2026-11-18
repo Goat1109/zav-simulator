@@ -60,7 +60,10 @@ namespace fsm {
             return;
         }
 
-        planner_ptr_->getMap()->getNearestInfCellNot(GridType::OCCUPIED, gi_.goal_p, gi_.goal_p, 3.0);
+        // Anchor snapping to the upstream request. Repeatedly snapping the last
+        // corrected goal can walk it through a wall as occupancy changes.
+        planner_ptr_->getMap()->getNearestInfCellNot(GridType::OCCUPIED, requested_goal_p_,
+                                                    gi_.goal_p, cfg_.goal_snap_max_distance);
 
         TimeConsuming replan_once_time("replan_once_time", false);
 
@@ -188,7 +191,11 @@ namespace fsm {
             click_point.z() = cfg_.click_height;
         }
 
-        if (planner_ptr_->getMap()->getNearestInfCellNot(GridType::OCCUPIED, click_point, gi_.goal_p, 3.0)) {
+        Vec3f corrected_goal;
+        if (planner_ptr_->getMap()->getNearestInfCellNot(GridType::OCCUPIED, click_point, corrected_goal,
+                                                        cfg_.goal_snap_max_distance)) {
+            requested_goal_p_ = click_point;
+            gi_.goal_p = corrected_goal;
             cout << GREEN << " -- [Fsm] Get goal at " << RESET << gi_.goal_p.transpose() << endl;
         } else {
             fmt::print(fg(fmt::color::indian_red), "Goal is deeply occupied, skip this goal.\n");

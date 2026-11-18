@@ -180,7 +180,7 @@ class ZAVPlaneApp:
         # )
 
         scenario = os.environ.get("ZAV_SUPER_SCENE", "warehouse")
-        if scenario in ("high_speed", "dense", "mixed"):
+        if scenario in ("high_speed", "dense", "mixed", "dasan"):
             from tools.super.pcd_scene import add_super_scene
             add_super_scene(self.world, scenario)
         elif scenario == "warehouse":
@@ -241,10 +241,20 @@ class ZAVPlaneApp:
         #    - PX4 MAVLink Backend (TCP 4560) 자동 장착
         #    - PX4 북쪽(NED North) 정렬을 위한 Yaw=+90도 자동 적용
         print("[Spawn] ZAV_v1 프리셋으로 기체 생성 중...")
+        spawn=[0.0, -50.0, 0.10] if scenario in ("high_speed", "dense", "mixed") else [0.0,0.0,0.10]
+        spawn_orientation=None
+        if scenario == 'dasan':
+            import json
+            recipe_path=_SIMULATOR_DIR/'assets/super/dasan_recipe.json'
+            mission_path=_SIMULATOR_DIR/'assets/super/dasan_mission.json'
+            recipe=json.loads((mission_path if mission_path.exists() else recipe_path).read_text())
+            spawn=recipe['spawn']
+            spawn_orientation=Rotation.from_euler('z',recipe['spawn_yaw']).as_quat()
         self.drone = ZAV_v1(
             stage_prefix="/World/quadrotor",
             vehicle_id=0,
-            init_pos=[0.0, -50.0, 0.10] if scenario in ("high_speed", "dense", "mixed") else [0.0, 0.0, 0.10],
+            init_pos=spawn,
+            init_orientation=spawn_orientation,
             lidar_config=MID360_CONFIG,
             camera_config=FRONT_CAMERA_CONFIG,
             imu_config=MID360_IMU_CONFIG,
@@ -332,6 +342,12 @@ class ZAVPlaneApp:
            - p_eye    = p_drone - (d_back * zoom_scale) * u_horiz + [0, 0, h_up * zoom_scale]^T
            - p_target = p_drone + d_look * u_horiz + [0, 0, h_look]^T
         """
+        if os.environ.get('ZAV_SCENE_VIEW') == 'overview':
+            if self._scenario_name == 'dasan':
+                self.pg.set_viewport_camera([-60.,-95.,80.], [30.,-10.,6.])
+            else:
+                self.pg.set_viewport_camera([65.,-80.,65.], [0.,0.,1.5])
+            return
         pos = self.drone.state.position
         quat = self.drone.state.attitude
 

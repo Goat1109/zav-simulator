@@ -30,6 +30,7 @@ class Controller : public rclcpp::Node {
   double touchdown_start_=-1.;
   double start_=0., last_sim_=0., last_step_=0., yaw_start_=0.,ground_=0.;
   bool allow_terminal_hold_=false;
+  bool exploration_hold_=false;
   bool use_px4_landing_=false, px4_land_started_=false;
   bool odom_ok_=false, active_=false, requested_=false, flight_=false, landing_=false, fault_=false;
   bool landed_=true, entered_offboard_=false, safety_latched_=false;
@@ -51,7 +52,7 @@ class Controller : public rclcpp::Node {
   rclcpp::Subscription<px4_msgs::msg::VehicleLandDetected>::SharedPtr land_sub_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr safety_sub_;
   rclcpp::Subscription<px4_msgs::msg::VehicleCommandAck>::SharedPtr ack_sub_;
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr start_service_, land_service_;
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr start_service_, land_service_, hold_service_;
   rclcpp::TimerBase::SharedPtr timer_;
   double elapsed(Steady::time_point t) const {return std::chrono::duration<double>(Steady::now()-t).count();}
   uint64_t stamp() const {return px4_stamp_+static_cast<uint64_t>(elapsed(px4_rx_)*1e6);}
@@ -97,6 +98,7 @@ class Controller : public rclcpp::Node {
       if (!std::isfinite(m.start_wt_pos) || m.start_wt_pos>last_sim_+1. ||
           m.start_wt_pos+p.getTotalDuration()<last_sim_) throw std::invalid_argument("Stale/future trajectory");
       trajectory_=p;yaw_=y;start_=m.start_wt_pos;yaw_start_=m.start_wt_yaw;
+      exploration_hold_=false;
     } catch (const std::exception &e) {RCLCPP_ERROR(get_logger(),"Rejected trajectory: %s",e.what());}
   }
   void tick() {
@@ -130,7 +132,7 @@ class Controller : public rclcpp::Node {
       return;
     }
     if (elapsed(begin_)>20. && arming_!=px4_msgs::msg::VehicleStatus::ARMING_STATE_ARMED) {
-      fail("PX4 refused arming within 20 seconds; inspect preflight/command ACK"); return;
+      fail(flight_ ? "PX4 disarmed before requested landing" : "PX4 refused arming within 20 seconds; inspect preflight/command ACK"); return;
     }
     if (entered_offboard_ && arming_==px4_msgs::msg::VehicleStatus::ARMING_STATE_ARMED &&
         nav_!=px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_OFFBOARD) {
@@ -161,7 +163,7 @@ class Controller : public rclcpp::Node {
           command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_COMPONENT_ARM_DISARM,0.);
           requested_=active_=false;report("LANDED");return;
         }
-      } else {
+      } else if (!exploration_hold_) {
         hold_[2]=std::min(takeoff_height_,hold_[2]+climb_speed_*dt);
         flight_=flight_ || (std::abs(state_.p.z()-takeoff_height_)<.15 && std::abs(state_.v.z())<.3);
       }
@@ -171,6 +173,10 @@ class Controller : public rclcpp::Node {
       if (elapsed(heartbeat_rx_)>1.) {
         if (!allow_terminal_hold_ ||
             !zav_super::terminal_stop_reached(trajectory_,t,state_.p,state_.v)) {
+          const double end=trajectory_.getTotalDuration();
+          RCLCPP_ERROR(get_logger(),"Terminal check: t=%.6f end=%.6f error=%.6f speed=%.6f end_v=%.9f end_a=%.9f end_j=%.9f",
+            t,end,(state_.p-trajectory_.getPos(end)).norm(),state_.v.norm(),
+            trajectory_.getVel(end).norm(),trajectory_.getAcc(end).norm(),trajectory_.getJer(end).norm());
           fail("SUPER trajectory heartbeat expired");return;
         }
         RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 5000,
@@ -264,11 +270,23 @@ public:
         r->success=odom_ok_ && elapsed(odom_rx_)<.5 && !fault_ && !safety_latched_ && !requested_;
         if(r->success) {
           requested_=true; active_=false; flight_=false; landing_=false;
+          exploration_hold_=false;
           entered_offboard_=false; touchdown_start_=-1.; failures_=0;
           px4_land_started_=false;
           trajectory_.clear(); yaw_.clear();
         }
         r->message=r->success?"OMMPC takeoff requested":"Need fresh LIO and idle, healthy controller";
+      });
+    hold_service_=create_service<std_srvs::srv::Trigger>("/zav/super/hold",
+      [this](const std_srvs::srv::Trigger::Request::SharedPtr, std_srvs::srv::Trigger::Response::SharedPtr r){
+        r->success=active_ && flight_ && !landing_ && !fault_ && elapsed(odom_rx_)<.5 && state_.v.norm()<.3;
+        if(r->success){
+          hold_.head<3>()=state_.p;
+          const auto rotation=state_.q.toRotationMatrix();hold_[3]=std::atan2(rotation(1,0),rotation(0,0));
+          trajectory_.clear();yaw_.clear();exploration_hold_=true;
+          report("READY");
+        }
+        r->message=r->success?"Stopped exploration endpoint hold requested":"Need fresh, stopped, healthy airborne feedback";
       });
     land_service_=create_service<std_srvs::srv::Trigger>("/zav/super/land",
       [this](const std_srvs::srv::Trigger::Request::SharedPtr, std_srvs::srv::Trigger::Response::SharedPtr r){

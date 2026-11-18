@@ -89,6 +89,12 @@ def analyze(directory, window_s=.21):
         summary['sources'][key]={'samples':len(streams[key]),'segments':len(parts),
             'effective_windows_s':[p['window_s']for p in parts],
             'tracking':peaks(parts,True),'full_record':peaks(parts,False)}
+    summary['mission_status']=metadata.get('last_mission_status')
+    summary['mission_complete']=(metadata.get('last_mission_status',{}).get('phase')=='COMPLETED' and last_state=='LANDED')
+    mission=metadata.get('last_mission_status',{})
+    summary['route_complete']=(mission.get('phase')in('COMPLETED','WAITING_PATH') and
+        mission.get('total_waypoints',0)>0 and mission.get('reached_waypoints',0)>=mission['total_waypoints'])
+    summary['landing_complete']=last_state=='LANDED'
     for source_info in summary['sources'].values():
         for scope in ('tracking','full_record'):
             for item in source_info[scope].values():
@@ -134,7 +140,7 @@ def analyze(directory, window_s=.21):
     report=f'''<!doctype html><html lang="ko"><meta charset="utf-8"><title>SUPER 주행 데이터</title>
 <style>body{{font:16px system-ui,sans-serif;background:#f3f5f8;color:#172234;max-width:1200px;margin:36px auto;padding:0 20px}}h1{{margin-bottom:8px}}.cards{{display:flex;gap:16px;flex-wrap:wrap}}.card{{background:white;border-radius:12px;padding:20px;flex:1;min-width:200px;display:grid;gap:10px}}strong{{font-size:30px}}small{{font-size:16px}}img{{width:100%;background:white;border-radius:12px;margin:20px 0}}p{{line-height:1.7}}a{{color:#245acc}}</style>
 <h1>SUPER 주행 데이터 · {title}</h1><p>{html.escape(metadata.get('created_at',''))}<br>
-기록 종료: {html.escape(metadata.get('completion','unknown'))} · 최종 제어 상태: {html.escape(last_state)}<br>기준: {'Isaac 실제 기체 body' if primary=='truth' else 'LIO 추정값 (실제 기체 데이터 없음)'} · {'주행 TRACKING 구간' if tracking else '전체 기록 (TRACKING 구간 없음)'} · 시간: 시뮬레이션 초</p>
+경로 구간 완료: {summary['route_complete']} · 착륙 완료: {summary['landing_complete']} · 전체 임무 완료: {summary['mission_complete']} · 최종 제어 상태: {html.escape(last_state)}<br>기준: {'Isaac 실제 기체 body' if primary=='truth' else 'LIO 추정값 (실제 기체 데이터 없음)'} · {'주행 TRACKING 구간' if tracking else '전체 기록 (TRACKING 구간 없음)'} · 시간: 시뮬레이션 초</p>
 <div class="cards">{cards(chosen)}</div><p>속도·가속도·저크는 3차원 벡터의 크기입니다. 가속도는 중력을 제외한 이동 가속도입니다.
 가속도·저크는 속도 벡터를 약 {window_s:.2f}초 평활 미분한 값이며, 필터 폭에 따라 피크가 달라집니다. 각 연속 구간 양끝 반 윈도는 제외합니다.
 주황색은 LIO 추정값으로, 미분 과정에서 추정 오차가 확대될 수 있습니다. 회색 점선은 설정값이며 실제 기체의 엄격한 상한을 뜻하지 않습니다.</p>

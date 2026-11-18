@@ -137,4 +137,12 @@ install(DIRECTORY
 )
 
 
+if(BUILD_TESTING)
+  enable_testing()
+  add_executable(yaw_guidance_test test/yaw_guidance.cpp)
+  target_link_libraries(yaw_guidance_test PUBLIC super ${third_party_libs})
+  ament_target_dependencies(yaw_guidance_test PUBLIC ${ros_libs})
+  add_test(NAME yaw_guidance COMMAND yaw_guidance_test)
+endif()
+
 ament_package()

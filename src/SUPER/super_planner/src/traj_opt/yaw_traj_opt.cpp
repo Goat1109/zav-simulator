@@ -139,7 +139,20 @@ namespace traj_opt {
         VecDf times;
         getYawTimeAllocation(pos_traj_dur, times);
         VecDf way_pts;
-        getYawWaypointAllocation(init_state, goal_state, way_pts, times, pos_traj);
+        if (free_goal_) {
+            getYawWaypointAllocation(init_state, goal_state, way_pts, times, pos_traj);
+        } else {
+            // An upstream exploration yaw is independent of flight direction.
+            // Velocity-facing internal waypoints would turn away from that yaw
+            // and then demand a reversal at every lookahead endpoint.
+            geometry_utils::normalizeNextYaw(init_state[0], goal_state[0]);
+            way_pts.resize(times.size()-1);
+            double elapsed=0.;
+            for (int i=0;i<way_pts.size();++i) {
+                elapsed+=times(i);
+                way_pts(i)=init_state[0]+(goal_state[0]-init_state[0])*elapsed/pos_traj_dur;
+            }
+        }
         Trajectory yaw_traj;
         switch (order) {
             case 3: {

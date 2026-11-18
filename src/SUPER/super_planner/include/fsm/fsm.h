@@ -59,6 +59,7 @@ namespace fsm {
         double yaw_{0}, yaw_dot_{0};
 
         rog_map::RobotState robot_state_;
+        Vec3f requested_goal_p_{Vec3f::Zero()};
 
         // params
         bool started_{false}, plan_from_rest_{false};
