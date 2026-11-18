@@ -29,6 +29,9 @@
 
 
 #include "fsm/fsm.h"
+#include "fsm/terminal_hold.hpp"
+#include <thread>
+#include <numeric>
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/create_timer.hpp>
@@ -60,6 +63,12 @@ namespace fsm {
         nav_msgs::msg::Path path;
 
         vector<mars_quadrotor_msgs::msg::PositionCommand> cmd_logs_;
+        rclcpp::Node::SharedPtr execution_node_;
+        rclcpp::executors::SingleThreadedExecutor execution_executor_;
+        rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr execution_odom_;
+        rclcpp::TimerBase::SharedPtr execution_heartbeat_;
+        std::thread execution_thread_;
+        std::atomic<double> execution_until_{-1.}, execution_start_{0.}, execution_odom_wall_{-1.};
 
         void resetVisualizedPath() override {
             path.poses.clear();
@@ -85,6 +94,15 @@ namespace fsm {
             mars_quadrotor_msgs::msg::PolynomialTrajectory cmd_traj;
             getCommittedTrajectory(cmd_traj);
             mpc_cmd_pub_->publish(cmd_traj);
+            // Execution of an already committed trajectory must not be blocked
+            // by a long optimization in the planner's single-thread executor.
+            execution_start_=cmd_traj.start_wt_pos;
+            execution_until_=cmd_traj.start_wt_pos+std::accumulate(cmd_traj.time_pos.begin(),cmd_traj.time_pos.end(),0.);
+            const auto position=planner_ptr_->getCommittedPositionTrajectory();
+            const double end=position.getTotalDuration();
+            if (position.getPieceNum()==0 || !position.getVel(end).allFinite() ||
+                position.getVel(end).norm()>1e-3 || position.getAcc(end).norm()>1e-3 ||
+                position.getJer(end).norm()>1e-3) execution_until_=-1.;
         }
 
         void getOneHeartBeatMsg(mars_quadrotor_msgs::msg::PolynomialTrajectory &heartbeat, bool &traj_finish) {
@@ -184,6 +202,8 @@ namespace fsm {
         FsmRos2() = default;
 
         ~FsmRos2() {
+            execution_executor_.cancel();
+            if (execution_thread_.joinable()) execution_thread_.join();
             saveReplanLogToFile();
         };
 
@@ -317,6 +337,28 @@ namespace fsm {
             cmd_pub_ = nh_->create_publisher<mars_quadrotor_msgs::msg::PositionCommand>(cfg_.cmd_topic, qos);
             mpc_cmd_pub_ = nh_->create_publisher<mars_quadrotor_msgs::msg::PolynomialTrajectory>(cfg_.mpc_cmd_topic,
                                                                                                  qos);
+            execution_node_=std::make_shared<rclcpp::Node>("super_committed_execution",
+                rclcpp::NodeOptions().parameter_overrides({rclcpp::Parameter("use_sim_time",true)}));
+            execution_odom_=execution_node_->create_subscription<nav_msgs::msg::Odometry>(
+                map_ptr_->getMapConfig().odom_topic,rclcpp::SensorDataQoS(),
+                [this](nav_msgs::msg::Odometry::SharedPtr m) {
+                    const auto &p=m->pose.pose.position;const auto &v=m->twist.twist.linear;
+                    if (std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z)&&
+                        std::isfinite(v.x)&&std::isfinite(v.y)&&std::isfinite(v.z))
+                        execution_odom_wall_=std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
+                });
+            execution_heartbeat_=execution_node_->create_wall_timer(std::chrono::milliseconds(20),[this]() {
+                const double wall=std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
+                const auto now=execution_node_->now();
+                // Never extend a trajectory or certify an expired moving plan.
+                // Stale feedback, emergency stop and controller timeout remain
+                // independent; the old backup may only execute to its own end.
+                if (stop || machine_state_!=FOLLOW_TRAJ || wall-execution_odom_wall_.load()>.1 || now.seconds()>=execution_until_.load()) return;
+                mars_quadrotor_msgs::msg::PolynomialTrajectory m;m.header.frame_id="world";
+                m.header.stamp=now;m.type=m.HEART_BEAT;m.start_wt_pos=execution_start_.load();mpc_cmd_pub_->publish(m);
+            });
+            execution_executor_.add_node(execution_node_);
+            execution_thread_=std::thread([this](){execution_executor_.spin();});
             path_pub_ = nh_->create_publisher<nav_msgs::msg::Path>("fsm/path", qos);
 
             int cmd_cnt = 0;
@@ -387,6 +429,24 @@ namespace fsm {
             if (stop) {
                 return;
             }
+            if (machine_state_ == WAIT_GOAL && traj_finish_ && !gi_.new_goal) {
+                planner_ptr_->getRobotState(robot_state_);
+                const auto trajectory=planner_ptr_->getCommittedPositionTrajectory();
+                if (trajectory.getPieceNum()>0 && robot_state_.rcv && robot_state_.v.allFinite()) {
+                    const double end=trajectory.getTotalDuration();
+                    const auto endpoint=trajectory.getPos(end);
+                    const bool occupied=!endpoint.allFinite() || map_ptr_->isOccupiedInflate(endpoint);
+                    if (terminalHoldHeartbeatAllowed(trajectory,
+                            ros_ptr_->getSimTime()-trajectory.start_WT,robot_state_.p,
+                            ros_ptr_->getSimTime()-robot_state_.rcv_time,occupied)) {
+                        mars_quadrotor_msgs::msg::PolynomialTrajectory heartbeat;
+                        bool finished;
+                        getOneHeartBeatMsg(heartbeat,finished);
+                        mpc_cmd_pub_->publish(heartbeat);
+                    }
+                }
+                return;
+            }
             if (machine_state_ != FOLLOW_TRAJ && machine_state_ != EMER_STOP) {
                 return;
             }
@@ -398,6 +458,15 @@ namespace fsm {
             mpc_cmd_pub_->publish(heartbeat);
             cmd_pub_->publish(pid_cmd_);
             if (traj_finish_) {
+                planner_ptr_->getRobotState(robot_state_);
+                // Position alone can be within 10 cm while the vehicle is still
+                // braking. Leaving FOLLOW_TRAJ then stops heartbeat prematurely.
+                // Keep publishing the finished reference until genuinely at rest;
+                // the controller's independent timeout/terminal guards stay intact.
+                if (closeToGoal(0.1) &&
+                    (!robot_state_.v.allFinite() || robot_state_.v.norm() > 0.1)) {
+                    return;
+                }
                 cout << GREEN << " -- [Fsm] Traj finish." << RESET << endl;
                 if (closeToGoal(0.1)) {
                     ChangeState("PubCmdCallback", WAIT_GOAL);

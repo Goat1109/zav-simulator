@@ -294,11 +294,10 @@ class Vehicle(Robot):
         # Get the current position and orientation in the inertial frame
         pose = self.get_dc_interface().get_rigid_body_pose(body)
 
-        # Get the attitude according to the convention [w, x, y, z]
-        prim = self._world.stage.GetPrimAtPath(self._stage_prefix + "/body")
-        rotation_quat = get_world_transform_xform(prim).GetQuaternion()
-        rotation_quat_real = rotation_quat.GetReal()
-        rotation_quat_img = rotation_quat.GetImaginary()
+        # Read orientation from the same physics pose as position/velocities.
+        # USD transforms update on render frames; mixing them into 200 Hz
+        # inertial samples creates a render-period attitude delay.
+        orientation = np.array([pose.r.x, pose.r.y, pose.r.z, pose.r.w])
 
         # Get the angular velocity of the vehicle expressed in the body frame of reference
         ang_vel = self.get_dc_interface().get_rigid_body_angular_velocity(body)
@@ -314,9 +313,7 @@ class Vehicle(Robot):
         self._state.position = np.array(pose.p)
 
         # Get the quaternion according in the [qx,qy,qz,qw] standard
-        self._state.attitude = np.array(
-            [rotation_quat_img[0], rotation_quat_img[1], rotation_quat_img[2], rotation_quat_real]
-        )
+        self._state.attitude = orientation
 
         # Express the velocity of the vehicle in the inertial frame X_dot = [x_dot, y_dot, z_dot]
         self._state.linear_velocity = np.array(linear_vel)

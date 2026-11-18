@@ -59,3 +59,37 @@ for tcp in (True,False):
         assert len(node.publishers)==3 and all(len(p.messages)==1 for p in node.publishers)
         assert not any(s.frames for s in streams.values())
 print('PUBLICATION_OK: actual IMU/RGB/XYZ methods use exactly one transport; CDR clock/payload valid')
+
+# A completed RTX frame is read one callback later. Delivery time must not
+# relabel the point acquisitions; also follow small float32 clock drift.
+import os
+import sys
+import types
+node_attributes={'outputs:timestampPtr':123,'outputs:cudaDeviceIndex':-1}
+annotator=Annotator()
+annotator.get_node=lambda:SimpleNamespace(get_attribute=lambda key:SimpleNamespace(get=lambda:node_attributes[key]))
+current_native=[1_000_000_000]
+warp=types.ModuleType('warp');warp.uint64=np.uint64
+warp.array=lambda **kw:SimpleNamespace(numpy=lambda:np.array(current_native,dtype=np.uint64))
+rtx=types.ModuleType('isaacsim.sensors.rtx')
+gmo=SimpleNamespace(frameEnd=SimpleNamespace(timestampNs=1_010_000_000))
+rtx.get_gmo_data=lambda _:gmo
+sys.modules['warp']=warp;sys.modules['isaacsim.sensors.rtx']=rtx
+namespace['os']=SimpleNamespace(environ={})
+received=[]
+packetizer=SimpleNamespace(push=lambda result,stamp:received.append(result['timestamp'].copy()) or [])
+backend._python_lidars={'mid360':('render',annotator,None)}
+backend._lidar_gmo={'mid360':SimpleNamespace(get_data=lambda:None)}
+backend._livox_packetizers={'mid360':packetizer}
+backend._lidar_clock_offsets={'mid360':-860_000_000}
+backend._lidar_streams={'livox:mid360':Stream()}
+backend._lidar_previous_render_times={'mid360':150_000_000}
+backend._vehicle._world.current_time=.2
+backend._lidar_first_cloud_logged={'mid360'}
+backend._publish_python_lidar({'lidar_name':'mid360','livox_tcp_port':17445})
+assert received[-1].tolist()==[140_000_000],received
+backend._vehicle._world.current_time=.249999999
+current_native[0]=1_050_000_001;gmo.frameEnd.timestampNs=1_060_000_001
+backend._publish_python_lidar({'lidar_name':'mid360','livox_tcp_port':17445})
+assert received[-1].tolist()==[190_000_000],received
+print('PASS: Livox acquisition clock uses the preceding completed render, preserves per-point times and follows drift')

@@ -52,13 +52,14 @@ def write_pcd(path,xyz,rgb=None):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mapping',type=Path)
+    parser.add_argument('--name',choices=('dasan','frontier'),default='dasan')
     parser.add_argument('--resolution',type=float,default=.1)
     args=parser.parse_args();root=args.mapping
     capture=json.loads((root/'capture.json').read_text())
     if not capture['complete']:raise ValueError('Replay did not complete')
     xyz,_=merge(sorted((root/'fragments').glob('full_*.npz')),args.resolution)
     coloured,rgb=merge(sorted((root/'fragments').glob('rgb_*.npz')),args.resolution,True)
-    write_pcd(root/'dasan_raw.pcd',xyz)
+    write_pcd(root/f'{args.name}_raw.pcd',xyz)
     write_pcd(root/'native_rgb.pcd',coloured,rgb)
     distance,nearest=cKDTree(coloured).query(xyz,distance_upper_bound=.15,workers=4)
     direct=np.isfinite(distance);colors=np.full((len(xyz),3),128,dtype=np.uint8)

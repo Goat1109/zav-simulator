@@ -1,6 +1,6 @@
 # SUPER 혼합 맵과 공통 파라미터 주행
 
-`mixed`는 개방→밀집→개방 구간을 한 장면에 합친 물리 시뮬레이션 맵이다. 기존 high_speed/dense 입력·YAML은 보존하며, 세 장면 모두 `src/zav_super/config/common_super_lio.yaml`을 명시해 같은 SUPER/OMMPC/Super-LIO 설정으로 주행할 수 있다. 환경별 파라미터 전환이나 별도 속도 제어 정책은 추가하지 않았다. zone 라벨, 원본 PCD와 ground truth는 planner/controller 입력으로 사용하지 않는다.
+`mixed`는 개방→밀집→개방 구간을 한 장면에 합친 물리 시뮬레이션 맵이다. 기존 high_speed/dense 입력·YAML은 보존하며, 세 장면 모두 `src/zav_super/config/common.yaml`을 명시해 같은 SUPER/OMMPC/Super-LIO 설정으로 주행할 수 있다. 환경별 파라미터 전환이나 별도 속도 제어 정책은 추가하지 않았다. zone 라벨, 원본 PCD와 ground truth는 planner/controller 입력으로 사용하지 않는다.
 
 ## 실행
 

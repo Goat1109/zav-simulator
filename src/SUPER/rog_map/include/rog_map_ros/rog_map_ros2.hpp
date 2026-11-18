@@ -93,7 +93,11 @@ namespace rog_map {
                                                   odom_msg->pose.pose.orientation.x,
                                                   odom_msg->pose.pose.orientation.y,
                                                   odom_msg->pose.pose.orientation.z)));
-
+            // The SUPER odometry input provides linear velocity in world axes.
+            // Retain it for measured stopping checks and guide-path timing.
+            robot_state_.v = Vec3f(odom_msg->twist.twist.linear.x,
+                                  odom_msg->twist.twist.linear.y,
+                                  odom_msg->twist.twist.linear.z);
 
             geometry_msgs::msg::TransformStamped transformStamped;
             transformStamped.header.stamp = nh_->get_clock()->now();

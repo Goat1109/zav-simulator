@@ -21,3 +21,9 @@ continuous-floor handling.
 Dasan is reconstructed from the user-provided raw bag, with native FAST-LIVO2 camera RGB
 on the measured surfaces. Generated assets stay local. See
 [Dasan conversion](../../../docs/dasan-map.md) for reproduction and GUI validation.
+
+Frontier follows the same local-asset policy: the raw bag, reconstructed PCD/RGB,
+generated USD and mission files are not committed. See
+[Frontier conversion](../../../docs/frontier-navigation.md) and
+[full-floor route validation](../../../docs/frontier-all-floors.md) for preparation,
+the continuous route and the two collision-free full-route SITL runs.

@@ -24,6 +24,9 @@ from sensor_msgs.msg import PointCloud2
 
 
 def cloud_values(msg, color):
+    if not msg.width or not msg.height:
+        xyz=np.empty((0,3),dtype=np.float32)
+        return (xyz,np.empty((0,3),dtype=np.uint8)) if color else xyz
     fields={f.name:f for f in msg.fields}
     offset=[fields[k].offset for k in ('x','y','z')]
     xyz=np.column_stack([np.ndarray((msg.height,msg.width),dtype='<f4',buffer=msg.data,
@@ -42,12 +45,15 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--rate',type=float,default=1.)
     parser.add_argument('--domain',type=int,default=72)
+    parser.add_argument('--image-cov',type=float,help='Offline reconstruction-only visual measurement covariance override')
+    parser.add_argument('--lidar-only',action='store_true',help='Diagnostic FAST-LIVO2 LiDAR/IMU mode without visual updates')
     args=parser.parse_args()
     ws=Path(__file__).resolve().parents[3];out=args.output.resolve()
     out.mkdir(parents=True,exist_ok=False);(out/'fragments').mkdir()
     params=yaml.safe_load((ws/'src/FAST-LIVO2/config/zenith.yaml').read_text())
     p=params['/laserMapping']['ros__parameters']
-    p['common']['img_en']=1
+    p['common']['img_en']=0 if args.lidar_only else 1
+    if args.image_cov is not None:p['vio']['img_point_cov']=args.image_cov
     p['pcd_save']['pcd_save_en']=False
     p['evo']['pose_output_en']=False
     p['use_sim_time']=True

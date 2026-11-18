@@ -546,6 +546,14 @@ class ROS2Backend(Backend):
     def _publish_python_lidar(self, data):
         """Read the RTX annotator on the render callback and publish XYZ on ROS 2."""
         name = data["lidar_name"]
+        # Kit's render callback reads the preceding completed GMO frame.
+        # Remember its simulation clock even during annotator warm-up; the
+        # delivery clock is one render interval newer than acquisition.
+        stamp_ns = round(float(self._vehicle._world.current_time) * 1e9)
+        previous = getattr(self, '_lidar_previous_render_times', {})
+        acquisition_end_ns = previous.get(name)
+        previous[name] = stamp_ns
+        self._lidar_previous_render_times = previous
         if name not in self._python_lidars:
             render_product = rep.create.render_product(
                 data["stage_prim_path"], [1, 1], name=name
@@ -610,12 +618,15 @@ class ROS2Backend(Backend):
             # Only read scalar GMO header fields; array fields can be GPU
             # pointers and must not be dereferenced as host numpy arrays.
             gmo = get_gmo_data(self._lidar_gmo[name].get_data())
-            offset = stamp_ns - int(gmo.frameEnd.timestampNs)
+            if acquisition_end_ns is None:
+                return
+            offset = acquisition_end_ns - int(gmo.frameEnd.timestampNs)
             if name not in self._lidar_clock_offsets or abs(offset - self._lidar_clock_offsets[name]) > 100_000_000:
                 # RTX's clock continues while the timeline is paused. Restart
                 # partial packet assembly when the clock relation changes.
-                self._lidar_clock_offsets[name] = offset
                 self._livox_packetizers.pop(name, None)
+            # Track float32 simulation-clock drift as well as renderer pauses.
+            self._lidar_clock_offsets[name] = offset
             result = dict(result)
             result["timestamp"] = native_timestamps.astype(np.int64) + self._lidar_clock_offsets[name]
             if name not in self._livox_packetizers:

@@ -21,3 +21,6 @@
 
 /dasan_mission_*.json
 /dasan_mission_*.npz
+
+# Reconstructed Frontier sensor bag and derived missions.
+/frontier*

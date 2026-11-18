@@ -27,3 +27,22 @@ TEST(ImuRepropagation, DelayedScanWithoutCorrectionDoesNotInventRotation) {
   EXPECT_NEAR(change,4.1*.005,2e-5); // Trapezoidal gyro integral: 1.1746 degrees.
   EXPECT_FALSE(filter.Predict(samples[41],current,robot)); // duplicate measurement
 }
+
+TEST(ImuRepropagation, ScanBoundaryBetweenImusKeepsTheCompleteRotation) {
+  g_gravity_norm=9.80665;
+  ESKF::Options options;
+  ESKF filter(options);
+  filter.SetInitialConditions(options,V3::Zero(),V3::Zero(),1.f,V3(0,0,-g_gravity_norm));
+  SysState initial; initial.timestamp=0.; filter.SetX(initial); filter.init_=true;
+  IMUData m; m.acc=V3(0,0,g_gravity_norm); m.gyr=V3(0,0,1.);
+  for(int scan=1;scan<=10;++scan) {
+    const double end=scan*.1-.002;
+    filter.SetObsTime(end);
+    const int first=scan==1?0:(scan-1)*20;
+    for(int i=first;i<=scan*20;++i) {m.secs=i*.005; filter.Predict(m);}
+    EXPECT_NEAR(filter.GetTime(),end,1e-8);
+    const auto rotation=SO3(filter.GetSE3().R_).log_vee();
+    EXPECT_NEAR(rotation.z(),end,2e-5);
+    filter.SetLastObsTime(end);
+  }
+}

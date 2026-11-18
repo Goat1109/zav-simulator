@@ -17,6 +17,8 @@ import math
 
 spec=importlib.util.spec_from_file_location('bag_mission',Path(__file__).resolve().parents[1]/'src/benchmark_mission.py')
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+spec=importlib.util.spec_from_file_location('bag_publisher',Path(__file__).resolve().parents[3]/'simulator/tools/super/publish_bag_route.py')
+publisher_module=importlib.util.module_from_spec(spec);spec.loader.exec_module(publisher_module)
 
 
 class Landing:
@@ -29,6 +31,32 @@ class Landing:
 
 
 class PathProgress(unittest.TestCase):
+    def test_rigid_correction_preserves_progress_and_preview(self):
+        f=module.PolylineFollower([(0.,0.,1.),(0.,10.,1.),(0.,0.,1.)],4.,[0.,0.,None])
+        f.update((0.,4.,1.));before=(f.progress,f.segment,f.target_arc,list(f.arc))
+        f.correct_frame([[0.,-1.,0.],[1.,0.,0.],[0.,0.,1.]],[2.,3.,0.])
+        self.assertEqual((f.progress,f.segment,f.target_arc,f.arc),before)
+        self.assertEqual(f.points[1],(-8.,3.,1.));self.assertAlmostEqual(f.yaws[0],math.pi/2)
+        self.assertEqual(f.update((-2.,3.,1.)),(-6.,3.,1.))
+        with self.assertRaises(ValueError):f.correct_frame([[2.,0.,0.],[0.,1.,0.],[0.,0.,1.]],[0.,0.,0.])
+    def test_blocked_loop_fallback_joins_return_without_skipping_a_floor(self):
+        route=[(0.,0.,1.),(0.,5.,1.),(0.,10.,1.),(0.,5.,1.),(0.,0.,1.)]
+        index,removed=publisher_module.find_return_join(route,4.5,(0.,4.5,1.))
+        self.assertEqual(index,3);self.assertAlmostEqual(removed,10.)
+        multi_floor=[(0.,0.,1.),(0.,6.,1.),(0.,6.,5.),(0.,5.,5.),(0.,5.,1.),(0.,0.,1.)]
+        self.assertIsNone(publisher_module.find_return_join(multi_floor,0.,(0.,0.,1.)))
+
+    def test_preview_cannot_cut_stair_landing_but_straight_path_keeps_preview(self):
+        f=module.PolylineFollower([(0.,0.,1.),(3.,0.,1.),(3.,3.,3.)],12.,max_chord_error=.15)
+        target=f.update((0.,0.,1.))
+        self.assertLess(math.dist(target,(3.,0.,1.)),.16)
+        before=f.target_arc
+        target=f.update((2.9,0.,1.))
+        self.assertGreaterEqual(f.target_arc,before)
+        self.assertGreater(target[2],2.)
+        straight=module.PolylineFollower([(0.,0.,1.),(3.,0.,2.),(6.,0.,3.)],4.,max_chord_error=.15)
+        self.assertAlmostEqual(math.dist(straight.update((0.,0.,1.)),(0.,0.,1.)),4.)
+
     def test_preview_uses_existing_braking_limits_without_changing_them(self):
         self.assertEqual(module.braking_lookahead(4.,0.,6.,10.,15.),4.)
         self.assertGreater(module.braking_lookahead(4.,5.,6.,10.,15.),8.)
@@ -99,9 +127,38 @@ class BagMission(unittest.TestCase):
         n.progress_stamp=n.get_clock().now().nanoseconds*1e-9-61.
         n.tick();self.assertEqual(n.phase,'ABORTED');self.assertEqual(n.index,0)
         self.assertEqual(n.land.calls,1)
+    def test_unchanged_path_goal_is_retried_after_transient_rejection(self):
+        from types import SimpleNamespace
+        n=self.node;sent=[];n.publisher=SimpleNamespace(publish=sent.append);n.velocity.x=0.
+        n.follower=module.PolylineFollower([(0.,0.,1.5),(10.,0.,1.5)])
+        n.goals=[(10.,0.,1.5)];n.base_lookahead=4.
+        n.follow_path();self.assertEqual(len(sent),1)
+        n.last_path_goal_sim=n.get_clock().now().nanoseconds*1e-9-2.
+        n.follow_path();self.assertEqual(len(sent),2)
+        self.assertEqual(sent[0].pose.position,sent[1].pose.position)
     def test_controller_fault_is_failure(self):
         n=self.node;n.status='FAULT: test';n.tick()
         self.assertEqual(n.phase,'ABORTED');self.assertEqual(n.land.calls,1)
+
+    def test_bounded_corner_goal_is_not_republished_when_unchanged(self):
+        from types import SimpleNamespace
+        n=self.node;sent=[];n.publisher=SimpleNamespace(publish=sent.append);n.velocity.x=1.
+        points=[(0.,0.,1.5),(2.,0.,1.5),(2.,2.,1.5)]
+        n.follower=module.PolylineFollower(points,max_chord_error=.15)
+        n.goals=points[1:];n.base_lookahead=4.
+        n.follow_path();n.follow_path()
+        self.assertEqual(len(sent),1)
+        self.assertGreater(math.dist(n.last_target,points[-1]),1.)
+
+    def test_exact_endpoint_is_sent_even_below_goal_update_spacing(self):
+        from types import SimpleNamespace
+        n=self.node;sent=[];n.publisher=SimpleNamespace(publish=sent.append);n.velocity.x=1.
+        points=[(0.,0.,1.5),(2.,0.,1.5)]
+        n.follower=module.PolylineFollower(points);n.goals=points[1:];n.base_lookahead=4.
+        n.last_target=(1.8,0.,1.5)
+        n.follow_path()
+        self.assertEqual(len(sent),1)
+        self.assertEqual(sent[0].pose.position.x,2.)
 
     def exploration_message(self):
         msg=NavPath();msg.header.frame_id='world'
@@ -116,10 +173,27 @@ class BagMission(unittest.TestCase):
         self.assertEqual(n.route_revision,1);self.assertEqual(len(n.goals),2)
         n.follower.update((2.2,0.,1.5));progress=n.follower.progress
         self.assertAlmostEqual(n.follower.target_yaw,math.pi/2)
+        follower=n.follower;target_arc=follower.target_arc
+        msg.header.stamp.sec=123  # Heartbeat re-publication, same ordered path.
         n.exploration_path(msg)
         self.assertEqual(n.route_revision,1);self.assertEqual(n.follower.progress,progress)
+        self.assertIs(n.follower,follower);self.assertEqual(n.follower.target_arc,target_arc)
         replacement=self.exploration_message();replacement.poses[-1].pose.position.y=1.
         n.exploration_path(replacement);self.assertEqual(n.route_revision,2)
+
+    def test_stair_viewpoints_preserve_height_and_explicit_yaw(self):
+        n=self.node;n.route_source='external';msg=NavPath();msg.header.frame_id='world'
+        points=[(0.,0.,1.5,0.),(1.,0.,2.5,0.),(1.,1.,3.5,math.pi/2),(2.,1.,4.5,math.pi)]
+        for x,y,z,yaw in points:
+            pose=PoseStamped();pose.pose.position.x=x;pose.pose.position.y=y;pose.pose.position.z=z
+            pose.pose.orientation.z=math.sin(yaw/2);pose.pose.orientation.w=math.cos(yaw/2)
+            msg.poses.append(pose)
+        n.exploration_path(msg)
+        self.assertEqual(n.accepted_points,[p[:3]for p in points])
+        for actual,expected in zip(n.accepted_yaws,[p[3]for p in points]):self.assertAlmostEqual(actual,expected)
+        target=n.follower.update((.5,0.,2.))
+        self.assertGreater(target[2],2.5)
+        self.assertIsNotNone(n.follower.target_yaw)
 
     def test_invalid_live_route_keeps_previous_route(self):
         n=self.node;n.route_source='external';msg=self.exploration_message();n.exploration_path(msg)
@@ -137,6 +211,23 @@ class BagMission(unittest.TestCase):
         self.assertEqual(n.phase,'WAITING_PATH');self.assertEqual(n.land.calls,0)
         self.assertEqual(n.hold.calls,1)
         self.assertTrue(n.get_parameter('execute').value)
+
+    def test_continuous_stair_and_corner_vertices_do_not_request_hold(self):
+        n=self.node;n.route_source='external';msg=NavPath();msg.header.frame_id='world'
+        points=[(0.,0.,1.5),(1.,0.,2.5),(1.,2.,3.5),(3.,2.,3.5),(8.,2.,3.5)]
+        for x,y,z in points:
+            pose=PoseStamped();pose.pose.position.x=x;pose.pose.position.y=y;pose.pose.position.z=z
+            pose.pose.orientation.w=1.;msg.poses.append(pose)
+        n.exploration_path(msg);n.velocity.x=0.
+        for x,y,z in points[1:-1]:
+            n.position=Point(x=x,y=y,z=z)
+            for _ in range(3):n.tick()
+            self.assertEqual(n.hold.calls,0)
+            self.assertNotEqual(n.phase,'WAITING_PATH')
+        n.position=Point(x=8.,y=2.,z=3.5)
+        for _ in range(4):n.tick()
+        self.assertEqual(n.hold.calls,1);self.assertEqual(n.phase,'WAITING_PATH')
+        self.assertEqual(n.land.calls,0)
 
 
 if __name__=='__main__':unittest.main()

@@ -4,6 +4,10 @@ Isaac Sim **5.1.0** + Pegasus + PX4 **v1.14.3** 기반 GPS 없는 드론 시뮬�
 
 이 저장소의 `src/`에 ROS 패키지를 포함합니다. Pegasus 소스는 `simulator/pegasus/`에서 직접 관리합니다. PX4·Micro XRCE-DDS Agent만 설치 스크립트가 고정된 Git 커밋으로 내려받습니다. Isaac Sim 자체, 가상환경, 빌드 결과, 개인 BSON·로그는 포함하지 않습니다.
 
+SUPER의 모든 시나리오는 이제 `src/zav_super/config/common.yaml` 하나를 사용한다. 내용은 Dasan 최종 파라미터 그대로이며, 이전 YAML은 `src/zav_super/config_archive/20261118/`에 해시와 함께 보존했다. `--profile common`은 기존 명령 호환용으로 유지하며 기본값도 common이다.
+
+Frontier의 현재 시험 경로는 계단 상승 → 층별 긴 복도 끝 방문을 반복하는 500m 경로이며 지상 복귀는 없다. 현재 중간 강제 정지 없는 하나의 Path를 사용한다. 센서·추정 시각과 계획 실행을 수정한 trial30·31에서 두 번 연속 500.54m/203경유점 전체를 완료하고 최상층 자연 바닥 착륙을 확인했다. navigation 충격·관통 0건이며 common YAML과 중간 강제 정지 없는 경로를 유지했다. 이전 186m 성공 경로는 별도 보존했다. [전 층 경로/시험 기록](docs/frontier-all-floors.md), [FAST-LIVO2 지도 복원](docs/frontier-navigation.md)을 참고한다.
+
 ## 지원 환경
 
 | 환경 | 실행 구성 | 확인 범위 |
@@ -105,8 +109,8 @@ cd ~/zenith_ws
 ./run_super.sh --scenario mixed --backend super_lio --profile common --execute
 ```
 
-공통 설정은 `src/zav_super/config/common_super_lio.yaml`입니다. 현재 파라미터는
-튜닝 진행 중입니다. 맵 구성·GUI 검증·성공 및 실패 주행 결과는
+공통 설정은 `src/zav_super/config/common.yaml`이며 현재는 Dasan 최종값으로 통합했습니다.
+숲의 과거 맵 구성·GUI 검증·성공 및 실패 주행 결과는
 [혼합 맵 안내](docs/super-mixed-map.md)에 정리했습니다.
 
 ## Dasan 실측 bag 지도
@@ -116,6 +120,53 @@ cd ~/zenith_ws
 PCD·USD·복원 궤적·카메라 색상과 재생성 절차는 [Dasan 지도 안내](docs/dasan-map.md)에 있습니다.
 현재 기본 bag 경로는 약 117m 왕복입니다. [확장 경로와 시험 결과](docs/dasan-long-route.md)를 참고하세요.
 외부 탐사 경로의 연속 추종·갱신 입력과 복도 내부 bag 주행 구성·실험 결과는 [Dasan 주행 안내](docs/dasan-navigation.md)에 있습니다.
+
+## Frontier 주행과 여섯 가지 문제 해결
+
+Frontier bag은 FAST-LIVO2로 복원하고 실제 카메라 RGB를 입힌 PCD를 Isaac Sim 지형으로 변환했습니다.
+생성 지도와 임무 파일은 원본 bag으로 준비하는 로컬 자산이며 Git에는 포함하지 않습니다.
+복원·자산 생성 절차는 [Frontier 지도 안내](docs/frontier-navigation.md), 최종 경로와 검증 결과는
+[전 층 주행 기록](docs/frontier-all-floors.md)을 참고하세요.
+
+자산 준비 후 터미널 두 개에서 실행합니다. 두 번째 명령은 Isaac의 `[Ready]` 출력 이후 실행하며 RViz도 함께 엽니다.
+
+```bash
+# 터미널 1: Isaac Sim + PX4
+./run_super_sim.sh frontier
+# 터미널 2: Super-LIO → SUPER → OMMPC → PX4, RViz 및 bag 기반 상위 경로
+./run_super.sh --scenario frontier --execute
+```
+
+전 구간 시험 중 다음 여섯 가지 문제를 확인하고 수정했습니다.
+
+1. **물리 상태와 자세의 시각 불일치**
+   위치·속도는 200Hz 물리 상태를 읽으면서 자세는 20Hz 렌더링용 USD 값을 읽어 약 50ms 늦었습니다.
+   IMU의 specific force와 회전율 계산에 같은 시각의 상태가 들어가도록 자세도 Dynamic Control의 물리 pose에서 읽습니다.
+2. **LiDAR 획득 시각과 센서 움직임의 불일치**
+   렌더 콜백에서 읽은 이전 완료 프레임의 점군에 현재 전달 시각을 붙였고, Motion BVH도 꺼져 있었습니다.
+   Motion BVH를 켜고 해당 렌더 프레임의 시각으로 RTX 시계를 변환해 점별 획득 시각을 보존합니다.
+   고정 30ms/50ms 보정값 대신 실제 렌더 시각을 사용하며 작은 시계 드리프트도 반영합니다.
+3. **Super-LIO의 스캔 경계 IMU 적분 누락**
+   LiDAR 스캔 끝이 IMU 샘플 사이에 있으면 일부 운동 적분이 누락됐습니다.
+   경계 양쪽 IMU를 보간해 정확한 스캔 끝까지 적분하고, 다음 구간에 필요한 샘플은 큐에 유지합니다.
+   일정 회전 재현 테스트에서 수정 전 1초 동안 약 0.018rad가 누락되는 것을 확인했고 수정 후 테스트가 통과했습니다.
+4. **이동 중 재계획의 초기 상태 오류**
+   `PlanFromRest`가 움직이는 기체의 초기 속도를 0으로 두거나 빈 공간의 실제 위치를 격자 중심으로 옮기는 경우가 있었습니다.
+   최신 측정 위치·속도로 초기화하고, 실제 위치가 비점유이면 그 위치를 그대로 사용합니다.
+5. **계획 계산으로 인한 실행 heartbeat 지연**
+   같은 ROS 실행기에서 최적화가 오래 걸리면 이미 확정된 궤적의 heartbeat까지 지연됐습니다.
+   확정 궤적의 heartbeat를 별도 실행기로 분리했습니다. 신선한 odometry, 주행 상태, 정지 가능한 끝점과
+   궤적 유효 시간 안에서만 발행하며, 기존 제어기의 1초 timeout은 유지합니다.
+6. **지도 정합 시 경로 진행 초기화와 되돌아감**
+   이동 중 전체 Path를 다시 보내면 진행 상태가 초기화돼 이미 지난 경유점을 향하는 경우가 있었습니다.
+   정합 결과는 기존 경로의 강체 좌표 보정으로 전달하고, 경로 revision·segment·누적 진행 거리는 유지합니다.
+   미방문 복도 끝과 다음 계단 경유점을 보존합니다.
+
+수정 후 Isaac Sim과 RViz를 켜고 **500.54m·203개 경유점을 두 번 연속 완주**했습니다.
+긴 복도 4곳과 기록된 높이 구간 7곳을 방문한 뒤 최상층 자연 바닥에서 PX4 `LANDED`를 확인했습니다.
+두 실행 모두 최초 주행부터 최종 착륙 전까지의 충격·관통은 0건이며 끝점 대기도 검사에 포함했습니다.
+복도 단축·경로 생략·중간 강제 정지 없이 실행했고, `common.yaml`과 penalty·최대 속도·가속도·저크는 유지했습니다.
+이는 기록된 Frontier 경로의 SITL 검증 결과이며 실제 EPIC 노드나 실기체를 연결한 시험은 포함하지 않습니다.
 
 ## LIO 이상 감시와 착륙
 

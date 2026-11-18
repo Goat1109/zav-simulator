@@ -15,7 +15,7 @@ from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from nav_msgs.msg import Odometry, Path as NavPath
 from geometry_msgs.msg import PoseStamped
-from mars_quadrotor_msgs.msg import PolynomialTrajectory
+from mars_quadrotor_msgs.msg import PolynomialTrajectory, PositionCommand
 from rclpy.qos import QoSProfile, DurabilityPolicy
 from std_msgs.msg import String
 
@@ -39,7 +39,7 @@ def main():
         'frames':{'truth':'mounted IMU pose/twist in isaac_world/mid360_imu; converted offline to body origin/world ENU','lio':'body origin; linear velocity in world ENU'},
         'completion':'recording','samples':{'truth':0,'lio':0},'invalid_samples':0}
     def capture_scene():
-        if args.scenario not in ('mixed','dasan') or 'map_recipe' in metadata:
+        if args.scenario not in ('mixed','dasan','frontier') or 'map_recipe' in metadata:
             return
         assets = ws / 'simulator/assets/super'
         recipe, geometry = assets / f'{args.scenario}_recipe.json', assets / f'{args.scenario}.json'
@@ -104,6 +104,15 @@ def main():
             'duration':list(msg.time_pos),'x':list(msg.coef_pos_x),'y':list(msg.coef_pos_y),'z':list(msg.coef_pos_z),
             'yaw_start':msg.start_wt_yaw,'yaw_duration':list(msg.time_yaw),'yaw':list(msg.coef_yaw)})+'\n')
     node.create_subscription(PolynomialTrajectory,'/planning_cmd/poly_traj',trajectory,qos_profile_sensor_data)
+    def planner_command(msg):
+        def vector(v):return [v.x,v.y,v.z]
+        file.write(json.dumps({'event':'planner_command',
+            'stamp':msg.header.stamp.sec+msg.header.stamp.nanosec*1e-9,
+            'p':vector(msg.position),'v':vector(msg.velocity),
+            'a':vector(msg.acceleration),'j':vector(msg.jerk),
+            'trajectory_flag':int(msg.trajectory_flag),'yaw':msg.yaw})+'\n')
+    node.create_subscription(PositionCommand,metadata['planner']['fsm']['cmd_topic'],
+                             planner_command,qos_profile_sensor_data)
     node.create_subscription(NavPath,'/mission/global_path',path,QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
     node.create_timer(.5,file.flush)
     node.get_logger().info(f'Flight recording: {args.output}; report after landing or launcher Ctrl+C')

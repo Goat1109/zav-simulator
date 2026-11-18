@@ -238,28 +238,29 @@ bool ESKF::Predict(const IMUData& imu) {
     return false;
   }
 
-  if(imu.secs <= last_obs_time_){
-    last_imu_time_ = imu.secs;
-    last_imu_ = imu;
-    return false;
-  }
-  
-  current_time_ = imu.secs;
-
-  double dt;
-  if(last_imu_time_ < last_obs_time_){
-    dt = imu.secs - last_obs_time_;
-  }else if (imu.secs > current_obs_time_){
-    dt = current_obs_time_ - last_imu_time_;
-    current_time_ = current_obs_time_;
-  }else{
-    dt = imu.secs - last_imu_time_;
-  }
-
-  V3 acc = 0.5 * (imu.acc + last_imu_.acc);
+  // Keep the stored sample at the time actually integrated. A sample beyond
+  // a LiDAR boundary is shared with the next scan, never consumed in full here.
+  if (imu.secs < last_imu_time_) return false;
+  if (imu.secs == last_imu_time_) {last_imu_ = imu; return false;}
+  const double begin = std::max(last_imu_time_, last_obs_time_);
+  const double end = std::min(imu.secs, current_obs_time_);
+  if (end <= begin) return false;
+  auto at = [&](double time) {
+    IMUData value = last_imu_;
+    const scalar fraction = static_cast<scalar>((time-last_imu_time_) /
+                                                (imu.secs-last_imu_time_));
+    value.acc += fraction * (imu.acc-last_imu_.acc);
+    value.gyr += fraction * (imu.gyr-last_imu_.gyr);
+    value.secs = time;
+    return value;
+  };
+  const IMUData first = at(begin), last = at(end);
+  const double dt = end-begin;
+  current_time_ = end;
+  V3 acc = 0.5 * (first.acc + last.acc);
   acc = imu_scale_ * acc;
   acc = acc - ba_;
-  body_omega_ = 0.5 * (imu.gyr + last_imu_.gyr) - bg_;
+  body_omega_ = 0.5 * (first.gyr + last.gyr) - bg_;
   M3 Jr_dt = (dt * RightJacobianSO3(body_omega_, dt)).cast<scalar>();   // J_l(-phi) = J_r(phi)
 
   M3 R_m3 = R_.R_;
@@ -287,8 +288,8 @@ bool ESKF::Predict(const IMUData& imu) {
   v_ = v_ + global_acc_ * dt;
   R_ = R_ * SO3::Exp(body_omega_, dt);
 
-  last_imu_time_ = imu.secs;
-  last_imu_ = imu;
+  last_imu_time_ = end;
+  last_imu_ = last;
   return true;
 }
 

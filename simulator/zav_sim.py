@@ -48,7 +48,7 @@ if sys.platform == "win32":
 from isaacsim import SimulationApp
 
 # 정상 작동하던 기존 설정으로 복원
-simulation_app = SimulationApp({"headless": os.environ.get("ZAV_HEADLESS", "0") == "1", "sync_loads": False})
+simulation_app = SimulationApp({"headless": os.environ.get("ZAV_HEADLESS", "0") == "1", "sync_loads": False, "enable_motion_bvh": True})
 
 # 초기화 중 확장 모듈 로딩 충돌 여부 확인
 for _ in range(5):
@@ -180,7 +180,7 @@ class ZAVPlaneApp:
         # )
 
         scenario = os.environ.get("ZAV_SUPER_SCENE", "warehouse")
-        if scenario in ("high_speed", "dense", "mixed", "dasan"):
+        if scenario in ("high_speed", "dense", "mixed", "dasan", "frontier"):
             from tools.super.pcd_scene import add_super_scene
             add_super_scene(self.world, scenario)
         elif scenario == "warehouse":
@@ -230,6 +230,12 @@ class ZAVPlaneApp:
                 }
             )
 
+        # Indoor roofs block the distant stage light. Use the viewport's camera
+        # light for inspection; mesh colors, collision and LiDAR stay unchanged.
+        if scenario in ('dasan','frontier') and os.environ.get('ZAV_HEADLESS','0')!='1':
+            from omni.kit import commands as viewport_commands
+            viewport_commands.execute('SetLightingMenuMode',lighting_mode='camera')
+
         # A plane alone cannot constrain horizontal LiDAR odometry.
         # Set PEGASUS_SLAM_SCENE=0 when using an existing structured environment.
         if SLAM_TEST_SCENE:
@@ -243,10 +249,10 @@ class ZAVPlaneApp:
         print("[Spawn] ZAV_v1 프리셋으로 기체 생성 중...")
         spawn=[0.0, -50.0, 0.10] if scenario in ("high_speed", "dense", "mixed") else [0.0,0.0,0.10]
         spawn_orientation=None
-        if scenario == 'dasan':
+        if scenario in ('dasan','frontier'):
             import json
-            recipe_path=_SIMULATOR_DIR/'assets/super/dasan_recipe.json'
-            mission_path=_SIMULATOR_DIR/'assets/super/dasan_mission.json'
+            recipe_path=_SIMULATOR_DIR/f'assets/super/{scenario}_recipe.json'
+            mission_path=_SIMULATOR_DIR/f'assets/super/{scenario}_mission.json'
             recipe=json.loads((mission_path if mission_path.exists() else recipe_path).read_text())
             spawn=recipe['spawn']
             spawn_orientation=Rotation.from_euler('z',recipe['spawn_yaw']).as_quat()
@@ -343,7 +349,15 @@ class ZAVPlaneApp:
            - p_target = p_drone + d_look * u_horiz + [0, 0, h_look]^T
         """
         if os.environ.get('ZAV_SCENE_VIEW') == 'overview':
-            if self._scenario_name == 'dasan':
+            if self._scenario_name == 'frontier':
+                if not hasattr(self,'_measured_overview'):
+                    import json
+                    recipe=json.loads((_SIMULATOR_DIR/f'assets/super/{self._scenario_name}_recipe.json').read_text())
+                    low,high=np.array(recipe['bounds_min']),np.array(recipe['bounds_max'])
+                    center=(low+high)/2.;span=max(float(np.max(high-low)),20.)
+                    self._measured_overview=(center+span*np.array([-1.3,-1.5,1.]),center)
+                self.pg.set_viewport_camera(*self._measured_overview)
+            elif self._scenario_name == 'dasan':
                 self.pg.set_viewport_camera([-60.,-95.,80.], [30.,-10.,6.])
             else:
                 self.pg.set_viewport_camera([65.,-80.,65.], [0.,0.,1.5])

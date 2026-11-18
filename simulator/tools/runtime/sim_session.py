@@ -34,7 +34,7 @@ def read_session(path=None):
         argv = (proc / 'cmdline').read_bytes().split(b'\0')
         if os.fsencode(RUNNER) not in argv:
             return None
-        if data['scene'] not in ('warehouse', 'high_speed', 'dense', 'mixed', 'dasan'):
+        if data['scene'] not in ('warehouse', 'high_speed', 'dense', 'mixed', 'dasan', 'frontier'):
             return None
         data['domain'] = domain
         return data

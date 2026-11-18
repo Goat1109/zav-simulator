@@ -20,7 +20,7 @@ class PolylineFollower:
     Sequential segments preserve order at crossings and on an exact return leg.
     A reversal is a physical turn, so lookahead cannot jump it before arrival.
     """
-    def __init__(self, points, lookahead=4., yaws=None):
+    def __init__(self, points, lookahead=4., yaws=None, max_chord_error=None):
         if len(points)<2 or any(len(p)!=3 or not all(math.isfinite(v)for v in p)for p in points):
             raise ValueError('Path must contain at least two finite XYZ vertices')
         self.points=[tuple(map(float,points[0]))]
@@ -39,6 +39,48 @@ class PolylineFollower:
         for length in self.lengths:self.arc.append(self.arc[-1]+length)
         self.segment=0;self.progress=0.;self.target_arc=0.;self.lookahead=float(lookahead)
         if not math.isfinite(self.lookahead) or self.lookahead<=0:raise ValueError('Invalid lookahead')
+        self.max_chord_error=max_chord_error
+        if max_chord_error is not None and (not math.isfinite(max_chord_error) or max_chord_error<=0):
+            raise ValueError('Invalid path chord error')
+
+    def point_at(self, arc):
+        segment=min(next((i for i in range(len(self.lengths))if self.arc[i+1]>=arc),len(self.lengths)-1),len(self.lengths)-1)
+        f=max(0.,min(1.,(arc-self.arc[segment])/self.lengths[segment]))
+        return tuple(a+(b-a)*f for a,b in zip(self.points[segment],self.points[segment+1]))
+
+    def correct_frame(self,R,t):
+        if len(R)!=3 or any(len(r)!=3 for r in R) or len(t)!=3 or not all(math.isfinite(v)for r in R for v in r) or not all(math.isfinite(v)for v in t):raise ValueError('Invalid frame correction')
+        if any(abs(sum(R[k][i]*R[k][j]for k in range(3))-(1. if i==j else 0.))>1e-5 for i in range(3)for j in range(3)):raise ValueError('Non-rigid frame correction')
+        self.points=[tuple(sum(R[i][j]*p[j]for j in range(3))+t[i]for i in range(3))for p in self.points]
+        self.yaws=[None if y is None else math.atan2(R[1][0]*math.cos(y)+R[1][1]*math.sin(y),R[0][0]*math.cos(y)+R[0][1]*math.sin(y))for y in self.yaws]
+
+    def bounded_preview(self, target):
+        # A distant endpoint alone can bypass a stair landing before the local
+        # LiDAR has observed its floor/ceiling. Bound the chord against the 3D
+        # upstream polyline, without using the offline map or stopping at every
+        # collinear viewpoint. Apply the same rule to progress and goal preview.
+        if self.max_chord_error is None:return target
+        origin=self.point_at(self.progress)
+        vertices=[(s,p)for s,p in zip(self.arc,self.points)if self.progress<s<target]
+        def valid(end):
+            point=self.point_at(end);delta=[b-a for a,b in zip(origin,point)]
+            norm=sum(d*d for d in delta)
+            for s,p in vertices:
+                if s>=end:break
+                f=max(0.,min(1.,sum((b-a)*d for a,b,d in zip(origin,p,delta))/norm))if norm>1e-12 else 0.
+                if math.dist(p,[a+f*d for a,d in zip(origin,delta)])>self.max_chord_error:return False
+            return True
+        previous=self.progress
+        for end in [s for s,_ in vertices]+[target]:
+            if not valid(end):
+                low,high=previous,end
+                for _ in range(20):
+                    middle=(low+high)/2.
+                    if valid(middle):low=middle
+                    else:high=middle
+                return low
+            previous=end
+        return target
 
     def update(self, position):
         # Project onto a local forward arc window. Requiring proximity to
@@ -50,7 +92,7 @@ class PolylineFollower:
             v=[(b-a)/self.lengths[vertex]for a,b in zip(self.points[vertex],self.points[vertex+1])]
             if sum(a*b for a,b in zip(u,v))<-.5 and math.dist(position,self.points[vertex])<.35:
                 self.progress=max(self.progress,self.arc[vertex]);self.segment=vertex;break
-        window_end=min(self.arc[-1],self.progress+self.lookahead)
+        window_end=self.bounded_preview(min(self.arc[-1],self.progress+self.lookahead))
         for vertex in range(self.segment+1,len(self.points)-1):
             if self.arc[vertex]>window_end:break
             u=[(b-a)/self.lengths[vertex-1]for a,b in zip(self.points[vertex-1],self.points[vertex])]
@@ -75,7 +117,7 @@ class PolylineFollower:
         if best is not None:self.progress=max(self.progress,best[1])
         while self.segment<len(self.lengths)-1 and self.arc[self.segment+1]<=self.progress+1e-8:
             self.segment+=1
-        target_arc=min(self.arc[-1],self.progress+self.lookahead)
+        target_arc=self.bounded_preview(min(self.arc[-1],self.progress+self.lookahead))
         for vertex in range(self.segment+1,len(self.points)-1):
             if self.arc[vertex]>target_arc:break
             u=[(b-a)/self.lengths[vertex-1]for a,b in zip(self.points[vertex-1],self.points[vertex])]
@@ -114,6 +156,7 @@ class Mission(Node):
         self.declare_parameter('route_source','bag')
         self.declare_parameter('path_lookahead_m',4.)
         self.declare_parameter('path_lookahead_max_m',15.)
+        self.declare_parameter('path_chord_error_m',.15)
         self.declare_parameter('path_max_acc',6.)
         self.declare_parameter('path_max_jerk',10.)
         self.route_source=self.get_parameter('route_source').value
@@ -131,9 +174,11 @@ class Mission(Node):
         elif self.mission_file and 'path_lookahead_m' in self.route:
             self.accepted_points=[self.route['takeoff'],*self.goals]
             self.accepted_yaws=self.route.get('yaw_waypoints',[None]*len(self.accepted_points))
-            self.follower=PolylineFollower(self.accepted_points,self.route['path_lookahead_m'],self.accepted_yaws)
+            self.follower=PolylineFollower(self.accepted_points,self.route['path_lookahead_m'],self.accepted_yaws,
+                                           self.get_parameter('path_chord_error_m').value)
         self.base_lookahead=self.follower.lookahead if self.follower else self.get_parameter('path_lookahead_m').value
         self.phase='WAITING';self.reason='';self.best_distance=float('inf');self.progress_stamp=None
+        self.path_progress_stamp_sim=None
         self.mission_pub=self.create_publisher(String,'/zav/super/mission_status',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
         self.path_pub=self.create_publisher(NavPath,'/mission/global_path',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
         self.index=0;self.sent=False;self.ready=False;self.started=False;self.future=None
@@ -145,6 +190,8 @@ class Mission(Node):
         self.hold=self.create_client(Trigger,'/zav/super/hold');self.hold_future=None
         self.create_subscription(Odometry,'/zav/super/odom',self.odom,10)
         self.create_subscription(String,'/zav/super/controller_status',self.state,10)
+        self.last_frame_correction=0
+        self.create_subscription(String,'/mission/bag_frame_correction',self.frame_correction,10)
         self.create_subscription(PoseStamped,'/goal_pose',self.click,10)
         self.create_subscription(NavPath,'/mission/exploration_path',self.exploration_path,
             QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
@@ -163,7 +210,8 @@ class Mission(Node):
                 if norm<1e-9:yaws.append(None)
                 elif not math.isfinite(norm) or abs(norm-1.)>.01:raise ValueError('Invalid orientation quaternion')
                 else:yaws.append(math.atan2(2*(q.w*q.z+q.x*q.y),1-2*(q.y*q.y+q.z*q.z)))
-            candidate=PolylineFollower(points,self.get_parameter('path_lookahead_m').value,yaws)
+            candidate=PolylineFollower(points,self.get_parameter('path_lookahead_m').value,yaws,
+                                        self.get_parameter('path_chord_error_m').value)
             signature=(tuple(candidate.points),tuple(candidate.yaws))
             if signature==self.route_signature:return
             if self.position is None:raise ValueError('Wait for body odometry before sending a path')
@@ -176,6 +224,7 @@ class Mission(Node):
             self.route_signature=signature;self.route_revision+=1
             self.path_dirty=True
             self.index=0;self.last_target=None;self.best_distance=float('inf');self.progress_stamp=None
+            self.path_progress_stamp_sim=None
             self.hold_future=None
             if self.started:self.phase='RUNNING'
             self.get_logger().info(f'Accepted exploration route {self.route_revision}: {len(self.goals)} waypoints, {candidate.arc[-1]:.2f}m')
@@ -184,6 +233,18 @@ class Mission(Node):
 
     def odom(self,msg):
         self.position=msg.pose.pose.position;self.velocity=msg.twist.twist.linear;self.rx=time.monotonic()
+
+    def frame_correction(self,msg):
+        if not self.route.get('bag_map_alignment',False) or self.route_source!='external' or self.follower is None:return
+        try:
+            m=json.loads(msg.data)
+            if m['revision']!=self.route_revision or m['sequence']<=self.last_frame_correction:return
+            self.follower.correct_frame(m['rotation'],m['translation'])
+            self.last_frame_correction=m['sequence'];self.goals=self.follower.points[1:]
+            self.accepted_points=self.follower.points;self.accepted_yaws=self.follower.yaws
+            self.route_signature=(tuple(self.accepted_points),tuple(self.accepted_yaws))
+            self.last_target=None;self.path_dirty=True
+        except (ValueError,KeyError,TypeError):self.get_logger().error('Rejected bag frame correction')
 
     def state(self,msg): self.status=msg.data
 
@@ -196,6 +257,7 @@ class Mission(Node):
         self.mission_pub.publish(String(data=json.dumps({'phase':self.phase,'reason':self.reason,
             'reached_waypoints':self.index,'total_waypoints':len(self.goals),'mission_file':self.mission_file,
             'route_source':self.route_source,'route_revision':self.route_revision,
+            'path_progress_stamp_sim':self.path_progress_stamp_sim,
             'path_progress_m':self.follower.progress if self.follower else None})))
         if self.path_dirty and (self.mission_file or self.accepted_points is not None):
             path=NavPath();path.header.frame_id='world';path.header.stamp=self.get_clock().now().to_msg()
@@ -240,7 +302,7 @@ class Mission(Node):
         x,y,z=self.goals[self.index]
         if not self.sent:
             msg=PoseStamped();msg.header.frame_id='world';msg.header.stamp=self.get_clock().now().to_msg()
-            msg.pose.position.x=x;msg.pose.position.y=y;msg.pose.position.z=z;msg.pose.orientation.w=1.
+            msg.pose.position.x=x;msg.pose.position.y=y;msg.pose.position.z=z;msg.pose.orientation.w=float('nan')
             self.publisher.publish(msg);self.sent=True;self.last_goal=time.monotonic()
             self.best_distance=float('inf');self.progress_stamp=self.get_clock().now().nanoseconds*1e-9
             self.get_logger().info(f'Waypoint {self.index+1}/{len(self.goals)}: {(x,y,z)}')
@@ -277,6 +339,7 @@ class Mission(Node):
         target=self.follower.update(position)
         self.index=self.follower.segment
         now=self.get_clock().now().nanoseconds*1e-9
+        self.path_progress_stamp_sim=now
         remaining=self.follower.arc[-1]-self.follower.progress
         if self.progress_stamp is None or remaining<self.best_distance-.15:
             self.best_distance=remaining;self.progress_stamp=now
@@ -285,16 +348,18 @@ class Mission(Node):
         yaw=self.follower.target_yaw
         previous_yaw=getattr(self,'last_yaw',None)
         yaw_changed=(yaw is None)!=(previous_yaw is None) or (yaw is not None and previous_yaw is not None and abs(math.atan2(math.sin(yaw-previous_yaw),math.cos(yaw-previous_yaw)))>.1)
-        if self.last_target is None or math.dist(target,self.last_target)>.3 or yaw_changed:
+        # A corner can bound preview before the endpoint even when the remaining
+        # arc is shorter than braking lookahead. Do not clear the last published
+        # target there: it needlessly restarts planning on every mission tick.
+        endpoint_pending=math.dist(target,self.goals[-1])<1e-6 and self.last_target!=self.goals[-1]
+        if endpoint_pending:target=self.goals[-1]
+        if self.last_target is None or math.dist(target,self.last_target)>.3 or yaw_changed or endpoint_pending or (speed<.3 and now-getattr(self,'last_path_goal_sim',-math.inf)>1.):
             msg=PoseStamped();msg.header.frame_id='world';msg.header.stamp=self.get_clock().now().to_msg()
             msg.pose.position.x,msg.pose.position.y,msg.pose.position.z=target
             if yaw is None:msg.pose.orientation.w=float('nan')
             else:msg.pose.orientation.z=math.sin(yaw/2);msg.pose.orientation.w=math.cos(yaw/2)
-            self.publisher.publish(msg);self.last_target=target;self.last_yaw=yaw
+            self.publisher.publish(msg);self.last_target=target;self.last_yaw=yaw;self.last_path_goal_sim=now
             self.get_logger().info(f'Path progress {self.follower.progress:.2f}/{self.follower.arc[-1]:.2f}m; lookahead {target}')
-        # Always send the exact final endpoint, even if the last update was <30cm.
-        if remaining<self.follower.lookahead and self.last_target!=self.goals[-1]:
-            self.last_target=None
         speed=math.sqrt(self.velocity.x**2+self.velocity.y**2+self.velocity.z**2)
         if self.follower.segment==len(self.follower.lengths)-1 and math.dist(position,self.goals[-1])<.15:
             if self.route_source=='external':

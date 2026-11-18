@@ -22,6 +22,7 @@
 */
 
 #include "rog_map/rog_map.h"
+#include "rog_map/rog_map_core/nearest_cell_search.hpp"
 
 using namespace rog_map;
 using namespace super_utils;
@@ -79,55 +80,21 @@ void ROGMap::init() {
 
 bool ROGMap::findNearestCellThat(const bool & is, const GridType& target_type,
     const Vec3f & start_pos, Vec3f& nearest_pt, const double & max_dis) const {
-
-    Vec3i start_id;
-    posToGlobalIndex(start_pos, start_id);
-    nearest_pt.setConstant(NAN);
-
-
-    for(const auto & nei_id: cfg_.spherical_neighbor) {
-        const Vec3i q_id =start_id + nei_id;
-        Vec3f q_pos;
-        globalIndexToPos(q_id, q_pos);
-        if((q_pos - start_pos).norm() > max_dis) {
-            return false;
-        }
-
-        if((getGridType(q_pos) == target_type) == is) {
-            nearest_pt = q_pos;
-            return true;
-        }
-    }
-
-   return false;
+    if(!start_pos.allFinite()){nearest_pt.setConstant(NAN);return false;}
+    Vec3i start_id;posToGlobalIndex(start_pos,start_id);
+    return findCellWithinRadius(start_id,start_pos,max_dis,cfg_.resolution,cfg_.spherical_neighbor,
+        [this](const Vec3i& id){Vec3f p;globalIndexToPos(id,p);return p;},
+        [this,is,target_type](const Vec3f& p){return (getGridType(p)==target_type)==is;},nearest_pt);
 }
 
 bool ROGMap::findNearestInfCellThat(const bool & is, const GridType& target_type,
     const Vec3f & start_pos, Vec3f& nearest_pt, const double & max_dis) const {
-
-    Vec3i start_id;
-    posToGlobalIndex(start_pos, start_id);
-    nearest_pt.setConstant(NAN);
-
-
-    for(const auto & nei_id: cfg_.spherical_neighbor) {
-        const Vec3i q_id = start_id + nei_id;
-        Vec3f q_pos;
-        globalIndexToPos(q_id, q_pos);
-        if((q_pos - start_pos).norm() > max_dis) {
-            return false;
-        }
-
-        if((getInfGridType(q_pos) == target_type) == is) {
-            nearest_pt = q_pos;
-            return true;
-        }
-    }
-    fmt::print(fg(fmt::color::yellow), " -- [ROGMap] findNearestInfCellThat failed to find all {} neighbors at start_pos: {}, target_type: {}, is: {}\n",
-               cfg_.spherical_neighbor.size(), start_pos.transpose(), target_type, is);
-    return false;
+    if(!start_pos.allFinite()){nearest_pt.setConstant(NAN);return false;}
+    Vec3i start_id;posToGlobalIndex(start_pos,start_id);
+    return findCellWithinRadius(start_id,start_pos,max_dis,cfg_.resolution,cfg_.spherical_neighbor,
+        [this](const Vec3i& id){Vec3f p;globalIndexToPos(id,p);return p;},
+        [this,is,target_type](const Vec3f& p){return (getInfGridType(p)==target_type)==is;},nearest_pt);
 }
-
 
 bool ROGMap::isLineFree(const rog_map::Vec3f& start_pt, const rog_map::Vec3f& end_pt,
                         const bool& use_inf_map, const bool& use_unk_as_occ) const {

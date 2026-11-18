@@ -88,16 +88,17 @@ def connect_near_bag(start,end,reference,distance,clearance,lateral_limit,vertic
 
 def build(assets,output,clearance=.55,start_seconds=18.,minimum_length=15.,
           lateral_limit=.35,vertical_limit=.35,end_seconds=None,anchor=None,connect_gaps=False,reverse_section=False,
-          offset_weight=.2,smoothness_weight=0.,max_forward_length=None):
-    began=time.monotonic();pcd=assets/'dasan.pcd';geometry=read_pcd(pcd)
+          offset_weight=.2,smoothness_weight=0.,max_forward_length=None,scenario="dasan",yaw_policy='travel',clip_start=False):
+    began=time.monotonic();pcd=assets/f'{scenario}.pcd';geometry=read_pcd(pcd)
     centers=np.unique(np.floor(geometry.astype(float)/.1).astype(np.int32),axis=0)*.1+.05
     tree=cKDTree(centers);half_diagonal=float(np.sqrt(3)*.05)
     def distance(p):return tree.query(np.asarray(p),workers=4 if len(np.asarray(p))>10000 else 1)[0]-half_diagonal
     def visible(a,b,margin=clearance):return bool(np.all(distance(sampled_segment(a,b))>=margin))
-    data=np.genfromtxt(assets/'dasan_trajectory.csv',delimiter=',',names=True)
+    data=np.genfromtxt(assets/f'{scenario}_trajectory.csv',delimiter=',',names=True)
     bag=np.column_stack([data[k]for k in ('x','y','z')]);times=data['t']-data['t'][0]
     arc=np.r_[0.,np.cumsum(np.linalg.norm(np.diff(bag,axis=0),axis=1))]
     stations=np.unique(np.searchsorted(arc,np.arange(0,arc[-1],.35)))
+    if clip_start:stations=stations[times[stations]>=start_seconds]
     offsets=np.array([(a,b)for a in np.arange(-lateral_limit,lateral_limit+.001,.05)
                       for b in np.arange(-vertical_limit,vertical_limit+.001,.05)])
     runs=[];points=[];source=[];last_normal=np.array([1.,0.,0.])
@@ -241,7 +242,12 @@ def build(assets,output,clearance=.55,start_seconds=18.,minimum_length=15.,
     heading=forward[min(3,len(forward)-1)]-forward[0]
     if anchored:heading=np.array([np.cos(anchored['spawn_yaw']),np.sin(anchored['spawn_yaw']),0.])
     spawn=[float(takeoff[0]),float(takeoff[1]),pad_z+.14]
-    result=dict(schema_version=2,scenario='dasan',map_sha256=hashlib.sha256(pcd.read_bytes()).hexdigest(),
+    yaws=[None]*len(waypoints)
+    if yaw_policy=='path-heading':
+        delta=np.diff(waypoints,axis=0)
+        headings=np.arctan2(delta[:,1],delta[:,0])
+        yaws=np.r_[headings,headings[-1]].tolist()
+    result=dict(schema_version=2,scenario=scenario,map_sha256=hashlib.sha256(pcd.read_bytes()).hexdigest(),
         basis='Connected indoor bag-derived section and exact return; only validated local repairs, no exterior joins',
         spawn=spawn,spawn_yaw=float(np.arctan2(heading[1],heading[0])),takeoff_height=float(takeoff[2]),takeoff=takeoff.tolist(),
         landing_pad=dict(center=[spawn[0],spawn[1],pad_z],half_size=.5),
@@ -263,8 +269,10 @@ def build(assets,output,clearance=.55,start_seconds=18.,minimum_length=15.,
         length_m=float(np.linalg.norm(np.diff(waypoints,axis=0),axis=1).sum()),measured_bag_length_m=float(arc[-1]),
         waypoints=np.array(waypoints[1:]).tolist(),
         path_lookahead_m=4.0,
-        yaw_waypoints=[None]*len(waypoints),
-        yaw_basis='Unspecified yaw: SUPER faces its replanned direction of travel; external exploration may supply explicit yaw goals',
+        yaw_waypoints=yaws,
+        yaw_basis=('Explicit world-frame horizontal route tangent at each viewpoint' if yaw_policy=='path-heading' else
+                   'Unspecified yaw: SUPER faces its replanned direction of travel; external exploration may supply explicit yaw goals'),
+        viewpoints=[dict(x=float(p[0]),y=float(p[1]),z=float(p[2]),yaw=yaw)for p,yaw in zip(waypoints,yaws)],
         excluded_intervals='All other disconnected/narrow sections; never connected through exterior space',
         construction_wall_s=time.monotonic()-began,ground_truth_feedback=False,
         arrival_policy='Polyline progress with moving lookahead; intermediate waypoints do not require stopping; final landing requires speed below 0.7m/s within 0.15m',
@@ -279,9 +287,12 @@ def build(assets,output,clearance=.55,start_seconds=18.,minimum_length=15.,
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--assets',type=Path,default=Path(__file__).resolve().parents[2]/'assets/super')
-    p.add_argument('--output',type=Path,default=Path(__file__).resolve().parents[2]/'assets/super/dasan_mission.json')
+    p.add_argument('--output',type=Path)
+    p.add_argument('--scenario',choices=('dasan','frontier'),default='dasan')
+    p.add_argument('--yaw-policy',choices=('travel','path-heading'),default='travel')
     p.add_argument('--clearance',type=float,default=.55)
     p.add_argument('--start-bag-seconds',type=float,default=18.)
+    p.add_argument('--clip-start',action='store_true',help='Exclude earlier bag samples instead of only selecting sections ending after start')
     p.add_argument('--minimum-length',type=float,default=15.)
     p.add_argument('--lateral-limit',type=float,default=.35)
     p.add_argument('--vertical-limit',type=float,default=.35)
@@ -292,6 +303,6 @@ if __name__=='__main__':
     p.add_argument('--offset-weight',type=float,default=.2,help='Offline route preference for measured bag positions; not planner penalties')
     p.add_argument('--smoothness-weight',type=float,default=0.)
     p.add_argument('--max-forward-length',type=float,help='Stop before an excluded interval; return on the same validated prefix')
-    args=p.parse_args();build(args.assets,args.output,args.clearance,args.start_bag_seconds,args.minimum_length,
+    args=p.parse_args();build(args.assets,args.output or args.assets/f'{args.scenario}_mission.json',args.clearance,args.start_bag_seconds,args.minimum_length,
         args.lateral_limit,args.vertical_limit,args.end_bag_seconds,args.anchor,args.connect_gaps,args.reverse_section,
-        args.offset_weight,args.smoothness_weight,args.max_forward_length)
+        args.offset_weight,args.smoothness_weight,args.max_forward_length,args.scenario,args.yaw_policy,args.clip_start)

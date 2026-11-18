@@ -70,6 +70,7 @@ namespace super_planner {
                                const double &goal_yaw,
                                const bool &new_goal) {
         std::lock_guard<std::mutex> guard(replan_lock_);
+        robot_state_ = map_ptr_->getRobotState();
         latest_replan.reset();
         latest_replan.setGoal(goal_p, goal_yaw, robot_state_);
         if (robot_state_.rcv == false) {
@@ -99,6 +100,9 @@ namespace super_planner {
             return FAILED;
         }
         latest_replan.setLocalStartP(local_star_pt);
+        // Grid centres are search seeds, not a physically reachable reset of
+        // the vehicle. Preserve the measured origin whenever it is free.
+        if (!map_ptr_->isOccupied(robot_state_.p)) local_star_pt = robot_state_.p;
 
         /// 2) Generate Exp traj
         ExpTraj exp_traj_info;
@@ -408,6 +412,9 @@ namespace super_planner {
             // just skip the first part of the guide trajectory
             pos_init_state.setZero();
             pos_init_state.col(0) = local_start_p_;
+            // This entry point is also reached after a committed trajectory
+            // expires while the vehicle is moving. Do not invent a stop.
+            pos_init_state.col(1) = robot_state_.v;
             replan_process_start_TT = -1;
             replan_state_TT = -1;
         } else {

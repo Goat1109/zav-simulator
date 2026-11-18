@@ -62,8 +62,15 @@ namespace fsm {
 
         // Anchor snapping to the upstream request. Repeatedly snapping the last
         // corrected goal can walk it through a wall as occupancy changes.
-        planner_ptr_->getMap()->getNearestInfCellNot(GridType::OCCUPIED, requested_goal_p_,
-                                                    gi_.goal_p, cfg_.goal_snap_max_distance);
+        Vec3f corrected_goal;
+        if (planner_ptr_->getMap()->getNearestInfCellNot(GridType::OCCUPIED, requested_goal_p_,
+                                                        corrected_goal, cfg_.goal_snap_max_distance) &&
+            corrected_goal.allFinite()) {
+            gi_.goal_p = corrected_goal;
+        }
+        // A failed map query writes NaN. Keep the last finite target while
+        // continuing collision-aware replanning and the backup trajectory.
+        if (!gi_.goal_p.allFinite()) return;
 
         TimeConsuming replan_once_time("replan_once_time", false);
 

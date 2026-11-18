@@ -98,4 +98,11 @@ install(DIRECTORY include/
         DESTINATION include/
 )
 
+if(BUILD_TESTING)
+  enable_testing()
+  add_executable(nearest_cell_search_test test/nearest_cell_search.cpp)
+  target_include_directories(nearest_cell_search_test PRIVATE include ${EIGEN3_INCLUDE_DIRS})
+  add_test(NAME nearest_cell_search COMMAND nearest_cell_search_test)
+endif()
+
 ament_package()

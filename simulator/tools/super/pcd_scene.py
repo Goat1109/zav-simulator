@@ -10,7 +10,7 @@ import json
 import numpy as np
 
 MAPS = {'high_speed': 'random_map_24_6635.pcd', 'dense': 'random_map_2_26609.pcd',
-        'mixed': 'mixed_sparse_dense.pcd', 'dasan': 'dasan.pcd'}
+        'mixed': 'mixed_sparse_dense.pcd', 'dasan': 'dasan.pcd', 'frontier': 'frontier.pcd'}
 
 
 def scene_pcd(directory, scenario):
@@ -190,19 +190,24 @@ def build_scene(pcd, output, resolution=.05, flat_floor=True, landing_pad=None, 
     return output
 
 
-def add_super_scene(world, scenario):
-    from pxr import UsdGeom
-    directory = Path(__file__).resolve().parents[2] / 'assets/super'
-    pad = json.loads((directory/'dasan_recipe.json').read_text())['landing_pad'] if scenario == 'dasan' else None
-    if scenario=='dasan' and (directory/'dasan_mission.json').exists():
-        mission=json.loads((directory/'dasan_mission.json').read_text())
-        if mission['map_sha256']!=hashlib.sha256((directory/'dasan.pcd').read_bytes()).hexdigest():
-            raise ValueError('Dasan route and physical map hashes differ')
+def scene_options(directory, scenario):
+    """Identical hash-checked geometry settings for export and live simulation."""
+    measured = scenario in ('dasan','frontier')
+    pad = json.loads((directory/f'{scenario}_recipe.json').read_text())['landing_pad'] if measured else None
+    if measured and (directory/f'{scenario}_mission.json').exists():
+        mission=json.loads((directory/f'{scenario}_mission.json').read_text())
+        if mission['map_sha256']!=hashlib.sha256((directory/f'{scenario}.pcd').read_bytes()).hexdigest():
+            raise ValueError(f'{scenario} route and physical map hashes differ')
         pad=mission['landing_pad']
-    colors_path = directory/'dasan_color.npz' if scenario == 'dasan' and (directory/'dasan_color.npz').exists() else None
+    colors_path = directory/f'{scenario}_color.npz' if measured and (directory/f'{scenario}_color.npz').exists() else None
+    return dict(resolution=.1 if measured else .05,
+                flat_floor=not measured, landing_pad=pad, colors_path=colors_path)
+
+
+def add_super_scene(world, scenario):
+    directory = Path(__file__).resolve().parents[2] / 'assets/super'
     path = build_scene(scene_pcd(directory, scenario), directory / f'{scenario}.usdc',
-                       resolution=.1 if scenario == 'dasan' else .05,
-                       flat_floor=scenario != 'dasan', landing_pad=pad, colors_path=colors_path)
+                       **scene_options(directory,scenario))
     world.stage.DefinePrim('/World/layout','Xform').GetReferences().AddReference(str(path))
     print(f'[SUPER] Physical PCD surface scene: {path}', flush=True)
 
@@ -214,9 +219,4 @@ if __name__ == '__main__':
     args=parser.parse_args()
     directory=Path(__file__).resolve().parents[2]/'assets/super'
     print(build_scene(scene_pcd(directory, args.scenario), directory/f'{args.scenario}.usdc',
-                      resolution=.1 if args.scenario=='dasan' else .05,
-                      flat_floor=args.scenario!='dasan',
-                      landing_pad=json.loads((directory/'dasan_recipe.json').read_text())['landing_pad']
-                      if args.scenario=='dasan' else None,
-                      colors_path=directory/'dasan_color.npz'
-                      if args.scenario=='dasan' and (directory/'dasan_color.npz').exists() else None))
+                      **scene_options(directory,args.scenario)))

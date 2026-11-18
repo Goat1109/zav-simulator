@@ -1,5 +1,7 @@
 # Dasan 복도 주행
 
+현재 실행 설정은 `src/zav_super/config/common.yaml`로 통합됐다. 내용은 Dasan 최종값 그대로이며 이전 파일은 `src/zav_super/config_archive/20261118/`에 보존했다. 아래의 예전 `dasan.yaml` 경로는 과거 기록이다.
+
 현재 기본 경로는 116.83m 상층 왕복으로 확장했다. [확장 경로·시험 결과](dasan-long-route.md)를 먼저 참고한다. 아래의 43.74m 출발점과 회귀 기록은 이전 짧은 경로에 대한 내용이다.
 
 FAST-LIVO2 복원 및 실제 카메라 색상은 [지도 안내](dasan-map.md)를 따른다. 현재 실행 경로는 전체 bag의 완주 경로가 아니라, 같은 복도 안에서 연결되고 기체 여유가 확보된 한 구간이다. 초기 외부 시작점과 외부를 거쳐 연결하던 855m 경로는 폐기했다.
@@ -91,7 +93,7 @@ EPIC의 시간 있는 위치·yaw 궤적은 이 경유점 추종과 다르다. [
 # ROS 환경을 불러온 또 다른 터미널
 source simulator/ros_setup.sh
 python3 simulator/tools/super/publish_bag_route.py \
-  --replace-after-meters 8 --land-at-end --wait-at-end-seconds 8
+  --replace-after-meters 8 --yaw-policy fixed --land-at-end --wait-at-end-seconds 8
 ```
 
 마지막 명령은 시험용 상위 경로 발행기다. 현재 기본 bag 경로는 `yaw_waypoints=null`로 진행 방향 yaw를 사용한다. 아래 외부 입력 시험 발행기는 독립 yaw 입력을 검증하기 위해 고정 yaw를 지정하고, 약 8m 진행 후 현재 위치부터 남은 경로로 교체하며, 같은 경로도 반복 발행한다. `--land-at-end`는 **시험 발행기가 명시적으로** 착륙을 요청하는 옵션이다. 실제 탐사 입력을 받을 때는 이 발행기를 실행하지 않는다.

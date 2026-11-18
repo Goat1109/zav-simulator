@@ -1,5 +1,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 #include <std_srvs/srv/trigger.hpp>
 #include <std_msgs/msg/string.hpp>
 #include <std_msgs/msg/bool.hpp>
@@ -31,6 +32,7 @@ class Controller : public rclcpp::Node {
   double start_=0., last_sim_=0., last_step_=0., yaw_start_=0.,ground_=0.;
   bool allow_terminal_hold_=false;
   bool exploration_hold_=false;
+  double exploration_hold_stamp_=-1.,resume_goal_stamp_=-1.;
   bool use_px4_landing_=false, px4_land_started_=false;
   bool odom_ok_=false, active_=false, requested_=false, flight_=false, landing_=false, fault_=false;
   bool landed_=true, entered_offboard_=false, safety_latched_=false;
@@ -46,6 +48,7 @@ class Controller : public rclcpp::Node {
   rclcpp::Publisher<px4_msgs::msg::VehicleCommand>::SharedPtr commands_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr status_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
+  rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr goal_sub_;
   rclcpp::Subscription<Poly>::SharedPtr traj_sub_;
   rclcpp::Subscription<px4_msgs::msg::SensorCombined>::SharedPtr time_sub_;
   rclcpp::Subscription<px4_msgs::msg::VehicleStatus>::SharedPtr vehicle_sub_;
@@ -91,6 +94,10 @@ class Controller : public rclcpp::Node {
     if (m.type & Poly::EMER_STOP) {fail("SUPER emergency stop");return;}
     if (m.type & Poly::HEART_BEAT) heartbeat_rx_=Steady::now();
     if (!(m.type & Poly::POSITION_TRAJ)) return;
+    // The FSM can keep replanning its old endpoint after hold is accepted.
+    // Those polynomials must not release a stopped exploration hold. Resume
+    // only on a newly issued goal and a trajectory generated after that goal.
+    if (exploration_hold_ && (resume_goal_stamp_<0. || m.start_wt_pos<resume_goal_stamp_)) return;
     try {
       auto p=zav_super::decode(m);
       Trajectory y;
@@ -235,6 +242,14 @@ public:
     params.mpc.max_bodyrate_xy=par("max_bodyrate_xy",2.);params.mpc.max_bodyrate_z=par("max_bodyrate_z",1.);
     params.mpc.min_thrust=par("min_thrust",1.);params.mpc.max_thrust=par("max_thrust",30.);
     params.controller.use_fix_yaw=false;
+    goal_sub_=create_subscription<geometry_msgs::msg::PoseStamped>("/planning/click_goal",10,
+      [this](geometry_msgs::msg::PoseStamped::SharedPtr m){
+        const double stamp=rclcpp::Time(m->header.stamp).seconds();
+        const auto &p=m->pose.position;
+        if(exploration_hold_ && m->header.frame_id=="world" && std::isfinite(p.x) && std::isfinite(p.y) &&
+           std::isfinite(p.z) && stamp>exploration_hold_stamp_ && stamp<=last_sim_+1.)
+          resume_goal_stamp_=stamp;
+      });
     params.controller.velocity_frame=ommpc_core::VelocityFrame::kWorld;
     params.controller.thrust_normalization.hover_percentage=.33;
     takeoff_height_=par("takeoff_height",1.5);climb_speed_=par("climb_speed",.4);
@@ -284,6 +299,7 @@ public:
           hold_.head<3>()=state_.p;
           const auto rotation=state_.q.toRotationMatrix();hold_[3]=std::atan2(rotation(1,0),rotation(0,0));
           trajectory_.clear();yaw_.clear();exploration_hold_=true;
+          exploration_hold_stamp_=last_sim_;resume_goal_stamp_=-1.;
           report("READY");
         }
         r->message=r->success?"Stopped exploration endpoint hold requested":"Need fresh, stopped, healthy airborne feedback";

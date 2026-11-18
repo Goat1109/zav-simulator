@@ -1,6 +1,6 @@
 # SUPER 공통 Super-LIO 설정과 검증 순서
 
-`src/zav_super/config/common_super_lio.yaml` 하나에서 SUPER와 OMMPC의 설정을 읽는다. 기존 high_speed/dense YAML과 기존 명령의 기본 동작은 보존한다. 새 설정은 검증 중인 출발점이며 최적 설정으로 채택한 값이 아니다. SUPER 알고리즘, 환경별 전환 로직, Super-LIO는 변경하지 않는다.
+`src/zav_super/config/common.yaml` 하나에서 SUPER와 OMMPC의 설정을 읽는다. 기존 high_speed/dense YAML과 기존 명령의 기본 동작은 보존한다. 새 설정은 검증 중인 출발점이며 최적 설정으로 채택한 값이 아니다. SUPER 알고리즘, 환경별 전환 로직, Super-LIO는 변경하지 않는다.
 
 ```bash
 ./run_super_sim.sh high_speed

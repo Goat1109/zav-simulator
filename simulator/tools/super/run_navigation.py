@@ -26,13 +26,13 @@ def preflight(workspace):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--scenario',choices=('high_speed','dense','mixed','dasan'),default='high_speed')
-    parser.add_argument('--backend',choices=('super_lio','fastlivo','fastlio'),default='super_lio')
-    parser.add_argument('--profile',choices=('legacy','common'),default='legacy',
+    parser.add_argument('--scenario',choices=('high_speed','dense','mixed','dasan','frontier'),default='high_speed')
+    parser.add_argument('--backend',choices=('super_lio',),default='super_lio')
+    parser.add_argument('--profile',choices=('common',),default='common',
                         help='common: one shared Super-LIO planner/controller YAML for all benchmark scenes')
     parser.add_argument('--config',type=Path,
                         help='Experimental shared YAML override; requires --profile common')
-    parser.add_argument('--mission',type=Path,help='Dasan mission JSON (default: generated dasan_mission.json)')
+    parser.add_argument('--mission',type=Path,help='Measured-scene mission JSON (default: <scenario>_mission.json)')
     parser.add_argument('--route-source',choices=('bag','external'),default='bag',
                         help='external: accept live world-frame nav_msgs/Path, do not auto-land at path end')
     parser.add_argument('--execute',action='store_true',help='Arm, take off and fly the original benchmark round trip')
@@ -43,7 +43,7 @@ def main():
         parser.error('mixed/dasan requires --profile common')
     if args.profile=='common' and args.backend!='super_lio':
         parser.error('--profile common currently requires --backend super_lio')
-    if args.mission and args.scenario!='dasan':parser.error('--mission requires --scenario dasan')
+    if args.mission and args.scenario not in ('dasan','frontier'):parser.error('--mission requires --scenario dasan or frontier')
     if args.config:
         if args.profile!='common':parser.error('--config requires --profile common')
         args.config=args.config.expanduser().resolve()

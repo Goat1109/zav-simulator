@@ -25,6 +25,7 @@
 #pragma once
 
 #include <queue>
+#include <atomic>
 #include <memory>
 #include <fstream>
 #include <fmt/color.h>
@@ -40,7 +41,7 @@
 namespace fsm {
     class Fsm {
     protected:
-        bool stop{false};
+        std::atomic<bool> stop{false};
 
 
         vector<string> log_time_str{
@@ -91,7 +92,7 @@ namespace fsm {
         };
 
 
-        MACHINE_STATE machine_state_{INIT};
+        std::atomic<MACHINE_STATE> machine_state_{INIT};
 
 
     public:

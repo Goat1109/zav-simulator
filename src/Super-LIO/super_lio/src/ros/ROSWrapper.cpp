@@ -564,6 +564,12 @@ bool ROSWrapper::sync_measure(MeasureGroup& meas){
     imu_buffer_.pop_front();
   }
 
+  // Supply the right-hand IMU for interpolation at the exact scan boundary.
+  // Leave it queued: the next scan still needs its remaining interval.
+  if (!imu_buffer_.empty() &&
+      (meas.imu.empty() || meas.imu.back().secs < meas.lidar.end_time))
+    meas.imu.push_back(imu_buffer_.front());
+
   last_timestamp_lidar_ = meas.lidar.end_time;
   lidar_buffer_.pop_front();
   lidar_pushed_ = false;

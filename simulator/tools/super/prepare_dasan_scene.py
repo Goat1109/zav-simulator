@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare the measured Dasan map and aligned trajectory for physical USD export.
+"""Prepare the measured bag map and aligned trajectory for physical USD export.
 
 No route, synthetic obstacles or global floor are generated. A small support
 pad at a checked free patch stabilizes the parked vehicle on sampled terrain.
@@ -22,6 +22,11 @@ def level_rotation(report):
     Use only the slope along each long corridor: the narrow transverse extent
     makes its other coefficient less reliable. No per-floor warping is applied.
     """
+    if report.get('method')=='One rigid rotation from robust measured horizontal local plane normals':
+        matrix=np.asarray(report['matrix'],dtype=float)
+        if matrix.shape!=(3,3) or not np.isfinite(matrix).all() or not np.allclose(matrix@matrix.T,np.eye(3),atol=1e-6) or np.linalg.det(matrix)<.999:
+            raise ValueError('Invalid rigid alignment matrix')
+        return matrix,report
     slopes=[];support=[]
     for axis,names in ((0,('north','south')),(1,('west','east'))):
         values=[];weights=[]
@@ -77,9 +82,9 @@ def choose_start(points, initial):
     return max(candidates,key=lambda v:v[0])[1]
 
 
-def prepare(mapping, assets, level_audit=None):
+def prepare(mapping, assets, level_audit=None, scenario="dasan"):
     assets.mkdir(parents=True, exist_ok=True)
-    raw_path = mapping/'dasan_raw.pcd'
+    raw_path = mapping/f'{scenario}_raw.pcd'
     raw = read_pcd(raw_path)
     metadata_path=mapping/'reconstruction.json'
     metadata=json.loads(metadata_path.read_text())if metadata_path.exists()else {'backend':'Super-LIO'}
@@ -106,18 +111,18 @@ def prepare(mapping, assets, level_audit=None):
     ground = points[(np.linalg.norm(points[:,:2],axis=1)<.7)&(points[:,2]<.2)]
     if len(ground)<20 or ground[:,2].max()>.01:
         raise ValueError('Start support patch does not match the measured ground')
-    path = assets/'dasan.pcd'
+    path = assets/f'{scenario}.pcd'
     with path.open('wb') as f:
-        f.write((f'# Dasan {backend} reconstruction; metres, Z-up\nVERSION .7\n'
+        f.write((f'# {scenario} {backend} reconstruction; metres, Z-up\nVERSION .7\n'
                  'FIELDS x y z\nSIZE 4 4 4\nTYPE F F F\nCOUNT 1 1 1\n'
                  f'WIDTH {len(points)}\nHEIGHT 1\nVIEWPOINT 0 0 0 1 0 0 0\n'
                  f'POINTS {len(points)}\nDATA binary\n').encode())
         points.astype('<f4').tofile(f)
     columns[:,1:4] -= origin
-    np.savetxt(assets/'dasan_trajectory.csv', columns, delimiter=',',
+    np.savetxt(assets/f'{scenario}_trajectory.csv', columns, delimiter=',',
                header='t,x,y,z,qx,qy,qz,qw', comments='')
     recipe = dict(
-        schema_version=1, source_bag=str(Path.home()/'Bags/Dasan'),
+        schema_version=1, source_bag=str(Path.home()/'Bags'/scenario.capitalize()),
         source_pcd=str(raw_path.resolve()),
         source_pcd_sha256=hashlib.sha256(raw_path.read_bytes()).hexdigest(),
         generated_pcd_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
@@ -136,30 +141,30 @@ def prepare(mapping, assets, level_audit=None):
         start_column_voxel_xy_clearance_m=clearance,
         start_ground_z_range_m=[float(ground[:,2].min()),float(ground[:,2].max())],
         pad_note='One 1x1 m support plane above measured local ground; no obstacles removed',
-        trajectory=dict(file='dasan_trajectory.csv',poses=len(columns),
+        trajectory=dict(file=f'{scenario}_trajectory.csv',poses=len(columns),
                         duration_s=float(columns[-1,0]-columns[0,0]),
                         length_m=float(np.linalg.norm(np.diff(columns[:,1:4],axis=0),axis=1).sum())),
         bounds_min=points.min(0).tolist(),bounds_max=points.max(0).tolist(),
         limitations=['Unobserved surfaces are not reconstructed.',
                      'Moving objects and accumulated LIO drift may remain.',
                      '10 cm surface voxels approximate measurements; sampling gaps may remain.'])
-    (assets/'dasan_recipe.json').write_text(json.dumps(recipe,indent=2)+'\n')
-    shutil.copyfile(mapping/'mapping.yaml',assets/'dasan_mapping.yaml')
+    (assets/f'{scenario}_recipe.json').write_text(json.dumps(recipe,indent=2)+'\n')
+    shutil.copyfile(mapping/'mapping.yaml',assets/f'{scenario}_mapping.yaml')
     if (mapping/'native_color.npz').exists():
         native=np.load(mapping/'native_color.npz');keep=distances<.4
         colors=native['rgb'][keep];direct=native['direct'][keep];filled=native['filled'][keep]
-        np.savez_compressed(assets/'dasan_color.npz',rgb=colors,direct=direct,filled=filled,
+        np.savez_compressed(assets/f'{scenario}_color.npz',rgb=colors,direct=direct,filled=filled,
                             geometry_sha256=recipe['generated_pcd_sha256'])
-        write_pcd(assets/'dasan_rgb.pcd',points,colors)
+        write_pcd(assets/f'{scenario}_rgb.pcd',points,colors)
         color_metadata=dict(method='FAST-LIVO2 native RGB world points; same reconstruction as geometry',
             geometry_sha256=recipe['generated_pcd_sha256'],points=len(points),
             direct_camera_points=int(direct.sum()),small_gap_interpolated_points=int(filled.sum()),
             uncoloured_points=int((~(direct|filled)).sum()),
             rgb_transfer_max_distance_m=metadata['rgb_transfer_max_distance_m'],
-            color_sha256=hashlib.sha256((assets/'dasan_color.npz').read_bytes()).hexdigest(),
+            color_sha256=hashlib.sha256((assets/f'{scenario}_color.npz').read_bytes()).hexdigest(),
             camera_calibration_file=str((mapping/'camera.yaml').resolve()))
-        (assets/'dasan_color.json').write_text(json.dumps(color_metadata,indent=2)+'\n')
-    elif (assets/'dasan_color.npz').exists():
+        (assets/f'{scenario}_color.json').write_text(json.dumps(color_metadata,indent=2)+'\n')
+    elif (assets/f'{scenario}_color.npz').exists():
         # Never silently retain colours from a different geometry.
         raise ValueError('Existing colour assets must be regenerated for this reconstruction')
     print(json.dumps(recipe,indent=2))
@@ -170,6 +175,7 @@ if __name__ == '__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mapping',type=Path)
     parser.add_argument('--assets',type=Path,default=Path(__file__).resolve().parents[2]/'assets/super')
+    parser.add_argument('--scenario',choices=('dasan','frontier'),default='dasan')
     parser.add_argument('--level-audit',type=Path,help='Optional independent corridor audit for ONE rigid world rotation')
     args=parser.parse_args()
-    prepare(args.mapping,args.assets,args.level_audit)
+    prepare(args.mapping,args.assets,args.level_audit,args.scenario)

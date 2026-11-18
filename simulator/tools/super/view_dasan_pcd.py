@@ -16,24 +16,28 @@ from pcd_scene import read_pcd
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--assets',type=Path,default=Path(__file__).resolve().parents[2]/'assets/super')
+    parser.add_argument('--scenario',choices=('dasan','frontier'),default='dasan')
     parser.add_argument('--config',type=Path,required=True)
     args=parser.parse_args();ws=Path(__file__).resolve().parents[3]
-    xyz=read_pcd(args.assets/'dasan.pcd');rgb=np.load(args.assets/'dasan_color.npz')['rgb']
+    xyz=read_pcd(args.assets/f'{args.scenario}.pcd');rgb=np.load(args.assets/f'{args.scenario}_color.npz')['rgb']
     records=np.empty(len(xyz),dtype=[('x','<f4'),('y','<f4'),('z','<f4'),('rgb','<u4')])
     for i,k in enumerate(('x','y','z')):records[k]=xyz[:,i]
     records['rgb']=(rgb[:,0].astype(np.uint32)<<16)|(rgb[:,1].astype(np.uint32)<<8)|rgb[:,2].astype(np.uint32)
     config=yaml.safe_load((ws/'src/FAST-LIVO2/rviz_cfg/fast_livo2.rviz').read_text())
     manager=config['Visualization Manager'];display=manager['Displays'][1]['Displays'][1]
-    display['Name']='Dasan exported FAST-LIVO2 map';display['Enabled']=True
-    display['Topic']['Value']='/dasan/inspection_map';display['Decay Time']=0.
+    display['Name']=f'{args.scenario} exported FAST-LIVO2 map';display['Enabled']=True
+    display['Topic']['Value']=f'/{args.scenario}/inspection_map';display['Decay Time']=0.
     display['Size (m)']=.06;display['Queue Size']=1
     manager['Displays']=[display];manager['Global Options']['Fixed Frame']='world'
     view=manager['Views']['Current'];view.update(Distance=130.,Pitch=.55,Yaw=3.95)
-    view['Focal Point']={'X':30.,'Y':-5.,'Z':7.}
+    center=(xyz.min(0)+xyz.max(0))/2.
+    view['Focal Point']=dict(zip(('X','Y','Z'),map(float,center)))
+    view['Distance']=float(max(np.max(xyz.max(0)-xyz.min(0))*1.6,20.))
+    config['Panels']=[]
     config['Window Geometry']={'Width':1100,'Height':820,'X':780,'Y':80}
     args.config.parent.mkdir(parents=True,exist_ok=True);args.config.write_text(yaml.safe_dump(config,sort_keys=False))
-    rclpy.init();node=Node('dasan_map_inspector')
-    pub=node.create_publisher(PointCloud2,'/dasan/inspection_map',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
+    rclpy.init();node=Node(f'{args.scenario}_map_inspector')
+    pub=node.create_publisher(PointCloud2,f'/{args.scenario}/inspection_map',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
     msg=PointCloud2();msg.header.frame_id='world';msg.height=1;msg.width=len(records)
     msg.fields=[PointField(name=k,offset=i*4,datatype=PointField.UINT32 if k=='rgb'else PointField.FLOAT32,count=1)
                 for i,k in enumerate(('x','y','z','rgb'))]
