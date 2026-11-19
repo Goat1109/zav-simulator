@@ -47,6 +47,8 @@ def write_session(pid):
             'scene': os.environ.get('ZAV_SUPER_SCENE') or 'warehouse',
             'transport': os.environ.get('ZAV_ROS_TRANSPORT', 'fastdds'),
             'localhost_only': os.environ.get('ROS_LOCALHOST_ONLY', '0')}
+    if os.environ.get('ZAV_SUPER_MISSION_FILE'):
+        data['mission'] = str(Path(os.environ['ZAV_SUPER_MISSION_FILE']).expanduser().resolve())
     path = session_path()
     with tempfile.NamedTemporaryFile(mode='w', dir=path.parent,
                                      prefix=f'.zav-sim-session-{os.getuid()}-', delete=False) as f:

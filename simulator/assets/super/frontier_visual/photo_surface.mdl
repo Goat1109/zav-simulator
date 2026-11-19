@@ -1,0 +1,12 @@
+mdl 1.7;
+import ::df::*;
+import ::tex::*;
+import ::state::*;
+import ::math::*;
+export material photo_surface(uniform texture_2d photo = texture_2d(), uniform float gain = 1.0)
+= let {
+  float3 coordinates = state::texture_coordinate(0);
+  color measured = tex::lookup_color(photo, float2(coordinates.x, coordinates.y));
+  material_surface appearance = material_surface(
+    emission: material_emission(emission: df::diffuse_edf(), intensity: measured * gain * 3561.31));
+} in material(thin_walled: true, surface: appearance, backface: appearance);

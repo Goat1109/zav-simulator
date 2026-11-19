@@ -1,0 +1,2527 @@
+{
+  "stage": "/home/goat/zenith_ws/simulator/assets/super/frontier_visual/frontier_textured.usdc",
+  "profiles": {
+    "Corridor_Lower": {
+      "path": "/Frontier/Cameras/Corridor_Lower",
+      "source_image": 234,
+      "position": [
+        -8.378604848917444,
+        5.933951286347035,
+        5.618881798169145
+      ],
+      "forward": [
+        0.10378277756754264,
+        0.9942519529745539,
+        -0.026309486628432882
+      ]
+    },
+    "Corridor_Upper": {
+      "path": "/Frontier/Cameras/Corridor_Upper",
+      "source_image": 656,
+      "position": [
+        -8.640203918579628,
+        7.133390858611961,
+        13.787402147763581
+      ],
+      "forward": [
+        -0.004615963268606399,
+        0.9996057304371706,
+        0.027696147029389304
+      ]
+    },
+    "Stair_Landing": {
+      "path": "/Frontier/Cameras/Stair_Landing",
+      "source_image": 596,
+      "position": [
+        -0.5787082061989764,
+        2.2653418377511096,
+        9.633729222797264
+      ],
+      "forward": [
+        0.5632311087889087,
+        0.8262017673097926,
+        -0.012702668483117083
+      ]
+    }
+  },
+  "chunks": [
+    {
+      "path": "/Frontier/Terrain/Height_08/MeasuredColor",
+      "triangles": 5,
+      "band": -2,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_08/Photo_010",
+      "triangles": 78,
+      "band": -2,
+      "atlas": 10
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/MeasuredColor",
+      "triangles": 4466,
+      "band": -1,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/Photo_000",
+      "triangles": 3457,
+      "band": -1,
+      "atlas": 0
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/Photo_001",
+      "triangles": 3355,
+      "band": -1,
+      "atlas": 1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/Photo_002",
+      "triangles": 2426,
+      "band": -1,
+      "atlas": 2
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/Photo_003",
+      "triangles": 2390,
+      "band": -1,
+      "atlas": 3
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/Photo_004",
+      "triangles": 3287,
+      "band": -1,
+      "atlas": 4
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/Photo_005",
+      "triangles": 4852,
+      "band": -1,
+      "atlas": 5
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/Photo_006",
+      "triangles": 3982,
+      "band": -1,
+      "atlas": 6
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/Photo_007",
+      "triangles": 4582,
+      "band": -1,
+      "atlas": 7
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/Photo_008",
+      "triangles": 3904,
+      "band": -1,
+      "atlas": 8
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/Photo_009",
+      "triangles": 6436,
+      "band": -1,
+      "atlas": 9
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/Photo_010",
+      "triangles": 4663,
+      "band": -1,
+      "atlas": 10
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/Photo_011",
+      "triangles": 84,
+      "band": -1,
+      "atlas": 11
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/Photo_012",
+      "triangles": 3,
+      "band": -1,
+      "atlas": 12
+    },
+    {
+      "path": "/Frontier/Terrain/Height_09/Photo_021",
+      "triangles": 28,
+      "band": -1,
+      "atlas": 21
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/MeasuredColor",
+      "triangles": 20153,
+      "band": 0,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_000",
+      "triangles": 8929,
+      "band": 0,
+      "atlas": 0
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_001",
+      "triangles": 7640,
+      "band": 0,
+      "atlas": 1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_002",
+      "triangles": 6275,
+      "band": 0,
+      "atlas": 2
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_003",
+      "triangles": 6431,
+      "band": 0,
+      "atlas": 3
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_004",
+      "triangles": 5716,
+      "band": 0,
+      "atlas": 4
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_005",
+      "triangles": 13490,
+      "band": 0,
+      "atlas": 5
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_006",
+      "triangles": 5579,
+      "band": 0,
+      "atlas": 6
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_007",
+      "triangles": 6765,
+      "band": 0,
+      "atlas": 7
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_008",
+      "triangles": 6395,
+      "band": 0,
+      "atlas": 8
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_009",
+      "triangles": 11683,
+      "band": 0,
+      "atlas": 9
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_010",
+      "triangles": 12094,
+      "band": 0,
+      "atlas": 10
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_011",
+      "triangles": 2806,
+      "band": 0,
+      "atlas": 11
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_012",
+      "triangles": 10,
+      "band": 0,
+      "atlas": 12
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_013",
+      "triangles": 121,
+      "band": 0,
+      "atlas": 13
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_014",
+      "triangles": 12,
+      "band": 0,
+      "atlas": 14
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_015",
+      "triangles": 80,
+      "band": 0,
+      "atlas": 15
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_017",
+      "triangles": 31,
+      "band": 0,
+      "atlas": 17
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_018",
+      "triangles": 163,
+      "band": 0,
+      "atlas": 18
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_021",
+      "triangles": 400,
+      "band": 0,
+      "atlas": 21
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_022",
+      "triangles": 2,
+      "band": 0,
+      "atlas": 22
+    },
+    {
+      "path": "/Frontier/Terrain/Height_10/Photo_023",
+      "triangles": 657,
+      "band": 0,
+      "atlas": 23
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/MeasuredColor",
+      "triangles": 42923,
+      "band": 1,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_000",
+      "triangles": 3291,
+      "band": 1,
+      "atlas": 0
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_001",
+      "triangles": 5335,
+      "band": 1,
+      "atlas": 1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_002",
+      "triangles": 5672,
+      "band": 1,
+      "atlas": 2
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_003",
+      "triangles": 4771,
+      "band": 1,
+      "atlas": 3
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_004",
+      "triangles": 4496,
+      "band": 1,
+      "atlas": 4
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_005",
+      "triangles": 5954,
+      "band": 1,
+      "atlas": 5
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_006",
+      "triangles": 3687,
+      "band": 1,
+      "atlas": 6
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_007",
+      "triangles": 4127,
+      "band": 1,
+      "atlas": 7
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_008",
+      "triangles": 3644,
+      "band": 1,
+      "atlas": 8
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_009",
+      "triangles": 7319,
+      "band": 1,
+      "atlas": 9
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_010",
+      "triangles": 8466,
+      "band": 1,
+      "atlas": 10
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_011",
+      "triangles": 5344,
+      "band": 1,
+      "atlas": 11
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_012",
+      "triangles": 5195,
+      "band": 1,
+      "atlas": 12
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_013",
+      "triangles": 3014,
+      "band": 1,
+      "atlas": 13
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_014",
+      "triangles": 2594,
+      "band": 1,
+      "atlas": 14
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_015",
+      "triangles": 1448,
+      "band": 1,
+      "atlas": 15
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_016",
+      "triangles": 976,
+      "band": 1,
+      "atlas": 16
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_017",
+      "triangles": 4399,
+      "band": 1,
+      "atlas": 17
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_018",
+      "triangles": 5062,
+      "band": 1,
+      "atlas": 18
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_019",
+      "triangles": 3645,
+      "band": 1,
+      "atlas": 19
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_020",
+      "triangles": 3851,
+      "band": 1,
+      "atlas": 20
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_021",
+      "triangles": 3221,
+      "band": 1,
+      "atlas": 21
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_022",
+      "triangles": 8826,
+      "band": 1,
+      "atlas": 22
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_023",
+      "triangles": 4123,
+      "band": 1,
+      "atlas": 23
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_025",
+      "triangles": 170,
+      "band": 1,
+      "atlas": 25
+    },
+    {
+      "path": "/Frontier/Terrain/Height_11/Photo_026",
+      "triangles": 1,
+      "band": 1,
+      "atlas": 26
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/MeasuredColor",
+      "triangles": 19958,
+      "band": 2,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_000",
+      "triangles": 81,
+      "band": 2,
+      "atlas": 0
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_001",
+      "triangles": 56,
+      "band": 2,
+      "atlas": 1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_002",
+      "triangles": 48,
+      "band": 2,
+      "atlas": 2
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_003",
+      "triangles": 56,
+      "band": 2,
+      "atlas": 3
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_004",
+      "triangles": 120,
+      "band": 2,
+      "atlas": 4
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_005",
+      "triangles": 126,
+      "band": 2,
+      "atlas": 5
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_006",
+      "triangles": 161,
+      "band": 2,
+      "atlas": 6
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_007",
+      "triangles": 1,
+      "band": 2,
+      "atlas": 7
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_008",
+      "triangles": 16,
+      "band": 2,
+      "atlas": 8
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_009",
+      "triangles": 8,
+      "band": 2,
+      "atlas": 9
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_010",
+      "triangles": 1769,
+      "band": 2,
+      "atlas": 10
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_011",
+      "triangles": 983,
+      "band": 2,
+      "atlas": 11
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_012",
+      "triangles": 3676,
+      "band": 2,
+      "atlas": 12
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_013",
+      "triangles": 7680,
+      "band": 2,
+      "atlas": 13
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_014",
+      "triangles": 8308,
+      "band": 2,
+      "atlas": 14
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_015",
+      "triangles": 5608,
+      "band": 2,
+      "atlas": 15
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_016",
+      "triangles": 5476,
+      "band": 2,
+      "atlas": 16
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_017",
+      "triangles": 5684,
+      "band": 2,
+      "atlas": 17
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_018",
+      "triangles": 14477,
+      "band": 2,
+      "atlas": 18
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_019",
+      "triangles": 4884,
+      "band": 2,
+      "atlas": 19
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_020",
+      "triangles": 4932,
+      "band": 2,
+      "atlas": 20
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_021",
+      "triangles": 6428,
+      "band": 2,
+      "atlas": 21
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_022",
+      "triangles": 12300,
+      "band": 2,
+      "atlas": 22
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_023",
+      "triangles": 9917,
+      "band": 2,
+      "atlas": 23
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_024",
+      "triangles": 6831,
+      "band": 2,
+      "atlas": 24
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_025",
+      "triangles": 428,
+      "band": 2,
+      "atlas": 25
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_026",
+      "triangles": 85,
+      "band": 2,
+      "atlas": 26
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_028",
+      "triangles": 6,
+      "band": 2,
+      "atlas": 28
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_029",
+      "triangles": 106,
+      "band": 2,
+      "atlas": 29
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_030",
+      "triangles": 6,
+      "band": 2,
+      "atlas": 30
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_031",
+      "triangles": 78,
+      "band": 2,
+      "atlas": 31
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_032",
+      "triangles": 16,
+      "band": 2,
+      "atlas": 32
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_033",
+      "triangles": 19,
+      "band": 2,
+      "atlas": 33
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_034",
+      "triangles": 229,
+      "band": 2,
+      "atlas": 34
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_035",
+      "triangles": 6,
+      "band": 2,
+      "atlas": 35
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_037",
+      "triangles": 89,
+      "band": 2,
+      "atlas": 37
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_038",
+      "triangles": 2,
+      "band": 2,
+      "atlas": 38
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_043",
+      "triangles": 26,
+      "band": 2,
+      "atlas": 43
+    },
+    {
+      "path": "/Frontier/Terrain/Height_12/Photo_045",
+      "triangles": 7,
+      "band": 2,
+      "atlas": 45
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/MeasuredColor",
+      "triangles": 43744,
+      "band": 3,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_001",
+      "triangles": 19,
+      "band": 3,
+      "atlas": 1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_002",
+      "triangles": 100,
+      "band": 3,
+      "atlas": 2
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_003",
+      "triangles": 78,
+      "band": 3,
+      "atlas": 3
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_004",
+      "triangles": 133,
+      "band": 3,
+      "atlas": 4
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_005",
+      "triangles": 34,
+      "band": 3,
+      "atlas": 5
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_006",
+      "triangles": 110,
+      "band": 3,
+      "atlas": 6
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_007",
+      "triangles": 6,
+      "band": 3,
+      "atlas": 7
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_008",
+      "triangles": 43,
+      "band": 3,
+      "atlas": 8
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_009",
+      "triangles": 34,
+      "band": 3,
+      "atlas": 9
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_010",
+      "triangles": 17,
+      "band": 3,
+      "atlas": 10
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_011",
+      "triangles": 421,
+      "band": 3,
+      "atlas": 11
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_012",
+      "triangles": 1203,
+      "band": 3,
+      "atlas": 12
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_013",
+      "triangles": 5157,
+      "band": 3,
+      "atlas": 13
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_014",
+      "triangles": 4484,
+      "band": 3,
+      "atlas": 14
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_015",
+      "triangles": 5628,
+      "band": 3,
+      "atlas": 15
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_016",
+      "triangles": 5042,
+      "band": 3,
+      "atlas": 16
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_017",
+      "triangles": 3586,
+      "band": 3,
+      "atlas": 17
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_018",
+      "triangles": 6336,
+      "band": 3,
+      "atlas": 18
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_019",
+      "triangles": 3371,
+      "band": 3,
+      "atlas": 19
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_020",
+      "triangles": 2791,
+      "band": 3,
+      "atlas": 20
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_021",
+      "triangles": 3939,
+      "band": 3,
+      "atlas": 21
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_022",
+      "triangles": 8041,
+      "band": 3,
+      "atlas": 22
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_023",
+      "triangles": 8227,
+      "band": 3,
+      "atlas": 23
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_024",
+      "triangles": 5242,
+      "band": 3,
+      "atlas": 24
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_025",
+      "triangles": 7311,
+      "band": 3,
+      "atlas": 25
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_026",
+      "triangles": 3262,
+      "band": 3,
+      "atlas": 26
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_027",
+      "triangles": 1407,
+      "band": 3,
+      "atlas": 27
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_028",
+      "triangles": 283,
+      "band": 3,
+      "atlas": 28
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_029",
+      "triangles": 2546,
+      "band": 3,
+      "atlas": 29
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_030",
+      "triangles": 1966,
+      "band": 3,
+      "atlas": 30
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_031",
+      "triangles": 5922,
+      "band": 3,
+      "atlas": 31
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_032",
+      "triangles": 4291,
+      "band": 3,
+      "atlas": 32
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_033",
+      "triangles": 3254,
+      "band": 3,
+      "atlas": 33
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_034",
+      "triangles": 2168,
+      "band": 3,
+      "atlas": 34
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_035",
+      "triangles": 2799,
+      "band": 3,
+      "atlas": 35
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_036",
+      "triangles": 7924,
+      "band": 3,
+      "atlas": 36
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_037",
+      "triangles": 1083,
+      "band": 3,
+      "atlas": 37
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_038",
+      "triangles": 134,
+      "band": 3,
+      "atlas": 38
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_043",
+      "triangles": 66,
+      "band": 3,
+      "atlas": 43
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_045",
+      "triangles": 26,
+      "band": 3,
+      "atlas": 45
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_047",
+      "triangles": 1,
+      "band": 3,
+      "atlas": 47
+    },
+    {
+      "path": "/Frontier/Terrain/Height_13/Photo_048",
+      "triangles": 7,
+      "band": 3,
+      "atlas": 48
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/MeasuredColor",
+      "triangles": 24550,
+      "band": 4,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_001",
+      "triangles": 14,
+      "band": 4,
+      "atlas": 1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_004",
+      "triangles": 9,
+      "band": 4,
+      "atlas": 4
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_008",
+      "triangles": 4,
+      "band": 4,
+      "atlas": 8
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_009",
+      "triangles": 1,
+      "band": 4,
+      "atlas": 9
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_011",
+      "triangles": 5,
+      "band": 4,
+      "atlas": 11
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_012",
+      "triangles": 5,
+      "band": 4,
+      "atlas": 12
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_013",
+      "triangles": 19,
+      "band": 4,
+      "atlas": 13
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_014",
+      "triangles": 152,
+      "band": 4,
+      "atlas": 14
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_015",
+      "triangles": 9,
+      "band": 4,
+      "atlas": 15
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_016",
+      "triangles": 3,
+      "band": 4,
+      "atlas": 16
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_017",
+      "triangles": 15,
+      "band": 4,
+      "atlas": 17
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_018",
+      "triangles": 39,
+      "band": 4,
+      "atlas": 18
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_020",
+      "triangles": 3,
+      "band": 4,
+      "atlas": 20
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_021",
+      "triangles": 47,
+      "band": 4,
+      "atlas": 21
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_022",
+      "triangles": 16,
+      "band": 4,
+      "atlas": 22
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_023",
+      "triangles": 795,
+      "band": 4,
+      "atlas": 23
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_024",
+      "triangles": 686,
+      "band": 4,
+      "atlas": 24
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_025",
+      "triangles": 3373,
+      "band": 4,
+      "atlas": 25
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_026",
+      "triangles": 7251,
+      "band": 4,
+      "atlas": 26
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_027",
+      "triangles": 11065,
+      "band": 4,
+      "atlas": 27
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_028",
+      "triangles": 8263,
+      "band": 4,
+      "atlas": 28
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_029",
+      "triangles": 5485,
+      "band": 4,
+      "atlas": 29
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_030",
+      "triangles": 4580,
+      "band": 4,
+      "atlas": 30
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_031",
+      "triangles": 14385,
+      "band": 4,
+      "atlas": 31
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_032",
+      "triangles": 5229,
+      "band": 4,
+      "atlas": 32
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_033",
+      "triangles": 6469,
+      "band": 4,
+      "atlas": 33
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_034",
+      "triangles": 7991,
+      "band": 4,
+      "atlas": 34
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_035",
+      "triangles": 9355,
+      "band": 4,
+      "atlas": 35
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_036",
+      "triangles": 14743,
+      "band": 4,
+      "atlas": 36
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_037",
+      "triangles": 9427,
+      "band": 4,
+      "atlas": 37
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_038",
+      "triangles": 400,
+      "band": 4,
+      "atlas": 38
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_039",
+      "triangles": 85,
+      "band": 4,
+      "atlas": 39
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_043",
+      "triangles": 36,
+      "band": 4,
+      "atlas": 43
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_044",
+      "triangles": 121,
+      "band": 4,
+      "atlas": 44
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_047",
+      "triangles": 114,
+      "band": 4,
+      "atlas": 47
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_048",
+      "triangles": 14,
+      "band": 4,
+      "atlas": 48
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_049",
+      "triangles": 110,
+      "band": 4,
+      "atlas": 49
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_050",
+      "triangles": 5,
+      "band": 4,
+      "atlas": 50
+    },
+    {
+      "path": "/Frontier/Terrain/Height_14/Photo_051",
+      "triangles": 12,
+      "band": 4,
+      "atlas": 51
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/MeasuredColor",
+      "triangles": 44609,
+      "band": 5,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_011",
+      "triangles": 8,
+      "band": 5,
+      "atlas": 11
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_012",
+      "triangles": 3,
+      "band": 5,
+      "atlas": 12
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_013",
+      "triangles": 43,
+      "band": 5,
+      "atlas": 13
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_014",
+      "triangles": 11,
+      "band": 5,
+      "atlas": 14
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_015",
+      "triangles": 82,
+      "band": 5,
+      "atlas": 15
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_016",
+      "triangles": 43,
+      "band": 5,
+      "atlas": 16
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_017",
+      "triangles": 9,
+      "band": 5,
+      "atlas": 17
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_018",
+      "triangles": 8,
+      "band": 5,
+      "atlas": 18
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_020",
+      "triangles": 6,
+      "band": 5,
+      "atlas": 20
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_021",
+      "triangles": 20,
+      "band": 5,
+      "atlas": 21
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_022",
+      "triangles": 8,
+      "band": 5,
+      "atlas": 22
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_023",
+      "triangles": 9,
+      "band": 5,
+      "atlas": 23
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_024",
+      "triangles": 2,
+      "band": 5,
+      "atlas": 24
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_025",
+      "triangles": 672,
+      "band": 5,
+      "atlas": 25
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_026",
+      "triangles": 4380,
+      "band": 5,
+      "atlas": 26
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_027",
+      "triangles": 5629,
+      "band": 5,
+      "atlas": 27
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_028",
+      "triangles": 4125,
+      "band": 5,
+      "atlas": 28
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_029",
+      "triangles": 4538,
+      "band": 5,
+      "atlas": 29
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_030",
+      "triangles": 4701,
+      "band": 5,
+      "atlas": 30
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_031",
+      "triangles": 6942,
+      "band": 5,
+      "atlas": 31
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_032",
+      "triangles": 2937,
+      "band": 5,
+      "atlas": 32
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_033",
+      "triangles": 4262,
+      "band": 5,
+      "atlas": 33
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_034",
+      "triangles": 5564,
+      "band": 5,
+      "atlas": 34
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_035",
+      "triangles": 4613,
+      "band": 5,
+      "atlas": 35
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_036",
+      "triangles": 9660,
+      "band": 5,
+      "atlas": 36
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_037",
+      "triangles": 5718,
+      "band": 5,
+      "atlas": 37
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_038",
+      "triangles": 6444,
+      "band": 5,
+      "atlas": 38
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_039",
+      "triangles": 1258,
+      "band": 5,
+      "atlas": 39
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_040",
+      "triangles": 64,
+      "band": 5,
+      "atlas": 40
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_041",
+      "triangles": 2639,
+      "band": 5,
+      "atlas": 41
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_042",
+      "triangles": 2787,
+      "band": 5,
+      "atlas": 42
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_043",
+      "triangles": 4707,
+      "band": 5,
+      "atlas": 43
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_044",
+      "triangles": 5157,
+      "band": 5,
+      "atlas": 44
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_045",
+      "triangles": 2442,
+      "band": 5,
+      "atlas": 45
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_046",
+      "triangles": 2731,
+      "band": 5,
+      "atlas": 46
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_047",
+      "triangles": 2004,
+      "band": 5,
+      "atlas": 47
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_048",
+      "triangles": 470,
+      "band": 5,
+      "atlas": 48
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_049",
+      "triangles": 2035,
+      "band": 5,
+      "atlas": 49
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_050",
+      "triangles": 702,
+      "band": 5,
+      "atlas": 50
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_051",
+      "triangles": 244,
+      "band": 5,
+      "atlas": 51
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_055",
+      "triangles": 1,
+      "band": 5,
+      "atlas": 55
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_057",
+      "triangles": 5,
+      "band": 5,
+      "atlas": 57
+    },
+    {
+      "path": "/Frontier/Terrain/Height_15/Photo_060",
+      "triangles": 1,
+      "band": 5,
+      "atlas": 60
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/MeasuredColor",
+      "triangles": 25554,
+      "band": 6,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_020",
+      "triangles": 15,
+      "band": 6,
+      "atlas": 20
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_021",
+      "triangles": 5,
+      "band": 6,
+      "atlas": 21
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_025",
+      "triangles": 18,
+      "band": 6,
+      "atlas": 25
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_026",
+      "triangles": 26,
+      "band": 6,
+      "atlas": 26
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_027",
+      "triangles": 20,
+      "band": 6,
+      "atlas": 27
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_028",
+      "triangles": 1,
+      "band": 6,
+      "atlas": 28
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_029",
+      "triangles": 2,
+      "band": 6,
+      "atlas": 29
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_030",
+      "triangles": 32,
+      "band": 6,
+      "atlas": 30
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_031",
+      "triangles": 162,
+      "band": 6,
+      "atlas": 31
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_032",
+      "triangles": 10,
+      "band": 6,
+      "atlas": 32
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_033",
+      "triangles": 1,
+      "band": 6,
+      "atlas": 33
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_034",
+      "triangles": 30,
+      "band": 6,
+      "atlas": 34
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_035",
+      "triangles": 33,
+      "band": 6,
+      "atlas": 35
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_036",
+      "triangles": 30,
+      "band": 6,
+      "atlas": 36
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_037",
+      "triangles": 524,
+      "band": 6,
+      "atlas": 37
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_038",
+      "triangles": 3496,
+      "band": 6,
+      "atlas": 38
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_039",
+      "triangles": 9301,
+      "band": 6,
+      "atlas": 39
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_040",
+      "triangles": 8150,
+      "band": 6,
+      "atlas": 40
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_041",
+      "triangles": 7712,
+      "band": 6,
+      "atlas": 41
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_042",
+      "triangles": 6148,
+      "band": 6,
+      "atlas": 42
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_043",
+      "triangles": 6517,
+      "band": 6,
+      "atlas": 43
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_044",
+      "triangles": 14437,
+      "band": 6,
+      "atlas": 44
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_045",
+      "triangles": 5314,
+      "band": 6,
+      "atlas": 45
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_046",
+      "triangles": 6550,
+      "band": 6,
+      "atlas": 46
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_047",
+      "triangles": 8913,
+      "band": 6,
+      "atlas": 47
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_048",
+      "triangles": 15784,
+      "band": 6,
+      "atlas": 48
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_049",
+      "triangles": 17327,
+      "band": 6,
+      "atlas": 49
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_050",
+      "triangles": 8991,
+      "band": 6,
+      "atlas": 50
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_051",
+      "triangles": 464,
+      "band": 6,
+      "atlas": 51
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_052",
+      "triangles": 13,
+      "band": 6,
+      "atlas": 52
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_054",
+      "triangles": 3,
+      "band": 6,
+      "atlas": 54
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_056",
+      "triangles": 13,
+      "band": 6,
+      "atlas": 56
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_057",
+      "triangles": 264,
+      "band": 6,
+      "atlas": 57
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_059",
+      "triangles": 89,
+      "band": 6,
+      "atlas": 59
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_060",
+      "triangles": 90,
+      "band": 6,
+      "atlas": 60
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_063",
+      "triangles": 92,
+      "band": 6,
+      "atlas": 63
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_064",
+      "triangles": 1,
+      "band": 6,
+      "atlas": 64
+    },
+    {
+      "path": "/Frontier/Terrain/Height_16/Photo_073",
+      "triangles": 65,
+      "band": 6,
+      "atlas": 73
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/MeasuredColor",
+      "triangles": 41141,
+      "band": 7,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_025",
+      "triangles": 40,
+      "band": 7,
+      "atlas": 25
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_026",
+      "triangles": 22,
+      "band": 7,
+      "atlas": 26
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_028",
+      "triangles": 19,
+      "band": 7,
+      "atlas": 28
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_029",
+      "triangles": 21,
+      "band": 7,
+      "atlas": 29
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_030",
+      "triangles": 95,
+      "band": 7,
+      "atlas": 30
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_031",
+      "triangles": 28,
+      "band": 7,
+      "atlas": 31
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_032",
+      "triangles": 17,
+      "band": 7,
+      "atlas": 32
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_033",
+      "triangles": 43,
+      "band": 7,
+      "atlas": 33
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_034",
+      "triangles": 25,
+      "band": 7,
+      "atlas": 34
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_036",
+      "triangles": 1,
+      "band": 7,
+      "atlas": 36
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_037",
+      "triangles": 5,
+      "band": 7,
+      "atlas": 37
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_038",
+      "triangles": 874,
+      "band": 7,
+      "atlas": 38
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_039",
+      "triangles": 3816,
+      "band": 7,
+      "atlas": 39
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_040",
+      "triangles": 5916,
+      "band": 7,
+      "atlas": 40
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_041",
+      "triangles": 5679,
+      "band": 7,
+      "atlas": 41
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_042",
+      "triangles": 5242,
+      "band": 7,
+      "atlas": 42
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_043",
+      "triangles": 3752,
+      "band": 7,
+      "atlas": 43
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_044",
+      "triangles": 5962,
+      "band": 7,
+      "atlas": 44
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_045",
+      "triangles": 3952,
+      "band": 7,
+      "atlas": 45
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_046",
+      "triangles": 4813,
+      "band": 7,
+      "atlas": 46
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_047",
+      "triangles": 4631,
+      "band": 7,
+      "atlas": 47
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_048",
+      "triangles": 6254,
+      "band": 7,
+      "atlas": 48
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_049",
+      "triangles": 8753,
+      "band": 7,
+      "atlas": 49
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_050",
+      "triangles": 5714,
+      "band": 7,
+      "atlas": 50
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_051",
+      "triangles": 6735,
+      "band": 7,
+      "atlas": 51
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_052",
+      "triangles": 716,
+      "band": 7,
+      "atlas": 52
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_053",
+      "triangles": 123,
+      "band": 7,
+      "atlas": 53
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_054",
+      "triangles": 188,
+      "band": 7,
+      "atlas": 54
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_055",
+      "triangles": 3368,
+      "band": 7,
+      "atlas": 55
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_056",
+      "triangles": 4312,
+      "band": 7,
+      "atlas": 56
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_057",
+      "triangles": 5488,
+      "band": 7,
+      "atlas": 57
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_058",
+      "triangles": 2009,
+      "band": 7,
+      "atlas": 58
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_059",
+      "triangles": 1562,
+      "band": 7,
+      "atlas": 59
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_060",
+      "triangles": 462,
+      "band": 7,
+      "atlas": 60
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_061",
+      "triangles": 37,
+      "band": 7,
+      "atlas": 61
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_062",
+      "triangles": 1629,
+      "band": 7,
+      "atlas": 62
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_063",
+      "triangles": 644,
+      "band": 7,
+      "atlas": 63
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_064",
+      "triangles": 316,
+      "band": 7,
+      "atlas": 64
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_066",
+      "triangles": 17,
+      "band": 7,
+      "atlas": 66
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_072",
+      "triangles": 32,
+      "band": 7,
+      "atlas": 72
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_073",
+      "triangles": 744,
+      "band": 7,
+      "atlas": 73
+    },
+    {
+      "path": "/Frontier/Terrain/Height_17/Photo_074",
+      "triangles": 183,
+      "band": 7,
+      "atlas": 74
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/MeasuredColor",
+      "triangles": 22950,
+      "band": 8,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_030",
+      "triangles": 17,
+      "band": 8,
+      "atlas": 30
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_031",
+      "triangles": 10,
+      "band": 8,
+      "atlas": 31
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_034",
+      "triangles": 1,
+      "band": 8,
+      "atlas": 34
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_038",
+      "triangles": 4,
+      "band": 8,
+      "atlas": 38
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_039",
+      "triangles": 72,
+      "band": 8,
+      "atlas": 39
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_040",
+      "triangles": 241,
+      "band": 8,
+      "atlas": 40
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_041",
+      "triangles": 2,
+      "band": 8,
+      "atlas": 41
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_043",
+      "triangles": 17,
+      "band": 8,
+      "atlas": 43
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_044",
+      "triangles": 188,
+      "band": 8,
+      "atlas": 44
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_046",
+      "triangles": 13,
+      "band": 8,
+      "atlas": 46
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_047",
+      "triangles": 5,
+      "band": 8,
+      "atlas": 47
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_048",
+      "triangles": 9,
+      "band": 8,
+      "atlas": 48
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_049",
+      "triangles": 119,
+      "band": 8,
+      "atlas": 49
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_050",
+      "triangles": 661,
+      "band": 8,
+      "atlas": 50
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_051",
+      "triangles": 2939,
+      "band": 8,
+      "atlas": 51
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_052",
+      "triangles": 7049,
+      "band": 8,
+      "atlas": 52
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_053",
+      "triangles": 10340,
+      "band": 8,
+      "atlas": 53
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_054",
+      "triangles": 10058,
+      "band": 8,
+      "atlas": 54
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_055",
+      "triangles": 7266,
+      "band": 8,
+      "atlas": 55
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_056",
+      "triangles": 5816,
+      "band": 8,
+      "atlas": 56
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_057",
+      "triangles": 14354,
+      "band": 8,
+      "atlas": 57
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_058",
+      "triangles": 4887,
+      "band": 8,
+      "atlas": 58
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_059",
+      "triangles": 6720,
+      "band": 8,
+      "atlas": 59
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_060",
+      "triangles": 8430,
+      "band": 8,
+      "atlas": 60
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_061",
+      "triangles": 8418,
+      "band": 8,
+      "atlas": 61
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_062",
+      "triangles": 18552,
+      "band": 8,
+      "atlas": 62
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_063",
+      "triangles": 9314,
+      "band": 8,
+      "atlas": 63
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_064",
+      "triangles": 434,
+      "band": 8,
+      "atlas": 64
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_065",
+      "triangles": 4,
+      "band": 8,
+      "atlas": 65
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_066",
+      "triangles": 128,
+      "band": 8,
+      "atlas": 66
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_071",
+      "triangles": 156,
+      "band": 8,
+      "atlas": 71
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_072",
+      "triangles": 496,
+      "band": 8,
+      "atlas": 72
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_073",
+      "triangles": 5168,
+      "band": 8,
+      "atlas": 73
+    },
+    {
+      "path": "/Frontier/Terrain/Height_18/Photo_074",
+      "triangles": 137,
+      "band": 8,
+      "atlas": 74
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/MeasuredColor",
+      "triangles": 34092,
+      "band": 9,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_040",
+      "triangles": 1,
+      "band": 9,
+      "atlas": 40
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_041",
+      "triangles": 25,
+      "band": 9,
+      "atlas": 41
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_042",
+      "triangles": 29,
+      "band": 9,
+      "atlas": 42
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_043",
+      "triangles": 18,
+      "band": 9,
+      "atlas": 43
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_044",
+      "triangles": 47,
+      "band": 9,
+      "atlas": 44
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_045",
+      "triangles": 19,
+      "band": 9,
+      "atlas": 45
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_046",
+      "triangles": 6,
+      "band": 9,
+      "atlas": 46
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_047",
+      "triangles": 22,
+      "band": 9,
+      "atlas": 47
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_048",
+      "triangles": 2,
+      "band": 9,
+      "atlas": 48
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_051",
+      "triangles": 477,
+      "band": 9,
+      "atlas": 51
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_052",
+      "triangles": 3734,
+      "band": 9,
+      "atlas": 52
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_053",
+      "triangles": 5465,
+      "band": 9,
+      "atlas": 53
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_054",
+      "triangles": 5596,
+      "band": 9,
+      "atlas": 54
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_055",
+      "triangles": 4373,
+      "band": 9,
+      "atlas": 55
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_056",
+      "triangles": 3464,
+      "band": 9,
+      "atlas": 56
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_057",
+      "triangles": 6600,
+      "band": 9,
+      "atlas": 57
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_058",
+      "triangles": 4440,
+      "band": 9,
+      "atlas": 58
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_059",
+      "triangles": 4700,
+      "band": 9,
+      "atlas": 59
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_060",
+      "triangles": 4585,
+      "band": 9,
+      "atlas": 60
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_061",
+      "triangles": 5588,
+      "band": 9,
+      "atlas": 61
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_062",
+      "triangles": 7345,
+      "band": 9,
+      "atlas": 62
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_063",
+      "triangles": 5426,
+      "band": 9,
+      "atlas": 63
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_064",
+      "triangles": 6202,
+      "band": 9,
+      "atlas": 64
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_065",
+      "triangles": 138,
+      "band": 9,
+      "atlas": 65
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_066",
+      "triangles": 1453,
+      "band": 9,
+      "atlas": 66
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_067",
+      "triangles": 115,
+      "band": 9,
+      "atlas": 67
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_068",
+      "triangles": 634,
+      "band": 9,
+      "atlas": 68
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_069",
+      "triangles": 36,
+      "band": 9,
+      "atlas": 69
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_070",
+      "triangles": 44,
+      "band": 9,
+      "atlas": 70
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_071",
+      "triangles": 226,
+      "band": 9,
+      "atlas": 71
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_072",
+      "triangles": 6407,
+      "band": 9,
+      "atlas": 72
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_073",
+      "triangles": 5087,
+      "band": 9,
+      "atlas": 73
+    },
+    {
+      "path": "/Frontier/Terrain/Height_19/Photo_074",
+      "triangles": 2,
+      "band": 9,
+      "atlas": 74
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/MeasuredColor",
+      "triangles": 2828,
+      "band": 10,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/Photo_052",
+      "triangles": 4,
+      "band": 10,
+      "atlas": 52
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/Photo_061",
+      "triangles": 1,
+      "band": 10,
+      "atlas": 61
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/Photo_062",
+      "triangles": 3,
+      "band": 10,
+      "atlas": 62
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/Photo_063",
+      "triangles": 252,
+      "band": 10,
+      "atlas": 63
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/Photo_064",
+      "triangles": 1902,
+      "band": 10,
+      "atlas": 64
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/Photo_065",
+      "triangles": 6710,
+      "band": 10,
+      "atlas": 65
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/Photo_066",
+      "triangles": 6872,
+      "band": 10,
+      "atlas": 66
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/Photo_067",
+      "triangles": 9068,
+      "band": 10,
+      "atlas": 67
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/Photo_068",
+      "triangles": 216,
+      "band": 10,
+      "atlas": 68
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/Photo_069",
+      "triangles": 131,
+      "band": 10,
+      "atlas": 69
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/Photo_070",
+      "triangles": 903,
+      "band": 10,
+      "atlas": 70
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/Photo_071",
+      "triangles": 5554,
+      "band": 10,
+      "atlas": 71
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/Photo_072",
+      "triangles": 1602,
+      "band": 10,
+      "atlas": 72
+    },
+    {
+      "path": "/Frontier/Terrain/Height_20/Photo_073",
+      "triangles": 87,
+      "band": 10,
+      "atlas": 73
+    },
+    {
+      "path": "/Frontier/Terrain/Height_21/MeasuredColor",
+      "triangles": 5057,
+      "band": 11,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_21/Photo_064",
+      "triangles": 16,
+      "band": 11,
+      "atlas": 64
+    },
+    {
+      "path": "/Frontier/Terrain/Height_21/Photo_065",
+      "triangles": 4473,
+      "band": 11,
+      "atlas": 65
+    },
+    {
+      "path": "/Frontier/Terrain/Height_21/Photo_066",
+      "triangles": 5512,
+      "band": 11,
+      "atlas": 66
+    },
+    {
+      "path": "/Frontier/Terrain/Height_21/Photo_067",
+      "triangles": 2039,
+      "band": 11,
+      "atlas": 67
+    },
+    {
+      "path": "/Frontier/Terrain/Height_21/Photo_068",
+      "triangles": 5349,
+      "band": 11,
+      "atlas": 68
+    },
+    {
+      "path": "/Frontier/Terrain/Height_21/Photo_069",
+      "triangles": 1633,
+      "band": 11,
+      "atlas": 69
+    },
+    {
+      "path": "/Frontier/Terrain/Height_21/Photo_070",
+      "triangles": 6850,
+      "band": 11,
+      "atlas": 70
+    },
+    {
+      "path": "/Frontier/Terrain/Height_21/Photo_071",
+      "triangles": 3235,
+      "band": 11,
+      "atlas": 71
+    },
+    {
+      "path": "/Frontier/Terrain/Height_21/Photo_072",
+      "triangles": 6,
+      "band": 11,
+      "atlas": 72
+    },
+    {
+      "path": "/Frontier/Terrain/Height_22/MeasuredColor",
+      "triangles": 483,
+      "band": 12,
+      "atlas": -1
+    },
+    {
+      "path": "/Frontier/Terrain/Height_22/Photo_068",
+      "triangles": 571,
+      "band": 12,
+      "atlas": 68
+    },
+    {
+      "path": "/Frontier/Terrain/Height_22/Photo_069",
+      "triangles": 6330,
+      "band": 12,
+      "atlas": 69
+    },
+    {
+      "path": "/Frontier/Terrain/Height_22/Photo_070",
+      "triangles": 770,
+      "band": 12,
+      "atlas": 70
+    }
+  ]
+}

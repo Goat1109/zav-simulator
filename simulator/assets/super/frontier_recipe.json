@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "source_bag": "/home/goat/Bags/Frontier",
+  "source_pcd": "/home/goat/zenith_ws/log/frontier-20261118/fastlivo-low-visual-weight/frontier_raw.pcd",
+  "source_pcd_sha256": "af5c5b023720701294b4f95c4f56e62f3303784530f56801809c92e5531d9fe9",
+  "generated_pcd_sha256": "6e4835a58b313e29fe5de5677c21d66c331f31d5d1d8d08c56e1afdb16b76a70",
+  "mapping_config": "/home/goat/zenith_ws/log/frontier-20261118/fastlivo-low-visual-weight/mapping.yaml",
+  "reconstruction": "FAST-LIVO2; no loop closure or external ground truth",
+  "backend": "FAST-LIVO2",
+  "reconstruction_metadata": {
+    "backend": "FAST-LIVO2",
+    "method": "Native LIVO full world scans with camera updates",
+    "voxel_centroid_resolution_m": 0.1,
+    "full_points": 721165,
+    "native_rgb_points": 590279,
+    "rgb_transfer_max_distance_m": 0.15,
+    "direct_color_points": 655406,
+    "geometric_deformation_applied": false,
+    "capture": {
+      "complete": true,
+      "backend": "FAST-LIVO2",
+      "rate": 2.0,
+      "counts": {
+        "odom": 5972,
+        "full_scans": 5971,
+        "rgb_scans": 5971,
+        "full_points": 15309374,
+        "rgb_points": 5951009
+      },
+      "stamps": {
+        "odom": {
+          "count": 5972,
+          "stamp_first": 1789632522.3576698,
+          "stamp_last": 1789633119.782057,
+          "backwards": 0,
+          "max_gap_s": 0.200347900390625
+        },
+        "full_scans": {
+          "count": 5971,
+          "stamp_first": 1789632522.3576698,
+          "stamp_last": 1789633119.6820514,
+          "backwards": 0,
+          "max_gap_s": 0.200347900390625
+        }
+      },
+      "bag": "/home/goat/Bags/Frontier"
+    }
+  },
+  "sensor_translation_m": [
+    -0.011,
+    -0.02329,
+    -0.04412
+  ],
+  "input_points": 721165,
+  "points": 717380,
+  "filtering": {
+    "method": "radius support",
+    "radius_m": 0.4,
+    "minimum_neighbors_including_self": 5,
+    "removed_points": 3785
+  },
+  "source_origin_in_world_m": [
+    -1.2498384826151732,
+    -0.0010917336847677817,
+    0.18000000000000002
+  ],
+  "world_from_lio_translation_m": [
+    -1.2498384826151732,
+    -0.0010917336847677817,
+    0.18000000000000002
+  ],
+  "world_from_lio_rotation": [
+    [
+      0.9999780174263865,
+      7.377718636819118e-05,
+      0.006630175029381047
+    ],
+    [
+      7.377718636819118e-05,
+      0.9997523914476937,
+      -0.022251974104432515
+    ],
+    [
+      -0.006630175029381047,
+      0.022251974104432515,
+      0.9997304088740802
+    ]
+  ],
+  "rigid_level_alignment": {
+    "method": "One rigid rotation from robust measured horizontal local plane normals",
+    "matrix": [
+      [
+        0.9999780174263865,
+        7.377718636819118e-05,
+        0.006630175029381047
+      ],
+      [
+        7.377718636819118e-05,
+        0.9997523914476937,
+        -0.022251974104432515
+      ],
+      [
+        -0.006630175029381047,
+        0.022251974104432515,
+        0.9997304088740802
+      ]
+    ],
+    "rotation_degrees": 1.3304549810657291,
+    "source_floor_gradient_xy": [
+      0.006631962947739187,
+      -0.02225797465688096
+    ],
+    "planar_patches": 8029,
+    "consistent_patches": 7466,
+    "slope_mad_xy": [
+      0.005671292349464419,
+      0.008443465159610829
+    ],
+    "nonrigid_deformation": false
+  },
+  "spawn": [
+    0.0,
+    0.0,
+    0.1
+  ],
+  "spawn_yaw": 1.5707963267948966,
+  "landing_pad": {
+    "center": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "half_size": 0.5
+  },
+  "start_column_voxel_xy_clearance_m": 1.4,
+  "start_ground_z_range_m": [
+    -0.14690327644348145,
+    -0.11066103726625443
+  ],
+  "pad_note": "One 1x1 m support plane above measured local ground; no obstacles removed",
+  "trajectory": {
+    "file": "frontier_trajectory.csv",
+    "poses": 5972,
+    "duration_s": 597.424387216568,
+    "length_m": 663.1518402245663
+  },
+  "bounds_min": [
+    -19.203853607177734,
+    -11.855683326721191,
+    -2.226750135421753
+  ],
+  "bounds_max": [
+    9.74956226348877,
+    49.50934982299805,
+    25.099258422851562
+  ],
+  "limitations": [
+    "Unobserved surfaces are not reconstructed.",
+    "Moving objects and accumulated LIO drift may remain.",
+    "10 cm surface voxels approximate measurements; sampling gaps may remain."
+  ]
+}

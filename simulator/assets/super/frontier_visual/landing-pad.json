@@ -1,0 +1,23 @@
+{
+  "center_xy": [
+    -0.9829016188466135,
+    3.6178502063773648
+  ],
+  "surface_z_m": 22.858709309961572,
+  "size_m": [
+    1.0,
+    1.0
+  ],
+  "thickness_m": 0.02,
+  "existing_floor_z_range_m": [
+    22.834153140451683,
+    22.83742579307772,
+    22.842013681795372,
+    22.84542127933718,
+    22.84870930996157
+  ],
+  "global_mission_unchanged": true,
+  "common_yaml_unchanged": true,
+  "original_photographic_building_unchanged": true,
+  "corrected_collision_winding": true
+}

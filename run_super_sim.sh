@@ -8,4 +8,13 @@ case "${2:-}" in
     --overview) export ZAV_SCENE_VIEW=overview ;;
     *) echo 'Optional second argument: --overview' >&2; exit 2 ;;
 esac
+if [ "$ZAV_SUPER_SCENE" = frontier ]; then
+    python3 "$_workspace/simulator/tools/super/restore_frontier_assets.py" || exit 1
+    export ZAV_SUPER_TERRAIN_USD="${ZAV_SUPER_TERRAIN_USD:-$_workspace/simulator/assets/super/frontier_visual/frontier_textured_flight.usda}"
+    if [ ! -f "$ZAV_SUPER_TERRAIN_USD" ]; then
+        echo "Frontier terrain asset not found: $ZAV_SUPER_TERRAIN_USD" >&2
+        echo 'Restore the photographic Frontier assets described in docs/frontier-navigation.md.' >&2
+        exit 1
+    fi
+fi
 exec "$_workspace/run_zav_sim.sh"

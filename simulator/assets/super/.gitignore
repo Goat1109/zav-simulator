@@ -24,3 +24,30 @@
 
 # Reconstructed Frontier sensor bag and derived missions.
 /frontier*
+
+# Small final-map descriptors and viewer; binary payloads remain generated files.
+!/frontier.json
+!/frontier_recipe.json
+!/frontier_mission.json
+!/frontier_color.json
+!/frontier_trajectory.csv
+!/frontier_visual/
+/frontier_visual/*
+!/frontier_visual/frontier_textured_flight.usda
+!/frontier_visual/photo_surface.mdl
+!/frontier_visual/view.sh
+!/frontier_visual/viewer.py
+!/frontier_visual/viewer.json
+!/frontier_visual/README.md
+!/frontier_visual/mesh-metadata.json
+!/frontier_visual/texture-metadata.json
+!/frontier_visual/landing-pad.json
+!/frontier_visual/landing_test_mission.json
+!/frontier_visual/landing-verification.json
+
+# Self-contained compressed runtime package, stored in ordinary Git.
+!/frontier_package/
+/frontier_package/*
+!/frontier_package/*.part
+!/frontier_package/manifest.json
+!/frontier_package/README.md

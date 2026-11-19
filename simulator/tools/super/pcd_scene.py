@@ -7,6 +7,7 @@ The PCD is a sampled surface, so reconstruction has a documented voxel error.
 from pathlib import Path
 import hashlib
 import json
+import os
 import numpy as np
 
 MAPS = {'high_speed': 'random_map_24_6635.pcd', 'dense': 'random_map_2_26609.pcd',
@@ -206,10 +207,25 @@ def scene_options(directory, scenario):
 
 def add_super_scene(world, scenario):
     directory = Path(__file__).resolve().parents[2] / 'assets/super'
-    path = build_scene(scene_pcd(directory, scenario), directory / f'{scenario}.usdc',
-                       **scene_options(directory,scenario))
+    options = scene_options(directory,scenario)
+    override = os.environ.get('ZAV_SUPER_TERRAIN_USD')
+    if override:
+        from pxr import Usd, UsdGeom, UsdPhysics
+        path = Path(override).expanduser().resolve()
+        terrain = Usd.Stage.Open(str(path))
+        if not terrain or not terrain.GetDefaultPrim():
+            raise ValueError(f'Terrain USD has no default prim: {path}')
+        if UsdGeom.GetStageUpAxis(terrain) != 'Z' or abs(UsdGeom.GetStageMetersPerUnit(terrain)-1.) > 1e-9:
+            raise ValueError(f'Terrain USD must use metres and Z up: {path}')
+        if any(p.HasAPI(UsdPhysics.RigidBodyAPI) for p in terrain.Traverse()):
+            raise ValueError(f'Terrain USD must contain only static scenery: {path}')
+        if not any(p.HasAPI(UsdPhysics.CollisionAPI) for p in terrain.Traverse()):
+            raise ValueError(f'Terrain USD has no collision geometry: {path}')
+    else:
+        path = build_scene(scene_pcd(directory, scenario), directory / f'{scenario}.usdc',
+                           **options)
     world.stage.DefinePrim('/World/layout','Xform').GetReferences().AddReference(str(path))
-    print(f'[SUPER] Physical PCD surface scene: {path}', flush=True)
+    print(f'[SUPER] Physical terrain scene: {path}', flush=True)
 
 
 if __name__ == '__main__':

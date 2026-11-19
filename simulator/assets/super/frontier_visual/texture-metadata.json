@@ -1,0 +1,16 @@
+{
+  "triangles": 1486492,
+  "textured_triangles": 1153979,
+  "textured_fraction": 0.7763102660491951,
+  "source_camera_frames": 1195,
+  "used_camera_frames": 1193,
+  "atlases": 75,
+  "original_recorded_images": true,
+  "no_generated_texture": true,
+  "geometry": "continuous measured surface",
+  "visual_asset_only": true,
+  "coherent_patches_m": 0.8,
+  "coherence_ray_visibility_tolerance_m": 0.12,
+  "coherent_faces": 847271,
+  "changed_camera_faces": 291600
+}

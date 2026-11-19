@@ -51,6 +51,11 @@ def main():
     ws=Path(os.environ['ZAV_WS_DIR'])
     print('[SUPER] Waiting for simulator session...', flush=True)
     session=wait_for_session(args.scenario)
+    if session.get('mission'):
+        spawn_mission=Path(session['mission']).resolve()
+        if args.mission and args.mission.expanduser().resolve()!=spawn_mission:
+            raise RuntimeError('Navigation mission differs from the simulator spawn mission')
+        args.mission=spawn_mission
     os.environ['ROS_DOMAIN_ID']=str(session['domain'])
     os.environ['ROS_LOCALHOST_ONLY']=session['localhost_only']
     os.environ['ZAV_ROS_TRANSPORT']=session['transport']

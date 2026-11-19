@@ -1,0 +1,2153 @@
+#usda 1.0
+(
+    defaultPrim = "FlightTerrain"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "FlightTerrain"
+{
+    def Xform "Building" (
+        prepend references = @frontier_textured.usdc@</Frontier>
+    )
+    {
+        over "Terrain"
+        {
+            over "Height_08"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_010"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+
+            over "Height_09"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_000"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_001"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_002"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_003"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_004"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_005"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_006"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_007"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_008"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_009"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_010"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_011"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_012"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_021"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+
+            over "Height_10"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_000"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_001"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_002"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_003"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_004"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_005"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_006"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_007"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_008"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_009"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_010"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_011"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_012"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_013"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_014"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_015"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_017"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_018"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_021"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_022"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_023"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+
+            over "Height_11"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_000"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_001"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_002"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_003"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_004"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_005"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_006"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_007"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_008"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_009"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_010"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_011"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_012"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_013"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_014"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_015"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_016"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_017"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_018"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_019"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_020"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_021"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_022"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_023"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_025"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_026"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+
+            over "Height_12"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_000"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_001"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_002"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_003"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_004"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_005"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_006"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_007"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_008"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_009"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_010"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_011"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_012"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_013"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_014"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_015"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_016"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_017"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_018"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_019"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_020"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_021"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_022"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_023"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_024"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_025"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_026"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_028"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_029"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_030"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_031"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_032"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_033"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_034"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_035"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_037"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_038"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_043"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_045"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+
+            over "Height_13"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_001"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_002"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_003"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_004"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_005"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_006"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_007"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_008"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_009"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_010"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_011"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_012"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_013"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_014"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_015"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_016"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_017"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_018"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_019"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_020"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_021"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_022"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_023"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_024"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_025"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_026"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_027"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_028"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_029"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_030"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_031"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_032"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_033"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_034"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_035"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_036"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_037"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_038"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_043"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_045"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_047"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_048"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+
+            over "Height_14"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_001"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_004"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_008"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_009"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_011"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_012"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_013"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_014"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_015"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_016"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_017"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_018"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_020"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_021"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_022"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_023"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_024"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_025"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_026"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_027"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_028"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_029"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_030"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_031"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_032"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_033"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_034"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_035"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_036"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_037"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_038"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_039"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_043"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_044"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_047"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_048"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_049"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_050"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_051"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+
+            over "Height_15"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_011"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_012"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_013"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_014"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_015"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_016"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_017"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_018"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_020"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_021"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_022"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_023"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_024"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_025"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_026"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_027"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_028"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_029"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_030"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_031"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_032"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_033"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_034"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_035"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_036"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_037"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_038"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_039"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_040"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_041"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_042"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_043"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_044"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_045"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_046"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_047"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_048"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_049"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_050"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_051"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_055"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_057"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_060"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+
+            over "Height_16"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_020"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_021"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_025"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_026"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_027"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_028"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_029"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_030"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_031"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_032"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_033"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_034"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_035"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_036"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_037"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_038"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_039"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_040"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_041"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_042"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_043"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_044"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_045"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_046"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_047"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_048"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_049"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_050"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_051"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_052"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_054"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_056"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_057"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_059"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_060"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_063"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_064"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_073"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+
+            over "Height_17"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_025"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_026"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_028"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_029"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_030"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_031"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_032"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_033"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_034"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_036"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_037"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_038"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_039"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_040"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_041"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_042"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_043"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_044"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_045"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_046"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_047"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_048"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_049"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_050"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_051"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_052"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_053"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_054"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_055"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_056"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_057"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_058"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_059"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_060"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_061"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_062"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_063"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_064"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_066"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_072"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_073"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_074"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+
+            over "Height_18"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_030"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_031"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_034"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_038"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_039"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_040"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_041"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_043"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_044"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_046"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_047"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_048"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_049"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_050"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_051"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_052"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_053"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_054"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_055"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_056"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_057"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_058"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_059"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_060"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_061"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_062"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_063"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_064"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_065"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_066"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_071"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_072"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_073"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_074"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+
+            over "Height_19"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_040"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_041"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_042"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_043"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_044"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_045"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_046"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_047"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_048"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_051"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_052"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_053"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_054"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_055"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_056"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_057"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_058"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_059"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_060"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_061"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_062"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_063"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_064"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_065"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_066"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_067"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_068"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_069"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_070"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_071"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_072"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_073"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_074"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+
+            over "Height_20"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_052"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_061"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_062"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_063"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_064"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_065"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_066"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_067"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_068"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_069"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_070"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_071"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_072"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_073"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+
+            over "Height_21"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_064"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_065"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_066"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_067"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_068"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_069"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_070"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_071"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_072"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+
+            over "Height_22"
+            {
+                over "MeasuredColor"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_068"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_069"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+
+                over "Photo_070"
+                {
+                    bool physics:collisionEnabled = 0
+                }
+            }
+        }
+    }
+
+    def Xform "CollisionSurface" (
+        prepend references = @frontier_collision.usdc@</CollisionSurface>
+    )
+    {
+    }
+
+    def Mesh "floor" (
+        prepend references = @../frontier.usdc@</SUPER/floor>
+    )
+    {
+    }
+
+    def Cube "TopLandingPad" (
+        prepend apiSchemas = ["PhysicsCollisionAPI"]
+        customData = {
+            string purpose = "Thin flat landing pad supported by the measured top-floor surface"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.08, 0.22, 0.16)]
+        double size = 1
+        float3 xformOp:scale = (1, 1, 0.02)
+        double3 xformOp:translate = (-0.9829016188466135, 3.6178502063773648, 22.84870930996157)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+}

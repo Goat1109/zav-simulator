@@ -252,8 +252,14 @@ class ZAVPlaneApp:
         if scenario in ('dasan','frontier'):
             import json
             recipe_path=_SIMULATOR_DIR/f'assets/super/{scenario}_recipe.json'
-            mission_path=_SIMULATOR_DIR/f'assets/super/{scenario}_mission.json'
+            mission_path=Path(os.environ.get('ZAV_SUPER_MISSION_FILE',
+                str(_SIMULATOR_DIR/f'assets/super/{scenario}_mission.json'))).expanduser().resolve()
             recipe=json.loads((mission_path if mission_path.exists() else recipe_path).read_text())
+            if os.environ.get('ZAV_SUPER_MISSION_FILE'):
+                import hashlib
+                if not mission_path.is_file() or recipe.get('map_sha256') != hashlib.sha256(
+                        (_SIMULATOR_DIR/f'assets/super/{scenario}.pcd').read_bytes()).hexdigest():
+                    raise ValueError('Custom spawn mission is missing or does not match the measured map')
             spawn=recipe['spawn']
             spawn_orientation=Rotation.from_euler('z',recipe['spawn_yaw']).as_quat()
         self.drone = ZAV_v1(

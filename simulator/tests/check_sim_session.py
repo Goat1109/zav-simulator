@@ -34,6 +34,11 @@ with tempfile.TemporaryDirectory() as directory:
         assert module.read_session() is None, 'Stale PID accepted'
         module.clear_session(99999999)
         assert not path.exists()
+        with patch.dict(os.environ, {'ZAV_SUPER_SCENE': 'frontier',
+                                     'ZAV_SUPER_MISSION_FILE': str(Path(directory)/'top-floor.json')}):
+            module.write_session(os.getpid())
+        assert module.wait_for_session('frontier', timeout=0.)['mission'] == str(Path(directory)/'top-floor.json')
+        module.clear_session(os.getpid())
         try:
             module.wait_for_session('high_speed', timeout=0.)
             raise AssertionError('Missing simulator accepted')

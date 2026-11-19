@@ -1,0 +1,280 @@
+{
+  "schema_version": 2,
+  "scenario": "frontier",
+  "map_sha256": "6e4835a58b313e29fe5de5677c21d66c331f31d5d1d8d08c56e1afdb16b76a70",
+  "basis": "Isolated native top-floor takeoff, hover and PX4 LAND at original full-route endpoint; no global route flown",
+  "spawn": [
+    -0.9829016188466135,
+    3.6178502063773648,
+    22.998709309961573
+  ],
+  "spawn_yaw": 0.7083527380070243,
+  "takeoff_height": 24.181706035997642,
+  "takeoff": [
+    -0.9829016188466135,
+    3.6178502063773648,
+    24.181706035997642
+  ],
+  "landing_pad": {
+    "center": [
+      -3.2692397354901326,
+      -0.05304605296030881,
+      0.02
+    ],
+    "half_size": 0.5
+  },
+  "interior_spawn_boundaries": {
+    "floor_m": 1.6899999999999993,
+    "ceiling_m": 0.8099999999999997,
+    "left_wall_m": 1.4099999999999995,
+    "right_wall_m": 1.5299999999999994
+  },
+  "source_section": 0,
+  "source_bag_first_index": 832,
+  "source_bag_last_index": 5575,
+  "source_bag_start_seconds": 83.20014452934265,
+  "source_bag_end_seconds": 557.8149495124817,
+  "outbound_recording_direction": "forward",
+  "spawn_distance_from_bag_start_m": 2.0200447049646155,
+  "lateral_adjustment_limit_m": 0.65,
+  "vertical_adjustment_limit_m": 0.6,
+  "same_side_witness_clearance_m": 0.1,
+  "witness_policy": "Horizontal segment from bag XY at flight height",
+  "validated_local_connectors": [
+    {
+      "start_seconds": 288.10185170173645,
+      "end_seconds": 288.401620388031,
+      "length_m": 1.3829810429034506
+    },
+    {
+      "start_seconds": 384.3021650314331,
+      "end_seconds": 384.60196900367737,
+      "length_m": 1.1881530686172939
+    },
+    {
+      "start_seconds": 566.7172775268555,
+      "end_seconds": 567.2176473140717,
+      "length_m": 1.2255934535861215
+    },
+    {
+      "start_seconds": 587.2224717140198,
+      "end_seconds": 587.6223583221436,
+      "length_m": 0.7508302995199866
+    }
+  ],
+  "connector_attempts": [
+    {
+      "start_seconds": 288.10185170173645,
+      "end_seconds": 288.401620388031,
+      "start": [
+        -9.042335959696173,
+        2.31374392624468,
+        9.48120437103793
+      ],
+      "end": [
+        -8.080671709076059,
+        2.0082402845178278,
+        9.73955789659808
+      ],
+      "free_nodes": 1458,
+      "result": "connected"
+    },
+    {
+      "start_seconds": 384.3021650314331,
+      "end_seconds": 384.60196900367737,
+      "start": [
+        -8.279552778411334,
+        10.686332678977779,
+        13.740071758429892
+      ],
+      "end": [
+        -8.960125918725458,
+        10.250388607839954,
+        13.97108861034519
+      ],
+      "free_nodes": 771,
+      "result": "connected"
+    },
+    {
+      "start_seconds": 566.7172775268555,
+      "end_seconds": 567.2176473140717,
+      "start": [
+        0.4963743644224376,
+        5.101936422344411,
+        23.116291902266312
+      ],
+      "end": [
+        0.4423593546894259,
+        4.795946325985619,
+        22.131162526520015
+      ],
+      "free_nodes": 1280,
+      "result": "connected"
+    },
+    {
+      "start_seconds": 587.2224717140198,
+      "end_seconds": 587.6223583221436,
+      "start": [
+        -0.550591248506346,
+        2.6733500956917866,
+        18.27365300529232
+      ],
+      "end": [
+        -1.0483311795615742,
+        2.5328813666681453,
+        17.911438499842813
+      ],
+      "free_nodes": 1464,
+      "result": "connected"
+    }
+  ],
+  "connector_attempts_scope": "All examined bag sections; only in-range validated connectors are part of this route",
+  "offline_candidate_cost": {
+    "offset_weight": 0.2,
+    "smoothness_weight": 2.0
+  },
+  "requested_max_forward_length_m": null,
+  "offline_clearance_m": 0.55,
+  "minimum_validated_center_clearance_m": 0.5501533542716532,
+  "length_m": 0.0,
+  "measured_bag_length_m": 663.1518402245657,
+  "waypoints": [
+    [
+      -0.9829016188466135,
+      3.6178502063773648,
+      24.181706035997642
+    ]
+  ],
+  "path_lookahead_m": 4.0,
+  "yaw_waypoints": [
+    0.7083527380070243,
+    0.7083527380070243
+  ],
+  "yaw_basis": "Explicit world-frame horizontal route tangent at each viewpoint",
+  "viewpoints": [],
+  "excluded_intervals": "All other disconnected/narrow sections; never connected through exterior space",
+  "construction_wall_s": 4.965010379004525,
+  "ground_truth_feedback": false,
+  "arrival_policy": "Polyline progress with moving lookahead; intermediate waypoints do not require stopping; final landing requires speed below 0.7m/s within 0.15m",
+  "validation": "Offline dense edge clearance only; full GUI flight required",
+  "candidate_clearance_m": 0.55,
+  "return_to_start": false,
+  "ascent_only": true,
+  "stairs_only": false,
+  "viewpoint_pause_indices": [],
+  "viewpoint_wait_seconds": 0.0,
+  "end_wait_seconds": 3.0,
+  "viewpoint_pause_basis": "Continuous waypoint traversal; only the final endpoint requests hold and landing",
+  "corridor_junction_viewpoints": [
+    12,
+    42,
+    55,
+    90,
+    103,
+    136,
+    149,
+    182
+  ],
+  "allow_blocked_loop_skip": false,
+  "corridor_trims": [],
+  "turn_exit_holds": true,
+  "numeric_clearance_adjustments": [
+    {
+      "edge": 1,
+      "previous_clearance_m": 0.5499862525346719,
+      "shift_m": [
+        0.0006030076301844449,
+        -0.0007975802571988582,
+        1.5733126388073232e-05
+      ]
+    }
+  ],
+  "blocked_loop_policy": "Only a nearby same-height return join after 8 seconds stopped without progress; never omit stairs or levels",
+  "all_floor_levels": [
+    {
+      "vertex": 0,
+      "z": 1.6411356768686796
+    },
+    {
+      "vertex": 9,
+      "z": 5.264827266653002
+    },
+    {
+      "vertex": 53,
+      "z": 9.283201791861718
+    },
+    {
+      "vertex": 100,
+      "z": 13.28350815250289
+    },
+    {
+      "vertex": 146,
+      "z": 17.262336308451584
+    },
+    {
+      "vertex": 192,
+      "z": 21.207713629110952
+    },
+    {
+      "vertex": 203,
+      "z": 24.181706035997642
+    }
+  ],
+  "recorded_level_bands_m": [
+    1.703934216681305,
+    5.717337880021284,
+    9.754110513588156,
+    13.78309415832019,
+    17.79208442356704,
+    21.762472052457454,
+    24.181706035997642
+  ],
+  "ascending_vertices": 204,
+  "loop_shortcuts": [],
+  "return_loop_shortcuts": [],
+  "maximum_commanded_height_m": 24.181706035997642,
+  "finish_landing_assessment": {
+    "hover": [
+      -0.9829016188466135,
+      3.6178502063773648,
+      24.181706035997642
+    ],
+    "observed_floor_samples": 95,
+    "floor_z_percentiles": [
+      22.851742553710938,
+      22.85414695739746,
+      22.85817184448242
+    ],
+    "radius_m": 0.5,
+    "flatness_limit_m": 0.065
+  },
+  "bag_map_alignment": false,
+  "continuous_waypoints": true,
+  "observation_candidate_indices": [
+    6,
+    7,
+    9,
+    12,
+    42,
+    50,
+    51,
+    53,
+    55,
+    90,
+    96,
+    97,
+    100,
+    103,
+    136,
+    144,
+    145,
+    146,
+    149,
+    182,
+    189,
+    190,
+    192,
+    200,
+    201
+  ]
+}

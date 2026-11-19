@@ -7,3 +7,6 @@
 *.params text eol=lf
 *.usd binary
 *.msg -text
+
+# Split, compressed Frontier runtime asset package.
+simulator/assets/super/frontier_package/*.part binary

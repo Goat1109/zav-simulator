@@ -1,0 +1,139 @@
+{
+  "pad": {
+    "center_xy": [
+      -0.9829016188466135,
+      3.6178502063773648
+    ],
+    "surface_z_m": 22.858709309961572,
+    "size_m": [
+      1.0,
+      1.0
+    ],
+    "thickness_m": 0.02,
+    "existing_floor_z_range_m": [
+      22.834153140451683,
+      22.83742579307772,
+      22.842013681795372,
+      22.84542127933718,
+      22.84870930996157
+    ],
+    "global_mission_unchanged": true,
+    "common_yaml_unchanged": true,
+    "original_photographic_building_unchanged": true,
+    "corrected_collision_winding": true
+  },
+  "orientation_repair": {
+    "changed_faces": 1974,
+    "by_tile": {
+      "/CollisionSurface/Tile_051": 1313,
+      "/CollisionSurface/Tile_080": 661
+    },
+    "repair_radius_m": 2.0,
+    "floor_z_band_m": [
+      22.69,
+      22.99
+    ],
+    "vertices_unchanged": true,
+    "unoriented_triangles_unchanged": true,
+    "visual_asset_unchanged": true,
+    "mission_unchanged": true
+  },
+  "trials": [
+    {
+      "trial": "trial02-upward",
+      "success": true,
+      "native_armed_seen": true,
+      "landed": true,
+      "arming_state": 1,
+      "controller": "LANDED",
+      "native_nav_states": [
+        4,
+        14,
+        18
+      ],
+      "elapsed_wall_s": 26.874886993999098,
+      "global_route_flown": false
+    },
+    {
+      "trial": "trial03-pad",
+      "success": true,
+      "native_armed_seen": true,
+      "landed": true,
+      "arming_state": 1,
+      "controller": "LANDED",
+      "native_nav_states": [
+        4,
+        14,
+        18
+      ],
+      "elapsed_wall_s": 21.70719330099928,
+      "global_route_flown": false,
+      "actual_body_z_range_m": [
+        22.95370864868164,
+        24.132389068603516
+      ],
+      "final_actual_body": [
+        -0.9835076928138733,
+        3.6347718238830566,
+        22.95370864868164
+      ],
+      "landing_xy_error_m": 0.01693246776647538,
+      "final_body_roll_pitch_deg": [
+        0.0008464642267548614,
+        0.00016003279642607193
+      ]
+    },
+    {
+      "trial": "trial04-pad-repeat",
+      "success": true,
+      "native_armed_seen": true,
+      "landed": true,
+      "arming_state": 1,
+      "controller": "LANDED",
+      "native_nav_states": [
+        14,
+        18
+      ],
+      "elapsed_wall_s": 19.168987020000714,
+      "global_route_flown": false,
+      "actual_body_z_range_m": [
+        22.95370864868164,
+        24.132701873779297
+      ],
+      "final_actual_body": [
+        -1.0135294198989868,
+        3.689582109451294,
+        22.95370864868164
+      ],
+      "landing_xy_error_m": 0.07799697504333954,
+      "final_body_roll_pitch_deg": [
+        -2.9354208898419073e-06,
+        -2.7147414363467372e-05
+      ]
+    }
+  ],
+  "two_consecutive_pad_landings": true,
+  "global_route_retested": false,
+  "common_yaml_unchanged": true,
+  "full_mission_unchanged": true,
+  "visual_building_unchanged": true,
+  "ground_truth_used_for_control": false,
+  "forced_disarm_used": false,
+  "asset_hashes": {
+    "simulator/assets/super/frontier_visual/frontier_collision.usdc": "36ca4fa1f3535abe7ef319ecc79f620efcf2b91c875f4dd28891c9a3e5f0b75c",
+    "simulator/assets/super/frontier_visual/frontier_textured_flight.usda": "3c3357e6c4586db7d4d6980c8c9d58e920481fb01d00217dd2eeaae1e1991be7",
+    "simulator/assets/super/frontier_visual/frontier_textured.usdc": "a0cf99ad9ffc170b1fcfcfd29f086cba5963d076ad70d663dc92bc3e379dc00d",
+    "src/zav_super/config/common.yaml": "a757c64015713ec4107769578ed55661c0b40eb5a011a9c46fac090c5f38bea9",
+    "simulator/assets/super/frontier_mission.json": "e1fc44a84c0aad17cffed5df5bd9b04c85ef84ad1ff623daa9e0ce5c45dd7ca2"
+  },
+  "active_static_colliders": 86,
+  "all_asset_dependencies_resolved": true,
+  "packaged_asset_hashes": {
+    "simulator/assets/super/frontier_visual/frontier_collision.usdc": "36ca4fa1f3535abe7ef319ecc79f620efcf2b91c875f4dd28891c9a3e5f0b75c",
+    "simulator/assets/super/frontier_visual/frontier_textured_flight.usda": "c4c46e50c6647f58e4f962f771b7055b43d95c30cad743ca33fd44c426ec4c83",
+    "simulator/assets/super/frontier_visual/frontier_textured.usdc": "a0cf99ad9ffc170b1fcfcfd29f086cba5963d076ad70d663dc92bc3e379dc00d",
+    "src/zav_super/config/common.yaml": "a757c64015713ec4107769578ed55661c0b40eb5a011a9c46fac090c5f38bea9",
+    "simulator/assets/super/frontier_mission.json": "e1fc44a84c0aad17cffed5df5bd9b04c85ef84ad1ff623daa9e0ce5c45dd7ca2"
+  },
+  "packaging_note": "The generated flight USDA trailing blank line was removed for Git whitespace checks; geometry, collision winding, pad and controller settings are unchanged from the validated tests."
+}

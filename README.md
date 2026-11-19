@@ -124,7 +124,16 @@ PCD·USD·복원 궤적·카메라 색상과 재생성 절차는 [Dasan 지도 �
 ## Frontier 주행과 여섯 가지 문제 해결
 
 Frontier bag은 FAST-LIVO2로 복원하고 실제 카메라 RGB를 입힌 PCD를 Isaac Sim 지형으로 변환했습니다.
-생성 지도와 임무 파일은 원본 bag으로 준비하는 로컬 자산이며 Git에는 포함하지 않습니다.
+Frontier 실행에 필요한 최종 지도·임무·텍스처는 분할 압축 파일로 포함했습니다. 원본 bag과 복원 중간 파일·시험 로그는 제외합니다.
+`./run_super_sim.sh frontier`의 첫 실행에서 자동으로 복원하며, Git LFS 설치는 필요하지 않습니다.
+`./run_super_sim.sh frontier`는 실제 카메라 텍스처를 입힌 연속 표면 지형
+`simulator/assets/super/frontier_visual/frontier_textured_flight.usda`를 기본으로 사용합니다.
+화면·LiDAR·충돌 판정에 새 지형을 사용하며, 기존 500.54m 경로와 `common.yaml`은 유지합니다.
+새 지형에서 203개 경유점 도착과 주행 중 충격·관통 0건을 확인했습니다.
+최상층 착륙면의 방향을 수정하고 1m × 1m, 두께 2cm 패드를 추가한 뒤,
+최상층만 따로 시험해 두 번 연속 PX4 착륙 감지·자동 시동 해제를 확인했습니다.
+수정 후 전체 500m 경로를 재주행한 결과는 아닙니다. [최상층 착륙 검증](docs/frontier-landing.md)을 참고하세요.
+trial30·31의 착륙까지 완료한 기록은 기존 복셀 지형에서의 결과입니다.
 복원·자산 생성 절차는 [Frontier 지도 안내](docs/frontier-navigation.md), 최종 경로와 검증 결과는
 [전 층 주행 기록](docs/frontier-all-floors.md)을 참고하세요.
 

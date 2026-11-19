@@ -1,0 +1,11 @@
+{
+  "method": "FAST-LIVO2 native RGB world points; same reconstruction as geometry",
+  "geometry_sha256": "6e4835a58b313e29fe5de5677c21d66c331f31d5d1d8d08c56e1afdb16b76a70",
+  "points": 717380,
+  "direct_camera_points": 653377,
+  "small_gap_interpolated_points": 0,
+  "uncoloured_points": 64003,
+  "rgb_transfer_max_distance_m": 0.15,
+  "color_sha256": "b1800689f99b0bac9ec441f7a94b0fd470995bb3cac6df3b80bc83a58261ca29",
+  "camera_calibration_file": "/home/goat/zenith_ws/log/frontier-20261118/fastlivo-low-visual-weight/camera.yaml"
+}

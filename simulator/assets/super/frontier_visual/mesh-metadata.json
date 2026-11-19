@@ -1,0 +1,8 @@
+{
+  "vertices": 771114,
+  "triangles": 1486492,
+  "source_distance_p95_m": 0.10706701017424898,
+  "source_distance_max_m": 0.14946214623923063,
+  "source_resolution_m": 0.05,
+  "method": "Screened Poisson depth10; crop vertices >14cm and face centers >12cm from measured points; no synthetic exterior"
+}

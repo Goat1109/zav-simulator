@@ -1,0 +1,30 @@
+{
+  "source_sha256": "6e4835a58b313e29fe5de5677c21d66c331f31d5d1d8d08c56e1afdb16b76a70",
+  "resolution_m": 0.1,
+  "format_version": 3,
+  "flat_floor": false,
+  "landing_pad": {
+    "center": [
+      -3.2692397354901326,
+      -0.05304605296030881,
+      0.02
+    ],
+    "half_size": 0.5
+  },
+  "colors_sha256": "b1800689f99b0bac9ec441f7a94b0fd470995bb3cac6df3b80bc83a58261ca29",
+  "points": 717380,
+  "occupied_voxels": 548088,
+  "chunks": 25,
+  "exposed_faces": 1487956,
+  "bounds_min": [
+    -19.203853607177734,
+    -11.855683326721191,
+    -2.226750135421753
+  ],
+  "bounds_max": [
+    9.74956226348877,
+    49.50934982299805,
+    25.099258422851562
+  ],
+  "max_surface_error_m": 0.17320508075688773
+}

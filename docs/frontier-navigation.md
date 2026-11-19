@@ -1,5 +1,35 @@
 # Frontier FAST-LIVO2 지도와 SUPER 주행
 
+`./run_super_sim.sh frontier`는 이제 실제 bag 카메라 텍스처를 입힌 연속 표면 지형을 기본으로 엽니다.
+`frontier_visual/frontier_textured_flight.usda`가 표시·LiDAR·충돌 지형을 구성하며,
+기존 500.54m 경로와 `common.yaml`은 그대로 사용합니다. 새 지형의 전 구간 도착을 확인했으며,
+최상층 바닥 충돌면 수정과 작은 착륙 패드 추가 후 최상층 단독 시험에서 두 번 연속
+착륙·자동 시동 해제를 확인했습니다. 수정 후 전체 경로를 재주행하지는 않았습니다.
+자세한 내용은 [최상층 착륙 검증](frontier-landing.md)을 참고하세요.
+아래 trial30·31 성공 기록은 기존 복셀 지형에서의 결과입니다.
+
+로컬 자산 `simulator/assets/super/frontier_visual/`에는 `frontier_textured_flight.usda`,
+`frontier_textured.usdc`, `frontier_collision.usdc`, `photo_surface.mdl`, `textures/`가 필요합니다.
+기존 `simulator/assets/super/frontier.usdc`도 동일한 이륙 패드 참조를 위해 유지합니다.
+최종 실행 자산은 `simulator/assets/super/frontier_package/`의 분할 압축 파일로 제공합니다.
+첫 실행 시 자동으로 복원하므로 Git LFS나 원본 bag 재처리가 필요하지 않습니다.
+수동 복원은 `python3 simulator/tools/super/restore_frontier_assets.py`, 무결성 검사는 같은 명령의
+`--verify` 옵션으로 실행합니다. 기존 파일은 기본적으로 보존하며 배포본으로 덮어쓰려면 `--force`를 지정합니다.
+원본 bag, 점군·메시 중간 파일, 복원 로그와 실험 로그는 포함하지 않습니다.
+자산이 없으면 실행을 중단하고 누락된 경로를 출력합니다.
+
+```bash
+./run_super_sim.sh frontier
+# Ready 이후 다른 터미널에서 기존 명령으로 주행:
+./run_super.sh --scenario frontier --execute
+```
+
+기존 복셀 지형을 명시적으로 선택하려면 다음과 같이 실행합니다.
+
+```bash
+ZAV_SUPER_TERRAIN_USD="$PWD/simulator/assets/super/frontier.usdc" ./run_super_sim.sh frontier
+```
+
 현재 기본 경로는 복도 길이를 자르지 않은 500m 층별 복도 끝 방문·최상층 종료 시험 경로다. 현재는 중간 강제 정지를 제거한 하나의 연속 Path를 쓴다. 센서·추정 시각과 계획 실행을 수정한 trial30·31에서 두 번 연속 500.54m/203경유점 전체 완료·최상층 자연 바닥 LANDED·navigation 충격/관통 0건을 확인했다. 이전 186m 성공 경로는 별도 보존했다. 상세 결과는 [전 층 경로 기록](frontier-all-floors.md)을 참고한다. 아래 78m 왕복은 이전 검증 기록이다.
 
 

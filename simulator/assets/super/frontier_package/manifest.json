@@ -1,0 +1,620 @@
+{
+  "format_version": 1,
+  "archive": {
+    "format": "tar.gz",
+    "size": 209656799,
+    "sha256": "15777a9a029b2b344edb5fd46a1f01958f726498abca55af9354f31b86b368f8"
+  },
+  "chunks": [
+    {
+      "name": "frontier-assets-000.part",
+      "size": 67108864,
+      "sha256": "48b401061a610b183cf4ac3639b75f07b9d4e00732fc7edacd14acc065301887"
+    },
+    {
+      "name": "frontier-assets-001.part",
+      "size": 67108864,
+      "sha256": "483c090ee2916bf23f7428496765d5ff67f92d172f6037d054b82de10d0b8498"
+    },
+    {
+      "name": "frontier-assets-002.part",
+      "size": 67108864,
+      "sha256": "46f673abce64f4f67c80e79a0c9343f1a60bced07e1e57e81aa53bb8b4af0242"
+    },
+    {
+      "name": "frontier-assets-003.part",
+      "size": 8330207,
+      "sha256": "5d80810a7a64cfe8a0fa3b65165acba4003bdfa5446da8b32b6a0973de5fbef8"
+    }
+  ],
+  "files": [
+    {
+      "path": "simulator/assets/super/frontier.pcd",
+      "size": 8608741,
+      "sha256": "6e4835a58b313e29fe5de5677c21d66c331f31d5d1d8d08c56e1afdb16b76a70",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier.usdc",
+      "size": 89290446,
+      "sha256": "1dbf634ebc9ffc753f8a3dcbd4cfe44157a440ed070bfe0cb353b485fb47bdf0",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier.json",
+      "size": 706,
+      "sha256": "04e931c15e298abe5ecf35ff232c34e0f0ac77f4ef8593126c4bed5acfb04762",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_recipe.json",
+      "size": 4221,
+      "sha256": "d6e64213cc5d77f5a4924b001fe5341ff36437dd14fa5a6f68b13e125ba6a644",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_mission.json",
+      "size": 57640,
+      "sha256": "e1fc44a84c0aad17cffed5df5bd9b04c85ef84ad1ff623daa9e0ce5c45dd7ca2",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_mission.npz",
+      "size": 519762,
+      "sha256": "5cefd8191173cb54dd22e1fb22b3afc24708f549c5881995cff6aa95c2f1e43d",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_color.npz",
+      "size": 1682909,
+      "sha256": "b1800689f99b0bac9ec441f7a94b0fd470995bb3cac6df3b80bc83a58261ca29",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_color.json",
+      "size": 536,
+      "sha256": "e91c36e36dd421a1e81c36e801470cb9ad6a30b98231c38f19610f978195a24d",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_trajectory.csv",
+      "size": 1206512,
+      "sha256": "2a34e931f84270f6cd491d030d1382066018769543a99d39fbd231e11391689c",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/frontier_textured.usdc",
+      "size": 142802050,
+      "sha256": "a0cf99ad9ffc170b1fcfcfd29f086cba5963d076ad70d663dc92bc3e379dc00d",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/frontier_collision.usdc",
+      "size": 16996460,
+      "sha256": "36ca4fa1f3535abe7ef319ecc79f620efcf2b91c875f4dd28891c9a3e5f0b75c",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/frontier_textured_flight.usda",
+      "size": 53168,
+      "sha256": "c4c46e50c6647f58e4f962f771b7055b43d95c30cad743ca33fd44c426ec4c83",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/photo_surface.mdl",
+      "size": 548,
+      "sha256": "2cff32985cefd2aedd732d655764237f2cc3130564939c6477815a1620038a09",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/view.sh",
+      "size": 444,
+      "sha256": "e0f09f6546f854de881eb04297b4880d4bf67c1fd4ecdf82c4235b6656ee46fa",
+      "mode": 33277
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/viewer.py",
+      "size": 10832,
+      "sha256": "efbea150de0307bece6633e5d920fd200d0984f876b83de2fc9fde467f8f3671",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/viewer.json",
+      "size": 53676,
+      "sha256": "61036692cdad7616e3f30476a70726de355dbccef72c686920ea62f52f2c4b09",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/README.md",
+      "size": 4937,
+      "sha256": "a1a498f83f12e29f85218867db308d33da08680ae04c67a314461beeea78f26a",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/mesh-metadata.json",
+      "size": 303,
+      "sha256": "58589082d1662b8f524d739c73d851e84a128531242b30a2c21f50cdb4443bf1",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/texture-metadata.json",
+      "size": 462,
+      "sha256": "6d2fbb7420b7827c9d4323c791d126982fbe0a6211d478abf4bf8eeb878d427e",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/landing-pad.json",
+      "size": 481,
+      "sha256": "3ad43015142a7811fbfda8b4eb91ac64452b8f2532605925c19e2d767aa84bec",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/landing_test_mission.json",
+      "size": 6844,
+      "sha256": "1a819092e7b2f30e773c5c28e246108377fbc911a947067198534787abe5c551",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/landing-verification.json",
+      "size": 4556,
+      "sha256": "349df21cf7d4d78b8c69acfdb8dcaef9f559ddfa830741b8d94016ed556dc0a5",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_029.jpg",
+      "size": 1300378,
+      "sha256": "c922f87b9eb18c6e24a65a9ea3cd8df4b509b13ff931c647250b775e3d2a6820",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_060.jpg",
+      "size": 1295630,
+      "sha256": "ed457413ea27c6d37ef10f1826695b5e220e3323bf572793ebd17ea29b7b4337",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_032.jpg",
+      "size": 1293636,
+      "sha256": "e90d0c3b49c788d9af3f745ff175b5802b88785aec34e331f98f9578beede2cc",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_008.jpg",
+      "size": 1373619,
+      "sha256": "18e4885ee718d282308682e3b269477531fd81a1dd8ebc1eb54b04c76b46f828",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_027.jpg",
+      "size": 1372478,
+      "sha256": "e1a2f0bdfa31c45e16623b355be351c0b936b402b89261986c9d2974fe3bf9e3",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_063.jpg",
+      "size": 1756814,
+      "sha256": "6b1becaae8e8057b9c78c2455f63e206e2a4100dc0396a34959b63dd78680969",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_072.jpg",
+      "size": 2038955,
+      "sha256": "93774ba4e6297c65d13c70dfa5d6ded0c068ba28635dca3a231d3b82c932de93",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_036.jpg",
+      "size": 1672915,
+      "sha256": "80fa7ead483e68a5599fa7054f4c90271f46c0d9b00dd5d33f73b04bcf64e253",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_033.jpg",
+      "size": 1310808,
+      "sha256": "d7a2ceb15d42a98f7e59253e292c59c28de3d2d02c23910c4767907e917359b5",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_023.jpg",
+      "size": 1656632,
+      "sha256": "382f71ae54cf3929d37047c5fbbfbe04d9369aca628e73fd927949f3d35f159d",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_052.jpg",
+      "size": 1664616,
+      "sha256": "7c4a5e477c0489e22254f4ad45fde379e86dd823a67bcd74d1e16014b623d611",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_003.jpg",
+      "size": 1324793,
+      "sha256": "849747e79a8a6f93556a4266886c040ab6d2e0ab7ed91919d1732de3762b8efd",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_039.jpg",
+      "size": 1666466,
+      "sha256": "dea36d9824aee4c4874f3504da4e3a2ce0baab2ab2b07fe0835a13370ed6c2fb",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_006.jpg",
+      "size": 1308937,
+      "sha256": "2f2e4d5cba058dce4e96abc55acc01e7fb373d2c9d153ad64f206c169f764b5d",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_013.jpg",
+      "size": 1449495,
+      "sha256": "ab8a4ed51985683da6345d98bd0f5da4465b50b89329e1ab016d7533000edbdf",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_048.jpg",
+      "size": 1361424,
+      "sha256": "3ea6cc09ba3347e29bb36c765f133f110c3ed2c9e97574fe1a3e9b765c81722f",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_053.jpg",
+      "size": 1255873,
+      "sha256": "d9317c2bc6d28b0ccdd8e39f8297ec66af21f307206f62f8278d83fa076c7530",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_021.jpg",
+      "size": 1331074,
+      "sha256": "f1b9dd09d9df5cabbaf58d5a3f3a59b1552ae289f1a18ef8aa542ff880809db3",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_011.jpg",
+      "size": 2369832,
+      "sha256": "e990a3d187c58b519616f6fc798f8a5a009026ed429af7bc7818d9d29617f6c3",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_010.jpg",
+      "size": 1617674,
+      "sha256": "0e6da2525b0b34964245196b3af8ed11f6f5c293dfee68d3ba4d1f2b99d19317",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_064.jpg",
+      "size": 2060402,
+      "sha256": "c2e180a096755b32ee69f240fcf0f877170b6838a7c84a709e2d8665678b26ca",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_066.jpg",
+      "size": 2195330,
+      "sha256": "9277f8b218361e5615d0d32b7933a2c38312a9372eea918105380ec2a5cb876f",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_070.jpg",
+      "size": 2378608,
+      "sha256": "6b6a93f8e60a79afb4d087d3d1c9a61be5ccc84099672a55204317848c138793",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_067.jpg",
+      "size": 1932387,
+      "sha256": "e9eedef069995ff7de0d1004da3076024bed4227d48547f09f0faaa93d7de323",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_034.jpg",
+      "size": 1359159,
+      "sha256": "bdf9ad3e5c45f087f0e1f8328bb131706ee4fba60ab735c30b4a49adcdefcd59",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_030.jpg",
+      "size": 1289968,
+      "sha256": "c0d4ca1d872892ae4fd722fbf82a198cef8de513264d140f44d9b0655ab8462b",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_019.jpg",
+      "size": 1305005,
+      "sha256": "7bd8137251f25348082b9fdf3bfe4d5e7a4f3a73bcf5b74b798aa6c4a9aa10be",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_043.jpg",
+      "size": 1343130,
+      "sha256": "f7a9f18b9bd2c073cfd89a6c52e3c967ba12b35c1a42273ae3e0640b3e1f2569",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_065.jpg",
+      "size": 2038675,
+      "sha256": "502abf89d88addce07bd9aea32242b397c94ca52997a571a9aa549e2fff91d84",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_071.jpg",
+      "size": 1822050,
+      "sha256": "e431280c0ec6a1d64b693993c10498e8ca269cf950efd0492c02720492e8912a",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_037.jpg",
+      "size": 1798104,
+      "sha256": "d0a013d27e0df2aaaf4997835b5bac8d045a020c4b0061a4497ca71ccd2411ab",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_022.jpg",
+      "size": 1321001,
+      "sha256": "76f847d4633e0fb510eb6eeec58d383f97c2a3bbdbb5022c833e2eb94d8970b2",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_015.jpg",
+      "size": 1322153,
+      "sha256": "0ddc0135888298342a7e02db855e5d2e433780f9c8a40a0cba54a64836ac306c",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_038.jpg",
+      "size": 2247015,
+      "sha256": "6aeadd15b89520e1686f54d7be3606413050ebd5e8842fcd454647648ca56b42",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_061.jpg",
+      "size": 1298676,
+      "sha256": "3835a86a7e40ef5ec1d7e9d6f210fe264d28a7f386c51ec6bfc2eff1bed772ca",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_073.jpg",
+      "size": 1718709,
+      "sha256": "96dbb79b7b1b5d166463b382bb6d2302f6c680f799b4bd8e437ea84ed7e2d1ce",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_020.jpg",
+      "size": 1295724,
+      "sha256": "31c5f24b77b668d226b52566ec00c3dda4d3893e2b1d2c29e4269726b735e724",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_002.jpg",
+      "size": 1386771,
+      "sha256": "f97e7a746047aa5c3b1a63eabf2b63e94c44c7203e5f136beb8d5dcd52b7ab4c",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_051.jpg",
+      "size": 2165200,
+      "sha256": "7919d948780e9a71e3aeb414c97868db5f2e84fc835f5d878fdb7d5e7a724121",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_044.jpg",
+      "size": 1260379,
+      "sha256": "dbacf373b5a6d45d11e5be15a3e840af788ef43124ecb7f3d5576e94b84c05ae",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_016.jpg",
+      "size": 1307826,
+      "sha256": "511ccbb99738c1528d289c583782318e1751df7b9d02c2590c8d0ae904ead664",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_040.jpg",
+      "size": 1331795,
+      "sha256": "b1b01b7d912882c64b48c9b5c98ccf2b43f2486def8d661c36a8d42849b9d847",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_007.jpg",
+      "size": 1326901,
+      "sha256": "1e34c58961c5c643dae8c097878c6b635716fca0976904f11b4ff6a6e97ee97b",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_056.jpg",
+      "size": 1326072,
+      "sha256": "84574e6f8d5dd1844ba16e89ab347360c033b870631d6fe567b03681f183774b",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_049.jpg",
+      "size": 1673203,
+      "sha256": "a6839570bef662ad68503d2fc1e26ada63e8009e9bed8012f3e43159600a059d",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_035.jpg",
+      "size": 1342501,
+      "sha256": "4ffd99593240428232447ccd2fcf0bf3b577e34e3c188118a82ec844a96e4df6",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_057.jpg",
+      "size": 1281296,
+      "sha256": "1c06c0bc583a0a16f8cc66b1497f63a23e9058336a08f438a3684f2870dc2d20",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_062.jpg",
+      "size": 1605050,
+      "sha256": "ba34d8a84e7843966be53d0fca6be21aa63ba4c022789175eda688a7cc8b1615",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_059.jpg",
+      "size": 1354093,
+      "sha256": "221f7b7da3bb016e8fed95a10efb990ed2f70149a1b36d567a0e5f870fd1b120",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_069.jpg",
+      "size": 2776947,
+      "sha256": "dfe63b6d082c15199aa9c2775f2e8b95224d6e27b07ce36ac42b0451c4504774",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_004.jpg",
+      "size": 1281093,
+      "sha256": "9e5f48f720d69a1ea04074fe98b78373ff431057426c346ee656b8b9b895ef67",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_047.jpg",
+      "size": 1415608,
+      "sha256": "374ede6f46debd38cf1f989da9d16efe2a12bad981d42feaea9dab3bd5cedd47",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_000.jpg",
+      "size": 1481591,
+      "sha256": "18ad53d52d81d687945835f91ec91cf0df1fb2e2c31f7626381128189d18f5a4",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_026.jpg",
+      "size": 1777843,
+      "sha256": "e96b465416e5fc0955a3e078d3c5ecd6e330934e8d2964a4e0d60dd1627170ae",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_028.jpg",
+      "size": 1346246,
+      "sha256": "d5e37b48c9e57b70482a9fb29a6e0a6d99f50b7e9efaedce636458c4bda77c7f",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_012.jpg",
+      "size": 1774945,
+      "sha256": "f1d9fa0a6de92ca3701cf06507f1b0a7afe91244cbcba79f1330fecd8195291a",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_017.jpg",
+      "size": 1282270,
+      "sha256": "de1945001be6d224d5a5f0760abf84986017a9919f1938e28744a8161d259b50",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_055.jpg",
+      "size": 1354216,
+      "sha256": "39c50450363bcb9b32d7e54014106fbdd9fc7024e5cbee3c91ed8c225fe23972",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_025.jpg",
+      "size": 2151793,
+      "sha256": "4aaf9a25d94bf8d64064b922dc885020c51f8088ea0ec3483a56bfc8549dc3cb",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_045.jpg",
+      "size": 1341431,
+      "sha256": "1bd310707aa9d444c64f6cb2e6122f5d79768388a8ccf4f07260e9f4c1faeb57",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_068.jpg",
+      "size": 2794091,
+      "sha256": "15ce9b62143f4a9a5380c79616937a43475df6bb93a8dc61bb0dd6dd31f9defd",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_041.jpg",
+      "size": 1396254,
+      "sha256": "bd86a01a7a4131c5b75d509666e67bf5d5c63a95c09b27a1db4cd2f9b548302c",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_014.jpg",
+      "size": 1398733,
+      "sha256": "93ed5268b0da494f92da21497b4ad3faabce3197590df484531f4f61d2d77a2e",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_024.jpg",
+      "size": 1951066,
+      "sha256": "3dd4625854b4e7fe734892e71e99fcb0047d2da8f8e2b88c9ba5d562d0d287ce",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_058.jpg",
+      "size": 1317178,
+      "sha256": "84a543745a3d38c777cecb697a5a3b765019635643579b308ebcb6ffb6279a93",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_001.jpg",
+      "size": 1277361,
+      "sha256": "fe972485b2f9bcb3cbb6e1da4de8327669c0c33452113e6aec5e69cfdb25cffc",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_074.jpg",
+      "size": 867885,
+      "sha256": "bdb16aaf58a924c2b0ccfc37cf5d836a714e05754cbf8e907a02020235c5d8fa",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_042.jpg",
+      "size": 1365033,
+      "sha256": "acb3fe9e51efe61f9075897deb1741178e50c419ce082f9116c96c9af3323d3b",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/measured_colors.png",
+      "size": 567618,
+      "sha256": "d5e3e0ea9883152aa14db59b688b02edd977ac94b10b4d747568d84de952935f",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_009.jpg",
+      "size": 1334507,
+      "sha256": "789cb42304be16bb1b36b6c2b923d58ea50edaa234a0d49f5754d1111a1f7856",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_046.jpg",
+      "size": 1348950,
+      "sha256": "c22bda12b03988137086eab75444839e4503a662fc7e91b9ae35a20d71d7d48e",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_005.jpg",
+      "size": 1245870,
+      "sha256": "36f5ec26447e68181c2e114c5164de6b5618da21424e70532af51846cc594b41",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_018.jpg",
+      "size": 1249371,
+      "sha256": "7b4e241027c90dc383a454af97ed916490c253c329a6457f216faca835fc9151",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_054.jpg",
+      "size": 1331429,
+      "sha256": "f3392e67f93110848cdbd89f41759af2bfe04cdfa76726612861a3a550c72b4d",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_031.jpg",
+      "size": 1248173,
+      "sha256": "36e1aa5a1b741f102d3b13d2d114e88a6c4e9ffbd003208b794b970cbf1043ac",
+      "mode": 33204
+    },
+    {
+      "path": "simulator/assets/super/frontier_visual/textures/atlas_050.jpg",
+      "size": 1852154,
+      "sha256": "dc7e5aa451c797a33635bc6d6946abf768469d3584a47a53b353248e81909573",
+      "mode": 33204
+    }
+  ]
+}
