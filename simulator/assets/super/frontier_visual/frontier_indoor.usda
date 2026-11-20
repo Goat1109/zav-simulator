@@ -1,0 +1,17 @@
+#usda 1.0
+(
+    defaultPrim = "FrontierIndoor"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "FrontierIndoor" (
+    prepend references = @frontier_textured_flight.usda@</FlightTerrain>
+)
+{
+    def Xform "IndoorInfill" (
+        prepend references = @frontier_indoor_infill.usdc@</IndoorInfill>
+    )
+    {
+    }
+}

@@ -1,8 +1,13 @@
 # Frontier FAST-LIVO2 지도와 SUPER 주행
 
-`./run_super_sim.sh frontier`는 이제 실제 bag 카메라 텍스처를 입힌 연속 표면 지형을 기본으로 엽니다.
-`frontier_visual/frontier_textured_flight.usda`가 표시·LiDAR·충돌 지형을 구성하며,
-기존 500.54m 경로와 `common.yaml`은 그대로 사용합니다. 새 지형의 전 구간 도착을 확인했으며,
+`./run_super_sim.sh frontier`의 기본 지형은 `frontier_visual/frontier_indoor.usda`입니다.
+실제 bag 카메라 표면과 두 착륙 패드를 포함한 `frontier_textured_flight.usda`에
+`frontier_indoor_infill.usdc`를 겹쳐 실외로 빠지던 틈을 막습니다. 보강면은 카메라, RTX LiDAR와
+PhysX에 함께 보입니다. 재구성된 복도·연결통로와 계단실의 실측 치수, 같은 층에서 바닥과 천장이
+함께 관측된 인접 공간을 기준으로 경계를 정했습니다. 새 면의 단색은 해당 부위 실측 RGB의 중앙값입니다.
+기존 500.54m bag 경로를 4cm 간격으로 검사했을 때 보강면까지의 최소 여유는 0.84m입니다.
+
+보강 전 실사 지형에서 bag 경로의 전 구간 도착을 확인했으며,
 최상층 바닥 충돌면 수정과 작은 착륙 패드 추가 후 최상층 단독 시험에서 두 번 연속
 착륙·자동 시동 해제를 확인했습니다. 수정 후 전체 경로를 재주행하지는 않았습니다.
 자세한 내용은 [최상층 착륙 검증](frontier-landing.md)을 참고하세요.
@@ -11,7 +16,8 @@
 로컬 자산 `simulator/assets/super/frontier_visual/`에는 `frontier_textured_flight.usda`,
 `frontier_textured.usdc`, `frontier_collision.usdc`, `photo_surface.mdl`, `textures/`가 필요합니다.
 기존 `simulator/assets/super/frontier.usdc`도 동일한 이륙 패드 참조를 위해 유지합니다.
-최종 실행 자산은 `simulator/assets/super/frontier_package/`의 분할 압축 파일로 제공합니다.
+실사 복원 자산은 `simulator/assets/super/frontier_package/`의 분할 압축 파일로 제공합니다.
+실내 보강용 USD 두 개는 `frontier_visual/`에 직접 포함합니다.
 첫 실행 시 자동으로 복원하므로 Git LFS나 원본 bag 재처리가 필요하지 않습니다.
 수동 복원은 `python3 simulator/tools/super/restore_frontier_assets.py`, 무결성 검사는 같은 명령의
 `--verify` 옵션으로 실행합니다. 기존 파일은 기본적으로 보존하며 배포본으로 덮어쓰려면 `--force`를 지정합니다.
@@ -78,6 +84,40 @@ Dasan과 같은 FAST-LIVO2/카메라 보정으로 재생했지만 초기 설정�
 bag 시험 발행기의 `viewpoint_pause_indices`는 이 방법으로 계단 중간참과 층 진입점에서 구간을 나눈다. `--land-at-end`는 시험 발행기만 마지막에 착륙을 요청하는 옵션이다. 실제 EPIC 입력에는 시험 발행기를 함께 켜지 않는다. ROS 1 EPIC 자체나 그 position/yaw polynomial 변환 bridge까지 연결한 것은 아니며, 공간 viewpoint → SUPER → OMMPC → PX4의 ROS 2 입력 계약을 시험하는 구성이다.
 
 ## 실행
+
+### EPIC 실시간 실내 탐사
+
+```bash
+./run_super_sim.sh frontier
+# Isaac의 Ready 표시 후 다른 터미널에서 실행
+./run_super.sh --scenario frontier --route-source epic --execute
+```
+
+새 워크스페이스에서는 `source simulator/ros_setup.sh` 후
+`colcon build --symlink-install --packages-up-to zav_super`로 EPIC을 포함해 빌드합니다.
+EPIC은 Super-LIO의 `/zav/super/odom`과 `/zav/super/cloud_world`를 받아 이륙 완료 후
+`/mission/exploration_path`에 world 좌표의 XYZ와 관측 yaw를 발행합니다. SUPER가 로컬 궤적을
+재계획하고 OMMPC가 PX4를 제어합니다. 건물 탐사 설정에 적용하는 `frontier_bounds.yaml`은
+EPIC의 검색 범위 두 값만 지정합니다. 실내 경계는 Isaac의 지형에 들어 있습니다.
+
+`super_epic.rviz`의 보라색 선과 화살표는 EPIC이 전송한 경로와 yaw입니다. 숫자는 방문 순서,
+빨간 후보 화살표는 frontier 관측 방향입니다. 기체·LiDAR·점유 지도·실행 및 백업 궤적은 SUPER의
+표시를 사용합니다. 탐사 중간 경로의 끝에 도착하면 다음 경로를 기다립니다.
+원본 표시 항목은 [EPIC의 RViz 설정](https://github.com/Robotics-STAR-Lab/EPIC/blob/d73c3150e57d669ac21bcad5c859f52c2827c9ba/src/local_planner/minco_planner/config/traj.rviz)을 참고했습니다.
+
+2026-11-19 실내 보강 후 Isaac Sim·RViz 비행 1회에서는 101.4 시뮬레이션 초 동안 기체 중심이
+271.5m를 이동했습니다. 독립적인 Isaac 위치 표본 2,029개가 모두 실내에 있었습니다. EPIC이 보낸
+44개 경로 중 38개를 SUPER가 수락했고, 나머지 6개는 첫 점이 현재 기체 위치에서 2m를 넘어 거절됐습니다.
+22개 LiDAR 스캔을 대조해 보강면에서도 반사점을 확인했습니다.
+
+마지막 경로는 계단실 보강 벽을 통과해 외부 관측점에 닿는 형태였습니다. EPIC은
+106.41초에 이 경로를 보낸 후 110.84초에 일시적으로 `FINISH` 상태가 됐고, SUPER는 마지막 경로를
+계속 추종했습니다. 117.91초에 기체가 보강 바닥에 닿았습니다. 접촉 직전 SUPER의 기체 중심 명령은
+z = −0.14m, 바닥은 −0.28m였습니다. 접촉 후 백업 궤적의 안전 통로 생성 실패가 반복됐고
+120.91초에 OMMPC가 궤적 heartbeat 만료로 PX4 착륙을 요청했습니다. 윗층 탐사와 착륙 완료는
+확인되지 않았습니다. 로컬 기록은 `log/frontier-epic/20261119-152614-indoor-q2fO/`에 있습니다.
+
+### Bag 경로 재현
 
 ```bash
 ./run_super_sim.sh frontier

@@ -26,15 +26,15 @@ def preflight(workspace):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--scenario',choices=('high_speed','dense','mixed','dasan','frontier'),default='high_speed')
+    parser.add_argument('--scenario',choices=('warehouse','high_speed','dense','mixed','dasan','frontier'),default='high_speed')
     parser.add_argument('--backend',choices=('super_lio',),default='super_lio')
     parser.add_argument('--profile',choices=('common',),default='common',
                         help='common: one shared Super-LIO planner/controller YAML for all benchmark scenes')
     parser.add_argument('--config',type=Path,
                         help='Experimental shared YAML override; requires --profile common')
     parser.add_argument('--mission',type=Path,help='Measured-scene mission JSON (default: <scenario>_mission.json)')
-    parser.add_argument('--route-source',choices=('bag','external'),default='bag',
-                        help='external: accept live world-frame nav_msgs/Path, do not auto-land at path end')
+    parser.add_argument('--route-source',choices=('bag','external','epic'),default='bag',
+                        help='Use the bag route, an external world-frame Path, or live EPIC exploration')
     parser.add_argument('--execute',action='store_true',help='Arm, take off and fly the original benchmark round trip')
     parser.add_argument('--no-rviz',action='store_true')
     parser.add_argument('--record-dir',type=Path,help='Flight data directory (default: log/super_flights/<timestamp>)')

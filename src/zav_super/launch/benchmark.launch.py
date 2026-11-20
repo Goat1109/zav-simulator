@@ -47,7 +47,12 @@ def setup(context):
     mission_path=None
     auto_viewpoints=False
     adapter_parameters={'scenario':scenario,'imu_position':calibration['imu_position'],'imu_orientation':calibration['imu_orientation']}
+    if scenario=='warehouse':
+        adapter_parameters['spawn']=[0.,0.,.10]
     route_source=LaunchConfiguration('route_source').perform(context)
+    use_epic=route_source=='epic'
+    if use_epic:
+        route_source='external'
     planner_values=yaml.safe_load(planner_config.read_text())
     mission_parameters={'use_sim_time':True,'execute':execute,'route_source':route_source,
         'path_chord_error_m':float(planner_values['rog_map']['resolution']),
@@ -81,7 +86,21 @@ def setup(context):
     if auto_viewpoints:
         actions.append(ExecuteProcess(cmd=[sys.executable,str(workspace/'simulator/tools/super/publish_bag_route.py'),
             '--scenario',scenario,'--mission',str(mission_path),'--land-at-end'],output='screen'))
-    if rviz: actions.append(Node(package='rviz2',executable='rviz2',prefix=['bash '+str(workspace/'simulator/tools/rviz/gui_exec.sh')],arguments=['-d',str(share/'rviz/super.rviz')],parameters=[{'use_sim_time':True}],output='screen'))
+    if use_epic:
+        epic_share=Path(get_package_share_directory('epic_ros2'))
+        epic_args={'config':str(epic_share/'config/isaac_building_explore.yaml'),
+                   'external_local_planner':'true'}
+        if scenario=='frontier':
+            epic_args['scene_config']=str(epic_share/'config/frontier_bounds.yaml')
+        actions.append(IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(str(epic_share/'launch/isaac_epic.launch.py')),
+            launch_arguments=epic_args.items()))
+        if execute:
+            actions.append(ExecuteProcess(name='epic_start_after_takeoff',
+                cmd=['bash',str(workspace/'simulator/tools/super/start_epic.sh')],
+                output='screen'))
+    rviz_config=share/'rviz'/('super_epic.rviz' if use_epic else 'super.rviz')
+    if rviz: actions.append(Node(package='rviz2',executable='rviz2',prefix=['bash '+str(workspace/'simulator/tools/rviz/gui_exec.sh')],arguments=['-d',str(rviz_config)],parameters=[{'use_sim_time':True}],output='screen'))
     telemetry_dir=LaunchConfiguration('telemetry_dir').perform(context)
     if telemetry_dir:
         mission_args=['--mission',str(mission_path)] if mission_path else []
@@ -92,14 +111,14 @@ def setup(context):
 
 def generate_launch_description():
     return LaunchDescription([
-        DeclareLaunchArgument('scenario',default_value='high_speed',choices=['high_speed','dense','mixed','dasan','frontier']),
+        DeclareLaunchArgument('scenario',default_value='high_speed',choices=['warehouse','high_speed','dense','mixed','dasan','frontier']),
         DeclareLaunchArgument('backend',default_value='super_lio',choices=['super_lio']),
         DeclareLaunchArgument('profile',default_value='common',choices=['common']),
         DeclareLaunchArgument('common_config',default_value='',
                              description='Optional shared YAML path for isolated common-profile experiments'),
         DeclareLaunchArgument('mission',default_value='',description='Measured-scene clearance-checked bag-derived route JSON'),
-        DeclareLaunchArgument('route_source',default_value='bag',choices=['bag','external'],
-                             description='bag benchmark or live /mission/exploration_path input'),
+        DeclareLaunchArgument('route_source',default_value='bag',choices=['bag','external','epic'],
+                             description='Bag benchmark, external path publisher, or built-in EPIC exploration'),
         DeclareLaunchArgument('rviz',default_value='true'),
         DeclareLaunchArgument('execute',default_value='false'),
         DeclareLaunchArgument('telemetry_dir',default_value=''),

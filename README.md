@@ -126,10 +126,11 @@ PCD·USD·복원 궤적·카메라 색상과 재생성 절차는 [Dasan 지도 �
 Frontier bag은 FAST-LIVO2로 복원하고 실제 카메라 RGB를 입힌 PCD를 Isaac Sim 지형으로 변환했습니다.
 Frontier 실행에 필요한 최종 지도·임무·텍스처는 분할 압축 파일로 포함했습니다. 원본 bag과 복원 중간 파일·시험 로그는 제외합니다.
 `./run_super_sim.sh frontier`의 첫 실행에서 자동으로 복원하며, Git LFS 설치는 필요하지 않습니다.
-`./run_super_sim.sh frontier`는 실제 카메라 텍스처를 입힌 연속 표면 지형
-`simulator/assets/super/frontier_visual/frontier_textured_flight.usda`를 기본으로 사용합니다.
-화면·LiDAR·충돌 판정에 새 지형을 사용하며, 기존 500.54m 경로와 `common.yaml`은 유지합니다.
-새 지형에서 203개 경유점 도착과 주행 중 충격·관통 0건을 확인했습니다.
+`./run_super_sim.sh frontier`는 실사 지형에 실내 벽·바닥·천장 보강면을 합성한
+`simulator/assets/super/frontier_visual/frontier_indoor.usda`를 엽니다.
+두 번째 터미널에서 `./run_super.sh --scenario frontier --route-source epic --execute`를 실행하면
+EPIC 탐사 경로와 SUPER 실행 궤적을 한 RViz에서 볼 수 있습니다. SUPER 설정은 `common.yaml`입니다.
+실내 보강 전 실사 지형에서는 bag 경로의 203개 경유점 도착과 주행 중 충격·관통 0건을 확인했습니다.
 최상층 착륙면의 방향을 수정하고 1m × 1m, 두께 2cm 패드를 추가한 뒤,
 최상층만 따로 시험해 두 번 연속 PX4 착륙 감지·자동 시동 해제를 확인했습니다.
 수정 후 전체 500m 경로를 재주행한 결과는 아닙니다. [최상층 착륙 검증](docs/frontier-landing.md)을 참고하세요.

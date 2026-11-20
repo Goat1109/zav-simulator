@@ -2,7 +2,7 @@
 set -eo pipefail
 _workspace="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 export ZAV_SUPER_SCENE="${1:-high_speed}"
-case "$ZAV_SUPER_SCENE" in high_speed|dense|mixed|dasan|frontier) ;; *) echo 'Usage: ./run_super_sim.sh high_speed|dense|mixed|dasan|frontier' >&2; exit 2 ;; esac
+case "$ZAV_SUPER_SCENE" in warehouse|high_speed|dense|mixed|dasan|frontier) ;; *) echo 'Usage: ./run_super_sim.sh warehouse|high_speed|dense|mixed|dasan|frontier' >&2; exit 2 ;; esac
 case "${2:-}" in
     '') export ZAV_SCENE_VIEW=chase ;;
     --overview) export ZAV_SCENE_VIEW=overview ;;
@@ -10,7 +10,7 @@ case "${2:-}" in
 esac
 if [ "$ZAV_SUPER_SCENE" = frontier ]; then
     python3 "$_workspace/simulator/tools/super/restore_frontier_assets.py" || exit 1
-    export ZAV_SUPER_TERRAIN_USD="${ZAV_SUPER_TERRAIN_USD:-$_workspace/simulator/assets/super/frontier_visual/frontier_textured_flight.usda}"
+    export ZAV_SUPER_TERRAIN_USD="${ZAV_SUPER_TERRAIN_USD:-$_workspace/simulator/assets/super/frontier_visual/frontier_indoor.usda}"
     if [ ! -f "$ZAV_SUPER_TERRAIN_USD" ]; then
         echo "Frontier terrain asset not found: $ZAV_SUPER_TERRAIN_USD" >&2
         echo 'Restore the photographic Frontier assets described in docs/frontier-navigation.md.' >&2

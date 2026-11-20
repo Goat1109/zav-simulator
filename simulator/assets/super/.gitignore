@@ -44,6 +44,8 @@
 !/frontier_visual/landing-pad.json
 !/frontier_visual/landing_test_mission.json
 !/frontier_visual/landing-verification.json
+!/frontier_visual/frontier_indoor.usda
+!/frontier_visual/frontier_indoor_infill.usdc
 
 # Self-contained compressed runtime package, stored in ordinary Git.
 !/frontier_package/
