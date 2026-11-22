@@ -2,9 +2,9 @@
   "alignment": "Interpolation of actual command epochs at each measured LIO epoch; <=0.12s command bracket only. Moving: reference speed >0.2m/s.",
   "runs": [
     {
-      "log": "docs/validation/zav-forest-20261105/high-08.jsonl.gz",
+      "log": "docs/validation/argo-forest-20261105/high-08.jsonl.gz",
       "profile": "high_speed",
-      "pipeline": "Isaac ZAV + PX4 SITL + FAST-LIVO + zav_super + real flight_manager",
+      "pipeline": "Isaac ARGO + PX4 SITL + FAST-LIVO + argo_super + real flight_manager",
       "simulator_scene": {
         "profile": "high_speed",
         "upstream_revision": "2ad3419c127a617c6d7df6925e81a14175a9c096",
@@ -240,9 +240,9 @@
       }
     },
     {
-      "log": "docs/validation/zav-forest-20261105/high-09.jsonl.gz",
+      "log": "docs/validation/argo-forest-20261105/high-09.jsonl.gz",
       "profile": "high_speed",
-      "pipeline": "Isaac ZAV + PX4 SITL + FAST-LIVO + zav_super + real flight_manager",
+      "pipeline": "Isaac ARGO + PX4 SITL + FAST-LIVO + argo_super + real flight_manager",
       "simulator_scene": {
         "profile": "high_speed",
         "upstream_revision": "2ad3419c127a617c6d7df6925e81a14175a9c096",
@@ -480,7 +480,7 @@
     {
       "log": "docs/validation/ommpc-forest-20261105/high-01.jsonl.gz",
       "profile": "high_speed",
-      "pipeline": "Isaac ZAV + PX4 SITL + FAST-LIVO + zav_super + real flight_manager",
+      "pipeline": "Isaac ARGO + PX4 SITL + FAST-LIVO + argo_super + real flight_manager",
       "simulator_scene": {
         "profile": "high_speed",
         "upstream_revision": "2ad3419c127a617c6d7df6925e81a14175a9c096",
@@ -722,7 +722,7 @@
     {
       "log": "docs/validation/ommpc-forest-20261105/high-02.jsonl.gz",
       "profile": "high_speed",
-      "pipeline": "Isaac ZAV + PX4 SITL + FAST-LIVO + zav_super + real flight_manager",
+      "pipeline": "Isaac ARGO + PX4 SITL + FAST-LIVO + argo_super + real flight_manager",
       "simulator_scene": {
         "profile": "high_speed",
         "upstream_revision": "2ad3419c127a617c6d7df6925e81a14175a9c096",

@@ -1,4 +1,4 @@
-"""[ZAV 변경] Isaac Python의 센서 스트림을 시스템 ROS 2 토픽으로 변환합니다.
+"""[ARGO 변경] Isaac Python의 센서 스트림을 시스템 ROS 2 토픽으로 변환합니다.
 
 Ubuntu/WSL 공통 수신기. Isaac Python 3.11과 Humble의 사용자 메시지 ABI를
 분리하므로 livox_ros_driver2는 Isaac 내부에 설치할 필요가 없습니다.
@@ -28,7 +28,7 @@ def read_exact(conn, count):
 def client(args):
     # Both FAST-LIVO and RViz may request the relay; publish each sensor once.
     import fcntl
-    relay_lock = open('/tmp/zav-sensor-relay.lock', 'w')
+    relay_lock = open('/tmp/argo-sensor-relay.lock', 'w')
     try:
         fcntl.flock(relay_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:

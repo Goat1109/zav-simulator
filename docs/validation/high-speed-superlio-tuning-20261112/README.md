@@ -17,7 +17,7 @@ boundary:
 
 ## 적용과 재실행
 
-`src/zav_super/config/high_speed_super_lio.yaml`은 `high_speed + super_lio`에만 선택된다. launch가 실제 설정 경로를 출력하며, 기존 실행 명령은 그대로다. source와 install의 최종 전용 YAML/launch를 동기화했다. dense·다른 LIO 설정, OMMPC, LIO 추정기 설정, 안전 임계값은 수정하지 않았다. 탐색 중 변경한 계획 반경/팽창은 최종 선택 YAML을 기준으로 확인한다.
+`src/argo_super/config/high_speed_super_lio.yaml`은 `high_speed + super_lio`에만 선택된다. launch가 실제 설정 경로를 출력하며, 기존 실행 명령은 그대로다. source와 install의 최종 전용 YAML/launch를 동기화했다. dense·다른 LIO 설정, OMMPC, LIO 추정기 설정, 안전 임계값은 수정하지 않았다. 탐색 중 변경한 계획 반경/팽창은 최종 선택 YAML을 기준으로 확인한다.
 
 ```bash
 ./run_super_sim.sh high_speed

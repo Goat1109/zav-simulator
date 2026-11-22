@@ -95,4 +95,4 @@ python3 simulator/tools/super/prepare_dasan_scene.py log/dasan-rebuild/reconstru
 
 `simulator/tests/check_pcd_scene.py`는 음수 voxel 경계, 인접 voxel 내부면 제거, binary PCD 필드 순서, RGB와 충돌 기하 보존을 검사한다.
 
-`src/zav_super/config/dasan.yaml`은 Dasan 실행기에 연결한 별도 설정이다. penalty·traj_opt 전체·속도·가속도·저크 제한·OMMPC/Super-LIO 설정은 기존 common과 같다. 기존 `common_super_lio.yaml` 및 `ommpc_high_speed.yaml`도 보존했다. 지도 설정과 주행 검증의 범위·실패는 [주행 안내](dasan-navigation.md)를 따른다.
+`src/argo_super/config/dasan.yaml`은 Dasan 실행기에 연결한 별도 설정이다. penalty·traj_opt 전체·속도·가속도·저크 제한·OMMPC/Super-LIO 설정은 기존 common과 같다. 기존 `common_super_lio.yaml` 및 `ommpc_high_speed.yaml`도 보존했다. 지도 설정과 주행 검증의 범위·실패는 [주행 안내](dasan-navigation.md)를 따른다.

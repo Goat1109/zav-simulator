@@ -2,8 +2,8 @@
 <package format="3">
   <name>epic_ros2</name>
   <version>0.1.0</version>
-  <description>Native ROS 2 port of EPIC exploration with Isaac Sim and ZAV PX4 adapters.</description>
-  <maintainer email="zav@example.com">ZAV</maintainer>
+  <description>Native ROS 2 port of EPIC exploration with Isaac Sim and ARGO PX4 adapters.</description>
+  <maintainer email="argo@example.com">ARGO</maintainer>
   <license>GPL-3.0-only</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>rclcpp</depend>
@@ -31,7 +31,7 @@
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>fast_livo</exec_depend>
   <exec_depend>super_lio</exec_depend>
-  <exec_depend>zav_control</exec_depend>
+  <exec_depend>argo_control</exec_depend>
   <export>
     <build_type>ament_cmake</build_type>
   </export>

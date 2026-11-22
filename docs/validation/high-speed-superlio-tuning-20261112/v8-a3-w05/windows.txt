@@ -18,7 +18,7 @@ xwininfo: Window id: 0x204 (the root window) (has no name)
         0x480000b "Isaac Sim Python 5.1.0": ("Isaac Sim Python 5.1.0" "Isaac Sim Python 5.1.0")  1440x900+10+45  +70+130
      0x402595 (has no name): ()  515x1071+931+51  +931+51
         1 child:
-        0x4e00106 "/home/goat/zenith_ws/install/zav_super/share/zav_super/rviz/super.rviz* - RViz": ("rviz2" "rviz2")  495x1016+10+45  +941+96
+        0x4e00106 "/home/goat/zenith_ws/install/argo_super/share/argo_super/rviz/super.rviz* - RViz": ("rviz2" "rviz2")  495x1016+10+45  +941+96
            2 children:
            0x4e00109 "Qt NET_WM User Time Window": ()  1x1+-1+-1  +940+95
            0x4e00013 "rviz2": ("rviz2" "rviz2")  445x908+25+70  +966+166

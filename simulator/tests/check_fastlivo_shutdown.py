@@ -22,7 +22,7 @@ def port():
         sock.bind(('127.0.0.1', 0))
         return sock.getsockname()[1]
 
-with tempfile.TemporaryDirectory(prefix='zav-shutdown-') as temp:
+with tempfile.TemporaryDirectory(prefix='argo-shutdown-') as temp:
     temp = Path(temp)
     rviz = temp / 'tools/rviz'; runtime = temp / 'tools/runtime'
     binaries = temp / 'bin'; workspace = temp / 'workspace'
@@ -30,7 +30,8 @@ with tempfile.TemporaryDirectory(prefix='zav-shutdown-') as temp:
         directory.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / 'tools/rviz/run_fastlivo.sh', rviz / 'run_fastlivo.sh')
     shutil.copy2(ROOT / 'tools/runtime/fastlivo_session.py', runtime / 'fastlivo_session.py')
-    (rviz / 'ros_env.sh').write_text('export ZAV_WS_DIR="$TEST_WORKSPACE"\nexport ZAV_ROS_TRANSPORT=cyclone_tcp\n')
+    shutil.copy2(ROOT / 'tools/runtime/sim_session.py', runtime / 'sim_session.py')
+    (rviz / 'ros_env.sh').write_text('export ARGO_WS_DIR="$TEST_WORKSPACE"\nexport ARGO_ROS_TRANSPORT=cyclone_tcp\n')
     (workspace / 'install/local_setup.bash').write_text('# fixture\n')
     payload = temp / 'payload.py'
     payload.write_text('''import os,sys,socket,signal,time,json,subprocess
@@ -66,7 +67,7 @@ while True:time.sleep(10)
         # Isolate the fixed launch lock as well as the network ports.
         supervisor = runtime / 'fastlivo_session.py'
         source = (ROOT / 'tools/runtime/fastlivo_session.py').read_text()
-        source = source.replace("f'/tmp/zav-fastlivo-{os.getuid()}.lock'", repr(str(temp / 'session.lock')))
+        source = source.replace("f'/tmp/argo-fastlivo-{os.getuid()}.lock'", repr(str(temp / 'session.lock')))
         supervisor.write_text(source)
         if how=='launch-exit': env['TEST_EARLY_EXIT']='1'
         pid, master = pty.fork()

@@ -1,0 +1,23 @@
+#!/bin/sh
+# @name argo_v2 Isaac Sim SITL
+# @type Quadrotor x
+. ${R}etc/init.d-posix/airframes/10020_isaac_argo
+# Generated from simulator/config/vehicles/argo_v2.json.
+param set MPC_THR_HOVER 0.473424657359
+param set CA_ROTOR_COUNT 4
+param set CA_ROTOR0_PX 0.0980225653274
+param set CA_ROTOR0_PY 0.0983350557492
+param set CA_ROTOR0_PZ 0.041459648056
+param set CA_ROTOR0_KM 0.05
+param set CA_ROTOR1_PX -0.0999774346726
+param set CA_ROTOR1_PY -0.0996649442508
+param set CA_ROTOR1_PZ 0.041459648056
+param set CA_ROTOR1_KM 0.05
+param set CA_ROTOR2_PX 0.0980225653274
+param set CA_ROTOR2_PY -0.0996649442508
+param set CA_ROTOR2_PZ 0.041459648056
+param set CA_ROTOR2_KM -0.05
+param set CA_ROTOR3_PX -0.0999774346726
+param set CA_ROTOR3_PY 0.0983350557492
+param set CA_ROTOR3_PZ 0.041459648056
+param set CA_ROTOR3_KM -0.05

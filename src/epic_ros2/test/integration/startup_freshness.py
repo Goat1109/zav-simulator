@@ -61,7 +61,7 @@ def send(t,delay):
  # together, while the source IMU reports the current measurement epoch.
  c=Clock();c.clock=stamp(t-delay);clock.publish(c)
  raw=Imu();raw.header.stamp=stamp(t);raw.header.frame_id='imu';imu.publish(raw)
- o=Odometry();o.header.frame_id='world';o.child_frame_id='zav_body';o.header.stamp=stamp(t-delay)
+ o=Odometry();o.header.frame_id='world';o.child_frame_id='argo_body';o.header.stamp=stamp(t-delay)
  o.pose.pose.position.z=1.6;o.pose.pose.orientation.w=1.;odom.publish(o)
  p=PointCloud2();p.header=o.header;p.height=1;p.width=len(points);p.point_step=12;p.row_step=12*len(points);p.is_dense=True
  p.fields=[PointField(name=k,offset=4*i,datatype=PointField.FLOAT32,count=1)for i,k in enumerate('xyz')];p.data=points.tobytes();cloud.publish(p)

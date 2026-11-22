@@ -1,5 +1,6 @@
 """Launch FAST-LIVO2 or Super-LIO with the common mounted-IMU PX4 bridge."""
 import os
+import sys
 import yaml
 from pathlib import Path
 from ament_index_python.packages import get_package_share_directory
@@ -13,9 +14,14 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 def generate_launch_description():
     directory = Path(__file__).resolve().parent
+    sys.path.insert(0,str(directory.parents[1]))
+    from vehicle_profiles import active_profile, calibration_dir
+    vehicle=active_profile()
+    os.environ['ARGO_VEHICLE']=vehicle['name']
+    os.environ['PEGASUS_FASTLIVO_CONFIG_DIR']=str(calibration_dir(vehicle))
     share = Path(get_package_share_directory("fast_livo"))
-    # [ZAV 변경] 고정 TCP peer는 WSL 전용. Ubuntu 기본 DDS에는 강제하지 않습니다.
-    tcp = os.environ.get("ZAV_ROS_TRANSPORT") == "cyclone_tcp"
+    # [ARGO 변경] 고정 TCP peer는 WSL 전용. Ubuntu 기본 DDS에는 강제하지 않습니다.
+    tcp = os.environ.get("ARGO_ROS_TRANSPORT") == "cyclone_tcp"
     mapper_env = {"CYCLONEDDS_URI": (directory / "cyclonedds_fastlivo.xml").as_uri()} if tcp else {}
     viewer_env = {"CYCLONEDDS_URI": (directory / "cyclonedds_local.xml").as_uri()} if tcp else {}
     bridge_env = {"CYCLONEDDS_URI": (directory / "cyclonedds_bridge.xml").as_uri()} if tcp else {}
@@ -69,7 +75,7 @@ def generate_launch_description():
                                      ('/lio/path', '/path')],
                          additional_env=mapper_env, output='screen')]
         return [Node(package="fast_livo", executable="fastlivo_mapping", name="laserMapping",
-                     parameters=[str(share / "config/zenith.yaml"), str(share / "config/zenith_camera_pinhole.yaml"),
+                     parameters=[str(calibration_dir(vehicle) / "zenith.yaml"), str(calibration_dir(vehicle) / "zenith_camera_pinhole.yaml"),
                                  {"uav.imu_rate_odom": True, "common.img_en": (0 if LaunchConfiguration('backend').perform(context) == 'fastlio' else image_enabled),
                                   "common.img_topic": "/drone0/front_camera/color/image_raw",
                                   "common.imu_topic": "/drone0/mid360/imu",
@@ -84,9 +90,9 @@ def generate_launch_description():
                 arguments += ['--safety-' + option.replace('_', '-'),
                               LaunchConfiguration('safety_' + option).perform(context)]
             if IfCondition(LaunchConfiguration('safety_experiment')).evaluate(context):
-                arguments += ['--safety-odom-topic', '/zav/lio_safety/test/odom']
-        return [Node(package='zav_control', executable='lio_px4_bridge',
-                     name='zav_lio_px4_odom_bridge',
+                arguments += ['--safety-odom-topic', '/argo/lio_safety/test/odom']
+        return [Node(package='argo_control', executable='lio_px4_bridge',
+                     name='argo_lio_px4_odom_bridge',
                      condition=IfCondition(LaunchConfiguration('px4_bridge')),
                      arguments=arguments, additional_env=bridge_env, output='screen')]
 

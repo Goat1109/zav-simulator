@@ -20,7 +20,7 @@ bash "$ROOT/scripts/install_system.sh"
 python3 "$ROOT/scripts/fetch_dependencies.py"
 python3 "$ROOT/scripts/configure.py" "$@"
 source "$ROOT/simulator/environment.sh"
-if [[ "$ZAV_SIM_PLATFORM" == wsl ]]; then
+if [[ "$ARGO_SIM_PLATFORM" == wsl ]]; then
     (cd /mnt/c && /mnt/c/Windows/System32/cmd.exe /c call "$(wslpath -m "$ISAAC_WINDOWS_PYTHON_BAT")" -m pip install -r "$(wslpath -m "$ROOT/scripts/requirements-isaac.txt")")
 else
     env -u PYTHONPATH "$ISAAC_PYTHON" -m pip install -r "$ROOT/scripts/requirements-isaac.txt"

@@ -3,7 +3,7 @@
 /log/
 /.local/
 /.cache/
-/.zav.env
+/.argo.env
 /.venv/
 /src/PX4-Autopilot/
 /src/PegasusSimulator/

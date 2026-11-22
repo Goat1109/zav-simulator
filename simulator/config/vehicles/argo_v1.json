@@ -1,0 +1,92 @@
+{
+  "name": "argo_v1",
+  "usd": "pegasus/simulator/assets/Robots/argo_v1/argo_v1.usd",
+  "mesh": "argo.stl",
+  "mass": 1.99,
+  "body_mass": 1.99,
+  "rotor_mass": 0.005,
+  "body_com": [
+    0.0,
+    0.0,
+    -0.0182
+  ],
+  "body_inertia": [
+    [
+      0.022768,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.022895,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.041593
+    ]
+  ],
+  "rotor_axes": [
+    [
+      0.098995,
+      -0.098995,
+      -0.023125
+    ],
+    [
+      -0.098995,
+      0.098995,
+      -0.023125
+    ],
+    [
+      0.098995,
+      0.098995,
+      -0.023125
+    ],
+    [
+      -0.098995,
+      -0.098995,
+      -0.023125
+    ]
+  ],
+  "lidar_position": [
+    0.01215,
+    0.0,
+    0.11503
+  ],
+  "lidar_orientation": [
+    0.0,
+    22.0,
+    0.0
+  ],
+  "calibration_dir": "../src/FAST-LIVO2/config",
+  "robot_radius": 0.4,
+  "hover_throttle": 0.33,
+  "spawn_z_offset": 0.0,
+  "collision": "legacy_cad",
+  "px4_geometry": "legacy",
+  "propulsion": {
+    "rotor_constant": 5.4935e-06,
+    "rolling_moment_coefficient": 9.888e-08,
+    "rot_dir": [
+      -1,
+      -1,
+      1,
+      1
+    ],
+    "min_rotor_velocity": 0.0,
+    "max_rotor_velocity": 2000.0,
+    "rotor_scale": 1937.4,
+    "rotor_idle": 155.0,
+    "drag": [
+      0.5,
+      0.3,
+      0.0
+    ],
+    "backend_rate": 250.0
+  },
+  "notes": [
+    "Preserves legacy nominal controller/planner mass 1.99 kg; authored USD is a 1.99 kg body plus four 0.005 kg rotors.",
+    "Legacy PX4 allocation +/-0.15 m and KM +/-0.05 retained."
+  ]
+}

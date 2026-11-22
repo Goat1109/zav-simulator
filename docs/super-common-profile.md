@@ -1,6 +1,6 @@
 # SUPER 공통 Super-LIO 설정과 검증 순서
 
-`src/zav_super/config/common.yaml` 하나에서 SUPER와 OMMPC의 설정을 읽는다. 기존 high_speed/dense YAML과 기존 명령의 기본 동작은 보존한다. 새 설정은 검증 중인 출발점이며 최적 설정으로 채택한 값이 아니다. SUPER 알고리즘, 환경별 전환 로직, Super-LIO는 변경하지 않는다.
+`src/argo_super/config/common.yaml` 하나에서 SUPER와 OMMPC의 설정을 읽는다. 기존 high_speed/dense YAML과 기존 명령의 기본 동작은 보존한다. 새 설정은 검증 중인 출발점이며 최적 설정으로 채택한 값이 아니다. SUPER 알고리즘, 환경별 전환 로직, Super-LIO는 변경하지 않는다.
 
 ```bash
 ./run_super_sim.sh high_speed
@@ -126,7 +126,7 @@ nominal 제어 주기는 실제 달성 주파수와 다르다. 0.01초 갱신/�
 
 ### 기체 외접 반경 지표의 정밀화
 
-이전에 사용한 R0.33m 구는 여유를 더한 보수적 비교 구였다. 현재 USD SHA256 `73781389d524fddf56d9a3421fda0bcb705f6dabfe252e40faa2d7f3747b17a4`를 현재 `configure_zav_collision`로 메모리의 session layer에만 구성해 다시 측정했다. 활성 collider 37개, 다른 활성 collider 0개를 확인했다. body 원점 기준 collider 정점 최대 반경은 0.249322m이며 authored contact offset 0.002m를 포함하면 0.251322m다. 이를 R0.26m로 올림한 CAD 외접 구 지표를 추가했다. 원본 USD와 물리 형상은 바꾸지 않았다. 결과는 `current-collision-geometry.json`, 재현 코드는 `audit_collision_geometry.py`에 있다.
+이전에 사용한 R0.33m 구는 여유를 더한 보수적 비교 구였다. 현재 USD SHA256 `73781389d524fddf56d9a3421fda0bcb705f6dabfe252e40faa2d7f3747b17a4`를 현재 `configure_argo_collision`로 메모리의 session layer에만 구성해 다시 측정했다. 활성 collider 37개, 다른 활성 collider 0개를 확인했다. body 원점 기준 collider 정점 최대 반경은 0.249322m이며 authored contact offset 0.002m를 포함하면 0.251322m다. 이를 R0.26m로 올림한 CAD 외접 구 지표를 추가했다. 원본 USD와 물리 형상은 바꾸지 않았다. 결과는 `current-collision-geometry.json`, 재현 코드는 `audit_collision_geometry.py`에 있다.
 
 R0.33m 지표는 지우지 않았으며, 음수를 실제 충돌로 판정하지 않는다. R0.26m의 추가 지표에서도 경로 표본 여유 0.005m를 뺀다. 마지막 저크 후보의 여유는 high_speed 0.429m, dense 0.025m였다. 이는 authored convex hull/decomposition 형상의 외접 구와 기록 경로를 사용한 기하 지표이며, 실제 PhysX cooked geometry 및 접촉 보고를 직접 검증한 것은 아니다. 현재 작업상 0.1m 여유 목표는 CAD 지표로 비교하되 이전 구 기준 수치도 병기한다. dense 2.5cm는 충분한 여유와 반복성을 확보했다고 보기 어렵다.
 
@@ -172,12 +172,12 @@ A* 창을 [800,800,100](XY 반폭 60m)으로 늘린 H45 후보는 출발했지�
 
 ### 재현용 공통 비교 기준 파일
 
-`src/zav_super/config/common_super_lio_reference.yaml`을 추가했다. 두 장면에서 각각 2회씩 읽어 사용한 후보와 바이트까지 동일한 파일이다(SHA256 `1140f92c21d4b1454b77acca5160a64b98fdf755bed6e7afc3cb96d0abbe7148`). 최종 안전 최적값으로 선정한 파일은 아니며, 기존 common/high_speed/dense YAML은 보존한다.
+`src/argo_super/config/common_super_lio_reference.yaml`을 추가했다. 두 장면에서 각각 2회씩 읽어 사용한 후보와 바이트까지 동일한 파일이다(SHA256 `1140f92c21d4b1454b77acca5160a64b98fdf755bed6e7afc3cb96d0abbe7148`). 최종 안전 최적값으로 선정한 파일은 아니며, 기존 common/high_speed/dense YAML은 보존한다.
 
 ```bash
 ./run_super_sim.sh high_speed
 ./run_super.sh --scenario high_speed --backend super_lio --profile common \
-  --config "$PWD/src/zav_super/config/common_super_lio_reference.yaml" --execute
+  --config "$PWD/src/argo_super/config/common_super_lio_reference.yaml" --execute
 ```
 
 양쪽 명령의 scenario만 dense로 바꾸면 같은 YAML로 밀집 환경을 시험한다. 이 단계 당시 `--config`를 생략한 common은 20Hz 실험 기준 파일을 사용했다. 현재 기본값은 후속 6회 접촉/추종 검증 기준으로 갱신했다. reference의 nominal 50Hz는 실제 50Hz 명령 달성을 뜻하지 않으며, GUI 관측은 약 32~34회/sim s였다.

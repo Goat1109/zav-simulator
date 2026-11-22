@@ -59,7 +59,7 @@ def main():
             writer = csv.writer(stream)
             writer.writerow(FIELDS)
             stream.flush()
-            node = Node('zav_odometry_csv_recorder')
+            node = Node('argo_odometry_csv_recorder')
 
             def record(msg):
                 nonlocal count

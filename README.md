@@ -1,10 +1,10 @@
-# ZAV Simulator
+# ARGO Simulator
 
 Isaac Sim **5.1.0** + Pegasus + PX4 **v1.14.3** 기반 GPS 없는 드론 시뮬레이터입니다. MID-360 형태의 LiDAR, 카메라와 장착 IMU를 FAST-LIVO2에 입력하고, 추정 odometry를 ROS 2 노드를 통해 PX4 EKF2로 전달합니다.
 
 이 저장소의 `src/`에 ROS 패키지를 포함합니다. Pegasus 소스는 `simulator/pegasus/`에서 직접 관리합니다. PX4·Micro XRCE-DDS Agent만 설치 스크립트가 고정된 Git 커밋으로 내려받습니다. Isaac Sim 자체, 가상환경, 빌드 결과, 개인 BSON·로그는 포함하지 않습니다.
 
-SUPER의 모든 시나리오는 이제 `src/zav_super/config/common.yaml` 하나를 사용한다. 내용은 Dasan 최종 파라미터 그대로이며, 이전 YAML은 `src/zav_super/config_archive/20261118/`에 해시와 함께 보존했다. `--profile common`은 기존 명령 호환용으로 유지하며 기본값도 common이다.
+SUPER의 모든 시나리오는 이제 `src/argo_super/config/common.yaml` 하나를 사용한다. 내용은 Dasan 최종 파라미터 그대로이며, 이전 YAML은 `src/argo_super/config_archive/20261118/`에 해시와 함께 보존했다. `--profile common`은 기존 명령 호환용으로 유지하며 기본값도 common이다.
 
 Frontier의 현재 시험 경로는 계단 상승 → 층별 긴 복도 끝 방문을 반복하는 500m 경로이며 지상 복귀는 없다. 현재 중간 강제 정지 없는 하나의 Path를 사용한다. 센서·추정 시각과 계획 실행을 수정한 trial30·31에서 두 번 연속 500.54m/203경유점 전체를 완료하고 최상층 자연 바닥 착륙을 확인했다. navigation 충격·관통 0건이며 common YAML과 중간 강제 정지 없는 경로를 유지했다. 이전 186m 성공 경로는 별도 보존했다. [전 층 경로/시험 기록](docs/frontier-all-floors.md), [FAST-LIVO2 지도 복원](docs/frontier-navigation.md)을 참고한다.
 
@@ -58,7 +58,7 @@ pip 방식 설치라면 다음처럼 지정합니다.
 ./setup.sh --platform wsl --isaac-windows-python /mnt/c/isaac-sim/python.bat
 ```
 
-실행 전 설치 단계를 확인하려면 `./scripts/bootstrap.sh --dry-run`을 사용합니다. 전체 옵션은 `--help`로 확인합니다. 작업 수 기본값은 2이며 `ZAV_BUILD_JOBS=4 ./scripts/bootstrap.sh ...`처럼 조절할 수 있습니다.
+실행 전 설치 단계를 확인하려면 `./scripts/bootstrap.sh --dry-run`을 사용합니다. 전체 옵션은 `--help`로 확인합니다. 작업 수 기본값은 2이며 `ARGO_BUILD_JOBS=4 ./scripts/bootstrap.sh ...`처럼 조절할 수 있습니다.
 
 ## 실행하기
 
@@ -66,16 +66,16 @@ pip 방식 설치라면 다음처럼 지정합니다.
 
 ```bash
 # 터미널 1: Isaac Sim + PX4 + DDS Agent
-zav_sim
+argo_sim
 # 터미널 2: FAST-LIVO2 + LIO → PX4 ROS 2 bridge
 ./run_fastlivo.sh
 # 터미널 3: 비행 관리자
-ros2 run zav_control flight_manager
+ros2 run argo_control flight_manager
 # 터미널 4: 센서 RViz
 ./run_mid360_rviz.sh
 ```
 
-새 터미널 환경 등록 없이 실행하려면 각 터미널에서 `source /path/to/zenith_ws/simulator/ros_setup.sh`를 먼저 실행하고, 시뮬레이터는 저장소 루트의 `./run_zav_sim.sh`로 실행합니다. 브리지 Python을 따로 실행할 필요가 없습니다.
+새 터미널 환경 등록 없이 실행하려면 각 터미널에서 `source /path/to/zenith_ws/simulator/ros_setup.sh`를 먼저 실행하고, 시뮬레이터는 저장소 루트의 `./run_argo_sim.sh`로 실행합니다. 브리지 Python을 따로 실행할 필요가 없습니다.
 
 LiDAR·IMU만 사용하는 Super-LIO로 교체하려면 FAST-LIVO를 종료하고 `./run_superlio.sh`를 실행합니다. 설치·빌드·입출력 호환 계약은 [Super-LIO 안내](docs/super-lio.md)를 참고하세요.
 
@@ -85,11 +85,11 @@ FAST-LIVO는 실행한 터미널에서 Ctrl+C로 종료합니다. `[LIO] All own
 
 ## SUPER 공식 숲 벤치마크
 
-기존 **zav_sim + FAST-LIVO + PX4**로 공식 숲을 비행하려면 `./scripts/run_zav_forest.sh dense` 또는 `high_speed`를 사용합니다. 플래너·자동 왕복 임무 실행은 [ZAV/PX4 숲 비행 안내](docs/zav-forest-benchmarks.md)를 참고하세요.
+기존 **argo_sim + FAST-LIVO + PX4**로 공식 숲을 비행하려면 `./scripts/run_argo_forest.sh dense` 또는 `high_speed`를 사용합니다. 플래너·자동 왕복 임무 실행은 [ARGO/PX4 숲 비행 안내](docs/argo-forest-benchmarks.md)를 참고하세요.
 
 공개 OMMPC를 PX4 각속도 제어에 연결한 비교 구성은 [OMMPC 숲 비교 안내](docs/ommpc-forest-comparison.md)를 참고하세요. 기존 PX4 제어기는 기본값으로 유지합니다.
 
-기체 408×408×245.5mm 기준 충돌체·지도 팽창 점검과 실측형상 실험 옵션은 [ZAV footprint 점검](docs/zav-footprint-audit.md)에 정리했습니다.
+기체 408×408×245.5mm 기준 충돌체·지도 팽창 점검과 실측형상 실험 옵션은 [ARGO footprint 점검](docs/argo-footprint-audit.md)에 정리했습니다.
 
 원본 지도·목표·속도 설정으로 dense와 high-speed 예제를 실행하려면 `./scripts/run_super_benchmark.sh dense` 또는 `./scripts/run_super_benchmark.sh high_speed`를 사용합니다. 공식 `perfect_drone_sim`을 사용하는 독립 실험이며, 실행 절차와 PX4 추종과의 차이는 [SUPER 공식 벤치마크 안내](docs/super-official-benchmarks.md)에 정리했습니다.
 
@@ -109,7 +109,7 @@ cd ~/zenith_ws
 ./run_super.sh --scenario mixed --backend super_lio --profile common --execute
 ```
 
-공통 설정은 `src/zav_super/config/common.yaml`이며 현재는 Dasan 최종값으로 통합했습니다.
+공통 설정은 `src/argo_super/config/common.yaml`이며 현재는 Dasan 최종값으로 통합했습니다.
 숲의 과거 맵 구성·GUI 검증·성공 및 실패 주행 결과는
 [혼합 맵 안내](docs/super-mixed-map.md)에 정리했습니다.
 
@@ -225,7 +225,7 @@ matplotlib이 없으면 `sudo apt install python3-matplotlib`로 설치합니다
 
 ```text
 simulator/
-  zav_sim.py                 # 물리 주기·센서 설정·장면·메인 루프
+  argo_sim.py                 # 물리 주기·센서 설정·장면·메인 루프
   slam_test_scene.py         # SLAM 검증 장면
   pegasus/simulator/logic/   # 기체·센서·PX4/ROS 백엔드 (실제로 import하는 코드)
   pegasus/simulator/assets/  # 기체 USD·LiDAR USD
@@ -234,11 +234,11 @@ simulator/
   scripts/                  # Ubuntu/WSL Isaac·PX4 실행
 src/                        # FAST-LIVO2 등 ROS 패키지
 scripts/                    # 최초 설치·빌드·검증
-.zav.env                    # 이 컴퓨터의 Isaac 경로·플랫폼 (Git 제외)
+.argo.env                    # 이 컴퓨터의 Isaac 경로·플랫폼 (Git 제외)
 ```
 
 **Python 수정은 저장 후 재실행하면 적용됩니다.** 실행기가 저장소의
-`simulator/zav_sim.py`를 직접 실행하고 같은 저장소의 Pegasus 코드를 import합니다.
+`simulator/argo_sim.py`를 직접 실행하고 같은 저장소의 Pegasus 코드를 import합니다.
 설치 폴더로 복사하거나 deploy 명령을 실행하지 않습니다. Windows Isaac도 WSL의
 동일 파일을 UNC 경로로 읽습니다. 기존 `src/PegasusSimulator`는 더 이상 사용하지 않습니다.
 
@@ -257,10 +257,14 @@ C++/ROS 메시지를 바꿨을 때만 `./scripts/build.sh`로 빌드합니다.
 - [파라미터 적용 순서와 현재 프로파일](docs/parameters.md)
 - [검증·문제 해결](docs/verification.md), [GitHub 업로드](docs/publishing.md)
 - `simulator/`: 실행 코드·센서·기체 USD·Pegasus 소스·PX4 airframe
-- `src/`: FAST-LIVO2, vikit, Sophus, Livox 메시지, PX4 메시지, `zav_control`
+- `src/`: FAST-LIVO2, vikit, Sophus, Livox 메시지, PX4 메시지, `argo_control`
 - `dependencies.lock.json`: 외부 소스 고정 버전
-- `.zav.env`: 설치기가 만드는 컴퓨터별 경로. Git에 올리지 않음
+- `.argo.env`: 설치기가 만드는 컴퓨터별 경로. Git에 올리지 않음
 
-`simulator/current_ekf_mpc.params`는 현재 재현 프로파일을 사람이 읽기 쉽게 정리한 파일입니다. 실제 기본값은 `simulator/px4/10020_isaac_zav`에서 설정합니다. 이 프로파일은 SITL 전용입니다.
+`simulator/current_ekf_mpc.params`는 현재 재현 프로파일을 사람이 읽기 쉽게 정리한 파일입니다. 실제 기본값은 `simulator/px4/10020_isaac_argo`에서 설정합니다. 이 프로파일은 SITL 전용입니다.
 
 각 외부 코드의 라이선스는 해당 파일과 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)를 따릅니다.
+
+## 기체 선택
+
+기본값은 `argo_v1`입니다. `./run_super_sim.sh high_speed --vehicle argo_v2`로 2호기를 실행하고, 두 번째 터미널의 `./run_super.sh --scenario high_speed --execute`는 선택 기체를 자동으로 따릅니다. 일반 시뮬레이터·각 LIO 실행기도 `--vehicle argo_v1|argo_v2`를 지원합니다. 질량·관성·CAD 센서 좌표·PX4 변경값·파일 분리와 검증 범위는 [ARGO 기체 등록 안내](docs/argo-vehicles.md)에 정리했습니다.

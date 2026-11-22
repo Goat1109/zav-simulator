@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
 # 원본의 tmux + 별도 Isaac Python 구조를 유지합니다.
-_config="${ZAV_ENV_FILE:-${XDG_CONFIG_HOME:-$HOME/.config}/zav/simulation.env}"
+_config="${ARGO_ENV_FILE:-${XDG_CONFIG_HOME:-$HOME/.config}/argo/simulation.env}"
 [ ! -f "$_config" ] || source "$_config"
-SESSION_NAME=zav_sim
-ISAAC_LOG=/tmp/zav_isaac_sim.log
-ZAV_WS_DIR="${ZAV_WS_DIR:-$HOME/zenith_ws}"
-SIM_SCRIPT="$ZAV_WS_DIR/simulator/zav_sim.py"
+source "$ARGO_WS_DIR/simulator/scripts/vehicle_args.sh"
+[[ $# = 0 ]] || { echo "Unknown arguments: $*" >&2; exit 2; }
+python3 "$ARGO_WS_DIR/simulator/vehicle_profiles.py" check || exit $?
+SESSION_NAME=argo_sim
+ISAAC_LOG=/tmp/argo_isaac_sim.log
+ARGO_WS_DIR="${ARGO_WS_DIR:-$HOME/zenith_ws}"
+SIM_SCRIPT="$ARGO_WS_DIR/simulator/argo_sim.py"
 trap 'tmux kill-session -t "$SESSION_NAME" 2>/dev/null; exit 130' INT TERM
 
-# [ZAV 변경] 환경 판별을 한 곳에서 수행하고 테스트/WSL 내 Linux 실행 시 명시적 override를 허용합니다.
-_platform="${ZAV_SIM_PLATFORM:-auto}"
+# [ARGO 변경] 환경 판별을 한 곳에서 수행하고 테스트/WSL 내 Linux 실행 시 명시적 override를 허용합니다.
+_platform="${ARGO_SIM_PLATFORM:-auto}"
 if [ "$_platform" = auto ]; then
     if grep -qi microsoft /proc/version; then _platform=wsl; else _platform=native; fi
 fi
-export PEGASUS_FASTLIVO_CONFIG_DIR="${PEGASUS_FASTLIVO_CONFIG_DIR:-$ZAV_WS_DIR/src/FAST-LIVO2/config}"
+export PEGASUS_FASTLIVO_CONFIG_DIR="$(python3 "$ARGO_WS_DIR/simulator/vehicle_profiles.py" calibration-dir)"
 echo '[Isaac Sim] PX4 TCP 4560 준비 대기 (3초)...'
 sleep 3
 case "$_platform" in
@@ -25,17 +28,17 @@ case "$_platform" in
             done
         fi
         if [ ! -f "$_bat" ] || [ ! -f "$SIM_SCRIPT" ]; then
-            echo 'Windows Isaac python.bat 또는 저장소의 simulator/zav_sim.py가 없습니다. ISAAC_WINDOWS_PYTHON_BAT를 설정하세요.' >&2
+            echo 'Windows Isaac python.bat 또는 저장소의 simulator/argo_sim.py가 없습니다. ISAAC_WINDOWS_PYTHON_BAT를 설정하세요.' >&2
             exit 1
         fi
-        # [ZAV 변경] 사용자 이름/Windows 프로젝트 경로 대신 설치된 작업 사본을 실행합니다.
+        # [ARGO 변경] 사용자 이름/Windows 프로젝트 경로 대신 설치된 작업 사본을 실행합니다.
         # WSLENV /p가 YAML 디렉토리를 Windows에서 읽을 수 있는 경로로 변환합니다.
-        export WSLENV="${WSLENV:+$WSLENV:}PEGASUS_FASTLIVO_CONFIG_DIR/p:PEGASUS_SLAM_SCENE:PEGASUS_BIND_HOST:ROS_DOMAIN_ID:ZAV_DIAGNOSTIC_STATE"
+        export WSLENV="${WSLENV:+$WSLENV:}PEGASUS_FASTLIVO_CONFIG_DIR/p:PEGASUS_SLAM_SCENE:PEGASUS_BIND_HOST:ROS_DOMAIN_ID:ARGO_DIAGNOSTIC_STATE:ARGO_VEHICLE:ARGO_SUPER_SCENE:ARGO_SCENE_VIEW:ARGO_HEADLESS"
         (cd /mnt/c && /mnt/c/Windows/System32/cmd.exe /c call "$(wslpath -m "$_bat")" "$(wslpath -m "$SIM_SCRIPT")") 2>&1 | tee "$ISAAC_LOG"
         EXIT_CODE=${PIPESTATUS[0]}
         ;;
     native)
-        # [ZAV 변경] 일반 ROS venv/python3를 Isaac Python으로 잘못 선택하지 않습니다.
+        # [ARGO 변경] 일반 ROS venv/python3를 Isaac Python으로 잘못 선택하지 않습니다.
         _python="${ISAAC_PYTHON:-}"
         _root="${ISAAC_SIM_PATH:-}"
         if [ -z "$_python" ]; then
@@ -54,12 +57,12 @@ case "$_platform" in
                 _root="$(env -u PYTHONPATH "$_python" -c 'import importlib.util,pathlib; s=importlib.util.find_spec("isaacsim"); print(pathlib.Path(s.origin).parent if s and s.origin else "")')"
             fi
         fi
-        # [ZAV 변경] Humble apt Python 3.10과 Isaac 5.1 Python 3.11 ABI를 분리합니다.
+        # [ARGO 변경] Humble apt Python 3.10과 Isaac 5.1 Python 3.11 ABI를 분리합니다.
         # 사용자 ROS/워크스페이스 라이브러리를 제거하고 Isaac 내부 Humble만 로드합니다.
         _clean_ld=""
         IFS=: read -ra _entries <<< "${LD_LIBRARY_PATH:-}"
         for entry in "${_entries[@]}"; do
-            case "$entry" in /opt/ros/*|"$ZAV_WS_DIR"/install/*|*/pegasus-cyclonedds/*|'') continue ;; esac
+            case "$entry" in /opt/ros/*|"$ARGO_WS_DIR"/install/*|*/pegasus-cyclonedds/*|'') continue ;; esac
             _clean_ld="${_clean_ld:+$_clean_ld:}$entry"
         done
         export LD_LIBRARY_PATH="$_root/exts/isaacsim.ros2.bridge/humble/lib${_clean_ld:+:$_clean_ld}"
@@ -70,7 +73,7 @@ case "$_platform" in
             "$_python" "$SIM_SCRIPT" 2>&1 | tee "$ISAAC_LOG"
         EXIT_CODE=${PIPESTATUS[0]}
         ;;
-    *) echo "잘못된 ZAV_SIM_PLATFORM: $_platform" >&2; exit 1 ;;
+    *) echo "잘못된 ARGO_SIM_PLATFORM: $_platform" >&2; exit 1 ;;
 esac
 if [ "$EXIT_CODE" -ne 0 ]; then
     echo "Isaac Sim 종료 코드: $EXIT_CODE, 로그: $ISAAC_LOG" >&2

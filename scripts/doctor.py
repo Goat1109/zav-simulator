@@ -10,7 +10,7 @@ errors=[]
 def check(name,ok):
     print(('OK   ' if ok else 'FAIL ')+name)
     if not ok: errors.append(name)
-for path in ['.zav.env','install/setup.bash','src/PX4-Autopilot/build/px4_sitl_default/bin/px4','.local/bin/MicroXRCEAgent','simulator/zav_sim.py']:
+for path in ['.argo.env','install/setup.bash','src/PX4-Autopilot/build/px4_sitl_default/bin/px4','.local/bin/MicroXRCEAgent','simulator/argo_sim.py']:
     check(path,(ROOT/path).exists())
 for name,spec in json.loads((ROOT/'dependencies.lock.json').read_text()).items():
     p=ROOT/'src'/name
@@ -19,7 +19,7 @@ for name,spec in json.loads((ROOT/'dependencies.lock.json').read_text()).items()
 for exe in ['tmux','colcon','cmake','make']:
     check(exe,shutil.which(exe) is not None)
 if (ROOT/'install/setup.bash').exists():
-    result=subprocess.run(['bash','-c','source "$1/simulator/ros_setup.sh" && ros2 pkg executables zav_control','check',str(ROOT)],capture_output=True,text=True)
+    result=subprocess.run(['bash','-c','source "$1/simulator/ros_setup.sh" && ros2 pkg executables argo_control','check',str(ROOT)],capture_output=True,text=True)
     check('ROS flight_manager + lio_px4_bridge',result.returncode==0 and 'flight_manager' in result.stdout and 'lio_px4_bridge' in result.stdout)
     result=subprocess.run(['bash','-c','source "$1/simulator/ros_setup.sh" && ros2 pkg executables fast_livo','check',str(ROOT)],capture_output=True,text=True)
     check('ROS fastlivo_mapping',result.returncode==0 and 'fastlivo_mapping' in result.stdout)

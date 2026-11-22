@@ -18,5 +18,5 @@ _extra=()
 if [ -d "$_lio_deps/glog" ]; then
   _extra+=(-Dglog_DIR="$_lio_deps/glog" -Dgflags_DIR="$_lio_deps/gflags")
 fi
-exec colcon build --packages-up-to zav_super fast_lio super_lio fast_livo --executor sequential --cmake-args \
+exec colcon build --packages-up-to argo_super fast_lio super_lio fast_livo --executor sequential --cmake-args \
   -DROS_EDITION=ROS2 -DLIVOX_BUILD_DRIVER=OFF "${_extra[@]}" -Dosqp_DIR="$_workspace/.local/lib/cmake/osqp" -DCMAKE_BUILD_TYPE=Release -Dfastcdr_DIR="/opt/ros/$ROS_DISTRO/lib/cmake/fastcdr" "$@"

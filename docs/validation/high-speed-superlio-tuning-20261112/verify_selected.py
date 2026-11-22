@@ -5,11 +5,11 @@ import yaml
 ROOT=Path(__file__).resolve().parent;WS=ROOT.parents[2]
 p=argparse.ArgumentParser();p.add_argument('trial');p.add_argument('--prefix',required=True);a=p.parse_args()
 selected=ROOT/a.trial
-source=WS/'src/zav_super/config/high_speed_super_lio.yaml'
+source=WS/'src/argo_super/config/high_speed_super_lio.yaml'
 source.write_text('# Isaac Sim + RViz GUI tuning, high_speed + super_lio only.\n# See docs/validation/high-speed-superlio-tuning-20261112/README.md.\n'+(selected/'loaded-high_speed.yaml').read_text())
-share=WS/'install/zav_super/share/zav_super'
+share=WS/'install/argo_super/share/argo_super'
 shutil.copy2(source,share/'config'/source.name)
-shutil.copy2(WS/'src/zav_super/launch/benchmark.launch.py',share/'launch/benchmark.launch.py')
+shutil.copy2(WS/'src/argo_super/launch/benchmark.launch.py',share/'launch/benchmark.launch.py')
 # Other backends retain the exact installed configuration present before tuning.
 shutil.copyfile(ROOT/'v25-a2-installed/loaded-high_speed.yaml',share/'config/high_speed.yaml')
 results=[]

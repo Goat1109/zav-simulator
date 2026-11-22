@@ -133,7 +133,7 @@ M3D Lidar_R_wrt_IMU(Eye3d);
 MeasureGroup Measures;
 esekfom::esekf<state_ikfom, 12, input_ikfom> kf;
 state_ikfom state_point;
-bool zav_compat=false;
+bool argo_compat=false;
 vect3 pos_lid;
 
 nav_msgs::msg::Path path;
@@ -348,7 +348,7 @@ void livox_pcl_cbk(const livox_ros_driver2::msg::CustomMsg::UniquePtr msg)
     sig_buffer.notify_all();
 }
 
-#include "zav_prediction.hpp"
+#include "argo_prediction.hpp"
 
 void imu_cbk(const sensor_msgs::msg::Imu::UniquePtr msg_in)
 {
@@ -377,7 +377,7 @@ void imu_cbk(const sensor_msgs::msg::Imu::UniquePtr msg_in)
     last_timestamp_imu = timestamp;
 
     imu_buffer.push_back(msg);
-    if(zav_compat) zav_prediction::imu(*msg);
+    if(argo_compat) argo_prediction::imu(*msg);
     mtx_buffer.unlock();
     sig_buffer.notify_all();
 }
@@ -946,9 +946,9 @@ public:
         pubLaserCloudFull_body_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/cloud_registered_body", 20);
         pubLaserCloudEffect_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/cloud_effected", 20);
         pubLaserCloudMap_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/Laser_map", 20);
-        this->declare_parameter<bool>("zav_compat",false);
-        this->get_parameter("zav_compat",zav_compat);
-        zav_prediction::publisher=this->create_publisher<nav_msgs::msg::Odometry>("/LIVO2/imu_propagate",20);
+        this->declare_parameter<bool>("argo_compat",false);
+        this->get_parameter("argo_compat",argo_compat);
+        argo_prediction::publisher=this->create_publisher<nav_msgs::msg::Odometry>("/LIVO2/imu_propagate",20);
         pubOdomAftMapped_ = this->create_publisher<nav_msgs::msg::Odometry>("/Odometry", 20);
         pubPath_ = this->create_publisher<nav_msgs::msg::Path>("/path", 20);
         tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
@@ -1079,7 +1079,7 @@ private:
             double t_update_end = omp_get_wtime();
 
             /******* Publish odometry *******/
-            if(zav_compat) zav_prediction::correct(state_point,lidar_end_time);
+            if(argo_compat) argo_prediction::correct(state_point,lidar_end_time);
             publish_odometry(pubOdomAftMapped_, tf_broadcaster_);
 
             /*** add the feature points to map kdtree ***/

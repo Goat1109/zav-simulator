@@ -1383,5 +1383,5 @@
     }
   ],
   "all_passed": true,
-  "source_applied": "/home/goat/zenith_ws/src/zav_super/config/high_speed_super_lio.yaml"
+  "source_applied": "/home/goat/zenith_ws/src/argo_super/config/high_speed_super_lio.yaml"
 }

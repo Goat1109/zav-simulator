@@ -14,4 +14,4 @@ This repository combines project-specific simulation changes with vendored sourc
 | Micro XRCE-DDS Agent | https://github.com/eProsima/Micro-XRCE-DDS-Agent — Apache 2.0 and dependency-specific terms; fetched at the locked commit. |
 | Isaac Sim | NVIDIA proprietary distribution; installed separately under NVIDIA terms. No Isaac binaries or installed environments are redistributed here. |
 
-The ZAV USD and project configuration are included for this private project. No new license grant for those assets is asserted by these installation scripts. Keep the repository private until the organization decides its distribution policy.
+The ARGO USD and project configuration are included for this private project. No new license grant for those assets is asserted by these installation scripts. Keep the repository private until the organization decides its distribution policy.

@@ -11,7 +11,7 @@ for name in sys.argv[1:]:
   result={'trial':name,'accepted':False,'analysis_error':(folder/'analysis.log').read_text()[-1800:]}
  else:result=json.loads((folder/'metrics.json').read_text())
  config=yaml.safe_load((folder/'loaded-high_speed.yaml').read_text());bound=config['traj_opt']['boundary'];result['boundary']=bound
- if(folder/'loaded-ommpc.yaml').exists():result['controller']=yaml.safe_load((folder/'loaded-ommpc.yaml').read_text())['zav_ommpc_px4']['ros__parameters']
+ if(folder/'loaded-ommpc.yaml').exists():result['controller']=yaml.safe_load((folder/'loaded-ommpc.yaml').read_text())['argo_ommpc_px4']['ros__parameters']
  telemetry=folder/'telemetry'
  if (telemetry/'samples.jsonl').exists():
   # Recompute with one common derivative filter, after owned processes have exited.

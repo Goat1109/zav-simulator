@@ -1,4 +1,4 @@
-zav_ommpc_px4:
+argo_ommpc_px4:
   ros__parameters:
     step_T: 0.05
     Q_pos_xy: 300.0

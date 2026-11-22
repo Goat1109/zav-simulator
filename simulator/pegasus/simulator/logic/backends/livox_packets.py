@@ -1,4 +1,4 @@
-# [ZAV 변경] RTX 점별 실제 시각을 보존해 FAST-LIVO CustomMsg용 100 ms 패킷을 만듭니다.
+# [ARGO 변경] RTX 점별 실제 시각을 보존해 FAST-LIVO CustomMsg용 100 ms 패킷을 만듭니다.
 """Group real RTX acquisition timestamps into 100 ms Livox-compatible packets.
 
 Wire format: little-endian uint64 start_ns, uint32 count, then 20-byte records:

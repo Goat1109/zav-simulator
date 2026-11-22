@@ -6,6 +6,9 @@
 *.xml text eol=lf
 *.params text eol=lf
 *.usd binary
+*.usda text eol=lf
+*.usdc binary
+*.stl binary
 *.msg -text
 
 # Split, compressed Frontier runtime asset package.

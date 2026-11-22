@@ -1,4 +1,4 @@
-# [ZAV 변경] WSL 전용 Fast DDS ↔ Cyclone TCP 경계. native Ubuntu는 이 모듈을 실행하지 않습니다.
+# [ARGO 변경] WSL 전용 Fast DDS ↔ Cyclone TCP 경계. native Ubuntu는 이 모듈을 실행하지 않습니다.
 """Bridge local PX4 Fast DDS endpoints to the WSL Cyclone TCP sensor graph.
 
 Separate processes are required: an rclpy context cannot switch RMW libraries.
@@ -84,7 +84,7 @@ def worker(side, connection, stop):
 
 def main():
     # Cyclone TCP permits address reuse; an OS listener alone is not a singleton.
-    lock = open(f"/tmp/zav-px4-gateway-{os.getuid()}.lock", "w")
+    lock = open(f"/tmp/argo-px4-gateway-{os.getuid()}.lock", "w")
     try:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:

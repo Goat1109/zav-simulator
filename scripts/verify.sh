@@ -11,7 +11,7 @@ python3 simulator/tests/check_px4_lockstep.py
 python3 simulator/tests/check_fastlivo_shutdown.py
 python3 simulator/tests/check_platforms.py
 if [[ "${1:-}" == --ros ]]; then
-    export ZAV_ENV_FILE="$ROOT/simulator/environment.sh"
+    export ARGO_ENV_FILE="$ROOT/simulator/environment.sh"
     source "$ROOT/simulator/ros_setup.sh"
     export ROS_DOMAIN_ID=49
     timeout -k 5 60 python3 simulator/tests/check_sensor_publication.py

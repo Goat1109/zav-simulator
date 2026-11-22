@@ -1,0 +1,207 @@
+{
+  "name": "argo_v2",
+  "usd": "pegasus/simulator/assets/Robots/argo_v2/argo_v2.usda",
+  "cad": "pegasus/simulator/assets/Robots/argo_v2/argo_v2_cad.usdc",
+  "mesh": "argo_v2.stl",
+  "mass": 2.575148,
+  "body_mass": 2.538596,
+  "rotor_mass": 0.009138,
+  "body_com": [
+    0.00038,
+    -0.000967,
+    -0.047093
+  ],
+  "body_inertia": [
+    [
+      0.025,
+      5.823584e-05,
+      -5.3201116e-05
+    ],
+    [
+      5.823584e-05,
+      0.02349,
+      5.959254e-06
+    ],
+    [
+      -5.3201116e-05,
+      5.959254e-06,
+      0.03528
+    ]
+  ],
+  "rotor_inertia": [
+    [
+      1.8146831e-05,
+      4.33e-19,
+      -4.1e-19
+    ],
+    [
+      4.33e-19,
+      1.8146836e-05,
+      0.0
+    ],
+    [
+      -4.1e-19,
+      0.0,
+      3.6219041e-05
+    ]
+  ],
+  "rotor_coms": [
+    [
+      0.098397,
+      -0.098712,
+      -0.0927
+    ],
+    [
+      -0.098397,
+      0.098712,
+      -0.0927
+    ],
+    [
+      0.098397,
+      0.098712,
+      -0.0927
+    ],
+    [
+      -0.098397,
+      -0.098712,
+      -0.0927
+    ]
+  ],
+  "rotor_order": [
+    "FR",
+    "RL",
+    "FL",
+    "RR"
+  ],
+  "rotor_axes": [
+    [
+      0.09839717155582758,
+      -0.09928833001998856,
+      -0.0892
+    ],
+    [
+      -0.0996028284441725,
+      0.0987116699800115,
+      -0.0892
+    ],
+    [
+      0.09839717155582761,
+      0.09871166998001156,
+      -0.0892
+    ],
+    [
+      -0.09960282844417243,
+      -0.0992883300199885,
+      -0.0892
+    ]
+  ],
+  "rotor_meshes": [
+    "MeshInstance_1962",
+    "MeshInstance_1963",
+    "MeshInstance_1961",
+    "MeshInstance_1964"
+  ],
+  "cad_scale": 0.001,
+  "lidar_position": [
+    -0.0006028288399020063,
+    -0.0002883300199883259,
+    0.04651070921382895
+  ],
+  "lidar_orientation": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "camera_position": [
+    0.10632107155582811,
+    -0.0002883300199883,
+    -0.0213
+  ],
+  "camera_orientation": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "calibration_dir": "config/vehicles/argo_v2_calibration",
+  "robot_radius": 0.4,
+  "hover_throttle": 0.47342465735944206,
+  "spawn_z_offset": 0.0291999979019165,
+  "collision": "authored",
+  "px4_geometry": "cad",
+  "propulsion": {
+    "rotor_constant": 5.4935e-06,
+    "rolling_moment_coefficient": 9.888e-08,
+    "rot_dir": [
+      -1,
+      -1,
+      1,
+      1
+    ],
+    "min_rotor_velocity": 0.0,
+    "max_rotor_velocity": 2000.0,
+    "rotor_scale": 1937.4,
+    "rotor_idle": 155.0,
+    "drag": [
+      0.5,
+      0.3,
+      0.0
+    ],
+    "backend_rate": 250.0
+  },
+  "collision_meshes": [
+    "MeshInstance_139",
+    "MeshInstance_140",
+    "MeshInstance_151",
+    "MeshInstance_160",
+    "MeshInstance_161",
+    "MeshInstance_163",
+    "MeshInstance_1940",
+    "MeshInstance_1941",
+    "MeshInstance_1942",
+    "MeshInstance_1943",
+    "MeshInstance_1944",
+    "MeshInstance_1945",
+    "MeshInstance_1946",
+    "MeshInstance_1947",
+    "MeshInstance_1948",
+    "MeshInstance_1949",
+    "MeshInstance_1950",
+    "MeshInstance_1951",
+    "MeshInstance_1952",
+    "MeshInstance_1953",
+    "MeshInstance_1954",
+    "MeshInstance_1955",
+    "MeshInstance_1956",
+    "MeshInstance_1957",
+    "MeshInstance_1958",
+    "MeshInstance_1959",
+    "MeshInstance_1960"
+  ],
+  "decomposition_meshes": [
+    "MeshInstance_1940",
+    "MeshInstance_1941",
+    "MeshInstance_1946",
+    "MeshInstance_1947",
+    "MeshInstance_1948",
+    "MeshInstance_1949",
+    "MeshInstance_1958"
+  ],
+  "bounds_m": [
+    [
+      -0.20760283607425897,
+      -0.20728833725365342,
+      -0.1241999979019165
+    ],
+    [
+      0.20639717839376315,
+      0.20671167721367678,
+      0.06009709982833854
+    ]
+  ],
+  "notes": [
+    "Body origin is the supplied CAD origin on the Mid360 bottom plane (Z=0); retain CAD XY offset, do not silently recenter supplied COM coordinates.",
+    "Authoritative COM/inertia values are user supplied. Motor axes use CAD, COM is allowed to differ from axis; do not replace supplied COM by CAD centroid.",
+    "Virtual LiDAR scan origin is the optical dome bounding-box centre (MeshInstance_139). Virtual camera origin is the forward lens plane centre (MeshInstance_160); intrinsics and internal LiDAR/IMU calibration are retained.",
+    "robot_radius=0.4 retained: already covers the smaller v2 envelope; no planner penalties, speed limits or EKF noise/gains changed."
+  ]
+}

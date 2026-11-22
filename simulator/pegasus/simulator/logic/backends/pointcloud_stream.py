@@ -1,4 +1,4 @@
-# [ZAV 변경] Ubuntu/WSL 공통 비동기 센서 스트림. 소켓 대기를 physics/render callback에서 분리합니다.
+# [ARGO 변경] Ubuntu/WSL 공통 비동기 센서 스트림. 소켓 대기를 physics/render callback에서 분리합니다.
 """Bounded localhost transport for PointCloud2 across Windows/WSL."""
 import socket
 import os
@@ -20,7 +20,7 @@ class PointCloudStream:
         self._pending = deque(maxlen=capacity)
         self._listener = socket.socket()
         self._listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        # [ZAV 변경] 기본 loopback. 별도 NAT 구성에서만 명시적으로 다른 bind 주소를 선택합니다.
+        # [ARGO 변경] 기본 loopback. 별도 NAT 구성에서만 명시적으로 다른 bind 주소를 선택합니다.
         self._listener.bind((os.environ.get('PEGASUS_BIND_HOST', '127.0.0.1'), port))
         self._listener.listen(2)
         self._listener.settimeout(1)

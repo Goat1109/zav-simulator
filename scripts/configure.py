@@ -36,21 +36,35 @@ def arguments():
 def patch_px4(px4):
     configure_lio_safety_dds(px4)
     airframes = px4 / 'ROMFS/px4fmu_common/init.d-posix/airframes'
-    shutil.copy2(ROOT/'simulator/px4/10020_isaac_zav', airframes/'10020_isaac_zav')
+    shutil.copy2(ROOT/'simulator/px4/10020_isaac_argo', airframes/'10020_isaac_argo')
+    shutil.copy2(ROOT/'simulator/px4/10021_isaac_argo_v2', airframes/'10021_isaac_argo_v2')
     cmake = airframes/'CMakeLists.txt'
     text = cmake.read_text()
-    if '10020_isaac_zav' not in text:
+    if '10020_isaac_argo' not in text:
         marker = 'px4_add_romfs_files('
         if marker not in text: raise RuntimeError('Unsupported airframe CMakeLists')
-        text = text.replace(marker, marker+'\n\t10020_isaac_zav', 1)
+        text = text.replace(marker, marker+'\n\t10020_isaac_argo', 1)
+        cmake.write_text(text)
+    if '10021_isaac_argo_v2' not in text:
+        text = text.replace('px4_add_romfs_files(', 'px4_add_romfs_files(\n\t10021_isaac_argo_v2', 1)
         cmake.write_text(text)
     cmake = px4/'src/modules/simulation/simulator_mavlink/CMakeLists.txt'
     text = cmake.read_text()
-    if 'add_custom_target(isaac_zav' not in text:
+    if 'add_custom_target(isaac_argo' not in text:
         text += '''
-# ZAV: launch the external Isaac Sim backend.
-add_custom_target(isaac_zav
+# ARGO: launch the external Isaac Sim backend.
+add_custom_target(isaac_argo
     COMMAND ${CMAKE_COMMAND} -E env PX4_SYS_AUTOSTART=10020 $<TARGET_FILE:px4>
+    WORKING_DIRECTORY ${SITL_WORKING_DIR}
+    USES_TERMINAL
+    DEPENDS px4
+)
+'''
+        cmake.write_text(text)
+    if 'add_custom_target(isaac_argo_v2' not in text:
+        text += '''
+add_custom_target(isaac_argo_v2
+    COMMAND ${CMAKE_COMMAND} -E env PX4_SYS_AUTOSTART=10021 $<TARGET_FILE:px4>
     WORKING_DIRECTORY ${SITL_WORKING_DIR}
     USES_TERMINAL
     DEPENDS px4
@@ -74,7 +88,7 @@ def native_isaac_root(exe):
 def main():
     a = arguments()
     if a.validate_only: return
-    settings = {'ZAV_SIM_PLATFORM': a.platform, 'ROS_DOMAIN_ID': str(a.domain_id)}
+    settings = {'ARGO_SIM_PLATFORM': a.platform, 'ROS_DOMAIN_ID': str(a.domain_id)}
     if a.platform == 'native':
         exe = a.isaac_python.absolute()
         root = native_isaac_root(exe)
@@ -104,27 +118,27 @@ def main():
     source = superbuild.read_text()
     # Always build the pinned DDS/client sources, even on a machine with /usr/local copies.
     for name in ('microxrcedds_client', 'fastcdr', 'fastdds'):
-        source = re.sub(r'find_package\('+name+r' [^\n]*QUIET\)', 'set('+name+'_FOUND FALSE) # ZAV: pinned local dependency', source)
+        source = re.sub(r'find_package\('+name+r' [^\n]*QUIET\)', 'set('+name+'_FOUND FALSE) # ARGO: pinned local dependency', source)
     if '-DUCLIENT_BUILD_MICROCDR:BOOL=ON' not in source:
         source = source.replace('-DUCLIENT_ISOLATED_INSTALL:BOOL=ON', '-DUCLIENT_ISOLATED_INSTALL:BOOL=ON\n                -DUCLIENT_SUPERBUILD:BOOL=ON\n                -DUCLIENT_BUILD_MICROCDR:BOOL=ON')
     superbuild.write_text(source)
     patch_px4(ROOT/'src/PX4-Autopilot')
-    (ROOT/'.zav.env').write_text(''.join(f'export {k}={shlex.quote(v)}\n' for k,v in settings.items()))
+    (ROOT/'.argo.env').write_text(''.join(f'export {k}={shlex.quote(v)}\n' for k,v in settings.items()))
     if not a.no_shell_integration:
-        config = Path(os.environ.get('XDG_CONFIG_HOME', str(Path.home()/'.config')))/'zav/simulation.env'
+        config = Path(os.environ.get('XDG_CONFIG_HOME', str(Path.home()/'.config')))/'argo/simulation.env'
         config.parent.mkdir(parents=True,exist_ok=True)
-        if config.exists() and not config.with_suffix('.env.before-zav-simulator').exists():
-            shutil.copy2(config, config.with_suffix('.env.before-zav-simulator'))
+        if config.exists() and not config.with_suffix('.env.before-argo-simulator').exists():
+            shutil.copy2(config, config.with_suffix('.env.before-argo-simulator'))
         config.write_text('source '+shlex.quote(str(ROOT/'simulator/environment.sh'))+'\n')
-        for name in ('run_zav_sim.sh','run_fastlivo.sh','run_mid360_rviz.sh','run_isaac_sim.sh'):
+        for name in ('run_argo_sim.sh','run_fastlivo.sh','run_mid360_rviz.sh','run_isaac_sim.sh'):
             target=Path.home()/name
-            if target.exists() and not target.with_suffix('.sh.before-zav-simulator').exists():
-                shutil.copy2(target,target.with_suffix('.sh.before-zav-simulator'))
+            if target.exists() and not target.with_suffix('.sh.before-argo-simulator').exists():
+                shutil.copy2(target,target.with_suffix('.sh.before-argo-simulator'))
             target.write_text('#!/usr/bin/env bash\nexec bash '+shlex.quote(str(ROOT/name))+' "$@"\n'); target.chmod(0o755)
         bashrc = Path.home()/'.bashrc'
         text = bashrc.read_text() if bashrc.exists() else ''
-        text = re.sub(r'\n# BEGIN ZAV SIMULATOR\n.*?# END ZAV SIMULATOR\n','\n',text,flags=re.S)
-        text += '\n# BEGIN ZAV SIMULATOR\nsource '+shlex.quote(str(ROOT/'simulator/ros_setup.sh'))+'\nalias zav_sim='+shlex.quote('bash '+shlex.quote(str(ROOT/'run_zav_sim.sh')))+'\n# END ZAV SIMULATOR\n'
+        text = re.sub(r'\n# BEGIN ARGO SIMULATOR\n.*?# END ARGO SIMULATOR\n','\n',text,flags=re.S)
+        text += '\n# BEGIN ARGO SIMULATOR\nsource '+shlex.quote(str(ROOT/'simulator/ros_setup.sh'))+'\nalias argo_sim='+shlex.quote('bash '+shlex.quote(str(ROOT/'run_argo_sim.sh')))+'\n# END ARGO SIMULATOR\n'
         bashrc.write_text(text)
     print('Configured:', json.dumps(settings,ensure_ascii=False))
 

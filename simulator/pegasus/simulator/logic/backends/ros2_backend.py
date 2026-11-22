@@ -335,12 +335,12 @@ class ROS2Backend(Backend):
         else:
             pass
 
-    # [ZAV 변경] PX4 기본 IMU와 별도로 장착 원점의 가속도/각속도를 같은 시뮬레이션 시각으로 전송합니다.
+    # [ARGO 변경] PX4 기본 IMU와 별도로 장착 원점의 가속도/각속도를 같은 시뮬레이션 시각으로 전송합니다.
     def _publish_mounted_imu(self, data):
         config = data["config"]
         topic = f"/{self._namespace}{self._id}/{config.get('topic', 'mid360/imu')}"
         if topic not in self._mounted_imu_publishers:
-            # [ZAV 변경] TCP 모드에서는 외부 수신기만 ROS에 발행합니다. Ubuntu 중복 발행을 방지합니다.
+            # [ARGO 변경] TCP 모드에서는 외부 수신기만 ROS에 발행합니다. Ubuntu 중복 발행을 방지합니다.
             self._mounted_imu_publishers[topic] = None if config.get("tcp_port") else self.node.create_publisher(
                 Imu, topic, QoSProfile(depth=256, reliability=ReliabilityPolicy.BEST_EFFORT)
             )
@@ -453,7 +453,7 @@ class ROS2Backend(Backend):
             return
         if name not in self._python_cameras:
             topic = f"/{self._namespace}{self._id}/{name}/color/image_raw"
-            # [ZAV 변경] TCP 사용 시 직접 DDS 발행을 생략하고 같은 CDR 메시지만 보냅니다.
+            # [ARGO 변경] TCP 사용 시 직접 DDS 발행을 생략하고 같은 CDR 메시지만 보냅니다.
             self._python_cameras[name] = None if data.get("tcp_port") else self.node.create_publisher(
                 Image, topic, qos_profile_sensor_data
             )
@@ -542,7 +542,7 @@ class ROS2Backend(Backend):
         if data["lidar_name"] not in self.graphical_sensors_writers:
             self.add_lidar_writter(data)
 
-    # [ZAV 변경] XYZ 미리보기와 점별 시각을 가진 Livox 호환 패킷을 같은 RTX 측정에서 만듭니다.
+    # [ARGO 변경] XYZ 미리보기와 점별 시각을 가진 Livox 호환 패킷을 같은 RTX 측정에서 만듭니다.
     def _publish_python_lidar(self, data):
         """Read the RTX annotator on the render callback and publish XYZ on ROS 2."""
         name = data["lidar_name"]
@@ -568,7 +568,7 @@ class ROS2Backend(Backend):
                 self._lidar_gmo[name] = gmo_annotator
             annotator.attach([render_product])
             topic = f"/{self._namespace}{self._id}/{name}/pointcloud"
-            # [ZAV 변경] 기존 writer/direct DDS 경로는 유지하되 TCP와 동시 발행하지 않습니다.
+            # [ARGO 변경] 기존 writer/direct DDS 경로는 유지하되 TCP와 동시 발행하지 않습니다.
             publisher = None if data.get("tcp_port") else self.node.create_publisher(PointCloud2, topic, qos_profile_sensor_data)
             self._python_lidars[name] = (render_product, annotator, publisher)
             print(f"[LiDAR] Python PointCloud2 publisher: {topic}", flush=True)

@@ -71,7 +71,7 @@ Pegasus 코드를 다른 설치 폴더에 복사하거나 별도로 설치하지
 ./setup.sh --help           # 경로·domain 등 옵션
 ```
 
-메모리가 부족하면 `ZAV_BUILD_JOBS=1 ./setup.sh ...`처럼 빌드 작업 수를 낮춥니다.
+메모리가 부족하면 `ARGO_BUILD_JOBS=1 ./setup.sh ...`처럼 빌드 작업 수를 낮춥니다.
 설치가 실패했다면 오류를 해결하고 같은 명령을 다시 실행할 수 있습니다.
 
 ## 4. 실행·확인
@@ -81,9 +81,9 @@ Pegasus 코드를 다른 설치 폴더에 복사하거나 별도로 설치하지
 
 | 터미널 | 명령 | 역할 |
 | --- | --- | --- |
-| 1 | `./run_zav_sim.sh` | Isaac + PX4 + DDS Agent |
+| 1 | `./run_argo_sim.sh` | Isaac + PX4 + DDS Agent |
 | 2 | `./run_fastlivo.sh` | 기본 LiDAR+IMU 추정 + PX4 외부 위치 브리지 |
-| 3 | `ros2 run zav_control flight_manager` | 비행 조작 |
+| 3 | `ros2 run argo_control flight_manager` | 비행 조작 |
 | 4 | `./run_mid360_rviz.sh` | RViz 센서·추정 결과 표시 |
 
 카메라 영상도 FAST-LIVO 추정에 사용하려면 터미널 2에서
@@ -165,6 +165,6 @@ python3 scripts/configure.py --platform native --isaac-python /실제/Isaac설�
 | `src/`의 ROS 소스, 각 `package.xml`·CMake/setup 파일 | FAST-LIVO·메시지·제어 패키지 및 빌드 정의 |
 | `simulator/pegasus/LICENSE`, `UPSTREAM.json`, `THIRD_PARTY_NOTICES.md` | 포함한 외부 소스 출처·라이선스 |
 
-Git에는 위 소스와 설치 정의를 포함합니다. `.zav.env`는 각 컴퓨터에서 생성합니다.
+Git에는 위 소스와 설치 정의를 포함합니다. `.argo.env`는 각 컴퓨터에서 생성합니다.
 Isaac 설치, `.venv`, `.cache`, `.local`, `build`, `install`, `log`, 비행 기록과
 다운로드한 PX4·Agent checkout은 Git에 올리지 않으며 설치기가 준비합니다.

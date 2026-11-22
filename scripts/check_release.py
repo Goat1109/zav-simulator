@@ -22,8 +22,8 @@ required_packages={
     'sophus':'sophus',
     'rpg_vikit/vikit_common':'vikit_common',
     'rpg_vikit/vikit_ros':'vikit_ros',
-    'zav_control':'zav_control',
-    'zav_super':'zav_super',
+    'argo_control':'argo_control',
+    'argo_super':'argo_super',
     'SUPER/super_planner':'super_planner',
     'SUPER/rog_map':'rog_map',
     'SUPER/mars_quadrotor_msgs':'mars_quadrotor_msgs',
@@ -34,7 +34,7 @@ for directory, name in required_packages.items():
     manifest=ROOT/'src'/directory/'package.xml'
     assert manifest.is_file(),f'Missing required ROS manifest: {manifest}'
     assert ET.parse(manifest).getroot().findtext('name')==name,manifest
-airframe=(ROOT/'simulator/px4/10020_isaac_zav').read_text()
+airframe=(ROOT/'simulator/px4/10020_isaac_argo').read_text()
 values={}
 for line in airframe.splitlines():
     if line.startswith(('param set-default ', 'param set ')):

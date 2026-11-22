@@ -20,7 +20,7 @@ def configure(px4):
     original = path.read_text()
     text = original
     # Remove the four exports installed by the former three-check policy.
-    if '# ZAV LIO failsafe telemetry' in text:
+    if '# ARGO LIO failsafe telemetry' in text:
         text = re.sub(r'  - topic: /fmu/out/estimator_aid_src_ev_(?:pos|vel|hgt|yaw)\n'
                       r'    type: px4_msgs::msg::EstimatorAidSource[123]d\n\n?', '', text)
     document = yaml.safe_load(text)
@@ -36,7 +36,7 @@ def configure(px4):
         marker = '\nsubscriptions:'
         if marker not in text:
             raise ValueError('Unsupported PX4 dds_topics.yaml')
-        text = text.replace(marker, '\n  # ZAV LIO failsafe telemetry\n'
+        text = text.replace(marker, '\n  # ARGO LIO failsafe telemetry\n'
                             + '\n'.join(additions) + marker, 1)
     if text != original:
         path.write_text(text)

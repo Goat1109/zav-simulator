@@ -1,0 +1,29 @@
+{
+  "description": "Portable Isaac Sim 5.1 viewport navigation settings; aircraft sensor optics are configured separately.",
+  "settings": {
+    "/persistent/app/viewport/camMoveVelocity": 0.05,
+    "/persistent/app/viewport/camShowSpeedOnStart": false,
+    "/persistent/app/viewport/camInertiaEnabled": false,
+    "/persistent/app/viewport/camInertiaAmount": 0.55,
+    "/persistent/app/viewport/camVelocityMin": 0.01,
+    "/persistent/app/viewport/camVelocityMax": 50,
+    "/persistent/app/viewport/camVelocityScalerMin": 1,
+    "/persistent/app/viewport/camVelocityScalerMax": 10,
+    "/persistent/app/viewport/camVelocityScalerMultAmount": 1.1,
+    "/persistent/app/viewport/camVelocityCOINormalization": 0.0,
+    "/persistent/app/viewport/camStopOnMouseUp": true,
+    "/persistent/app/viewport/camRotSmoothEnabled": true,
+    "/persistent/app/viewport/camRotSmoothScale": 20.0,
+    "/persistent/app/viewport/camRotSmoothAlways": false,
+    "/persistent/app/viewport/camGestureEnabled": false,
+    "/persistent/app/viewport/camGestureTime": 0.12,
+    "/persistent/app/viewport/camGestureRadius": 20,
+    "/persistent/exts/omni.kit.manipulator.camera/lookSpeed/0": 180.0,
+    "/persistent/exts/omni.kit.manipulator.camera/lookSpeed/1": 90.0,
+    "/persistent/exts/omni.kit.manipulator.camera/tumbleSpeed": 360.0,
+    "/persistent/exts/omni.kit.manipulator.camera/moveSpeed/0": 1.0,
+    "/persistent/exts/omni.kit.manipulator.camera/moveSpeed/1": 1.0,
+    "/persistent/exts/omni.kit.manipulator.camera/moveSpeed/2": 1.0,
+    "/persistent/exts/omni.kit.manipulator.camera/flyViewLock": false
+  }
+}

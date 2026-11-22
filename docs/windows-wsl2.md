@@ -43,7 +43,7 @@ cd ~/zenith_ws
 
 `python.bat` 경로는 실제 Windows 설치 위치를 `/mnt/c/...` 형식으로 지정합니다. 공백이 있으면 따옴표로 감싸세요. Windows에서 WSL의 파일을 읽을 수 있어야 합니다. 실행기는 `wslpath`와 `WSLENV`로 시뮬레이터·캘리브레이션 경로를 변환합니다.
 
-설치 후 새 WSL 터미널 네 개에서 README의 동일 명령을 실행합니다. `zav_sim`이 Windows Kit와 WSL PX4를 연결합니다.
+설치 후 새 WSL 터미널 네 개에서 README의 동일 명령을 실행합니다. `argo_sim`이 Windows Kit와 WSL PX4를 연결합니다.
 
 ## 통신과 진단
 

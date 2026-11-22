@@ -63,7 +63,7 @@ visual meshes are excluded from duplicate collision. The static mesh clearance p
 ```
 
 The launcher selects this photographic composition by default. An explicit
-`ZAV_SUPER_TERRAIN_USD` override still takes precedence; select
+`ARGO_SUPER_TERRAIN_USD` override still takes precedence; select
 `$PWD/simulator/assets/super/frontier.usdc` to use the original voxel terrain.
 The flight composition must stay alongside the photographic USD, and it also
 references `frontier_collision.usdc` for collision and `../frontier.usdc`

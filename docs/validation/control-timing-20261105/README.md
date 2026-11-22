@@ -10,7 +10,7 @@ Observed state:
   1793804366.696; later new goals were accepted by the planner.
 - Armed, OFFBOARD (nav_state=14); LIO READY, latch=false.
 - PX4 measured velocity near zero; setpoint velocity [0,0,0], holding position.
-- No active /zav_super/tracking_command messages during inspection.
+- No active /argo_super/tracking_command messages during inspection.
 
 After three seconds of discovery warmup, a five-second observation measured:
 
@@ -42,7 +42,7 @@ Validation:
   callback is replaced by a counter, so the test cannot send aircraft commands.
 - 20 Python tests passed, including tracking conversion, source timeout messages,
   LIO safety ROS integration and timer scheduling.
-- zav_control build passed. The running user's manager retains its old timer
+- argo_control build passed. The running user's manager retains its old timer
   until it is restarted; no in-flight hot replacement was attempted.
 
 Next live validation: land, restart flight_manager with the same arguments,

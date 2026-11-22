@@ -13,7 +13,7 @@ from pathlib import Path
 import time
 
 
-PREFIX = '/zav/lio_safety/test/'
+PREFIX = '/argo/lio_safety/test/'
 FAULTS = ('position-step', 'attitude-step')
 
 
@@ -45,7 +45,7 @@ def main():
     # TCP without multicast needs a direct discovery peer for the relay itself.
     # Its old ephemeral listener was invisible to a separate trigger process.
     # Select before importing/initializing ROS; leave native Fast DDS unchanged.
-    if os.environ.get('ZAV_ROS_TRANSPORT') == 'cyclone_tcp':
+    if os.environ.get('ARGO_ROS_TRANSPORT') == 'cyclone_tcp':
         profile = ('cyclonedds_experiment_relay.xml' if args.command == 'relay'
                    else 'cyclonedds_experiment_trigger.xml')
         os.environ['CYCLONEDDS_URI'] = (
@@ -114,7 +114,7 @@ def main():
 
             retained = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
                                   durability=DurabilityPolicy.TRANSIENT_LOCAL)
-            node.create_subscription(String, '/zav/lio_safety/status', status, retained)
+            node.create_subscription(String, '/argo/lio_safety/status', status, retained)
             pub = node.create_publisher(String, PREFIX + 'command', 10)
             deadline = time.monotonic() + args.discovery_timeout
             while time.monotonic() < deadline and (
@@ -122,11 +122,11 @@ def main():
                 rclpy.spin_once(node, timeout_sec=0.05)
             health = observed['status']
             if pub.get_subscription_count() == 0:
-                parser.exit(1, 'Experiment relay not discovered on /zav/lio_safety/test/command. '
+                parser.exit(1, 'Experiment relay not discovered on /argo/lio_safety/test/command. '
                             'Start/restart FAST-LIVO with safety_experiment:=True. '
                             'WSL Cyclone TCP relay must listen on port 17452.\n')
             if health is None:
-                parser.exit(1, 'Safety status not received on /zav/lio_safety/status. '
+                parser.exit(1, 'Safety status not received on /argo/lio_safety/status. '
                             'Check the safety-enabled lio_px4_bridge (WSL TCP port 17451).\n')
             if not health['armed'] or not health['ready']:
                 parser.exit(1, 'Fault refused: simulator must be armed and safety READY. Hover first.\n')

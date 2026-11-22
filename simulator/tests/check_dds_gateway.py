@@ -37,7 +37,7 @@ def endpoint(side):
 
 def main():
     assert os.environ.get('ROS_DOMAIN_ID')=='49','Use isolated domain 49'
-    with tempfile.TemporaryDirectory(prefix='zav-gateway-') as temp:
+    with tempfile.TemporaryDirectory(prefix='argo-gateway-') as temp:
         processes=[];logs=[]
         try:
             for name,argv in [('gateway',[sys.executable,str(ROOT/'tools/runtime/px4_dds_gateway.py')]),('fast',[sys.executable,__file__,'fast']),('cyclone',[sys.executable,__file__,'cyclone'])]:

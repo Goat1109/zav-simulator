@@ -1,4 +1,4 @@
-# [ZAV 변경] 실센서 YAML은 유지하고 시뮬레이터 센서의 장착 위치/광학계를 역산합니다.
+# [ARGO 변경] 실센서 YAML은 유지하고 시뮬레이터 센서의 장착 위치/광학계를 역산합니다.
 """Derive simulator mounts from the unchanged FAST-LIVO calibration YAMLs."""
 from pathlib import Path
 import numpy as np

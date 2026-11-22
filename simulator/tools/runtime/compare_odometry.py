@@ -38,7 +38,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--estimate', default='/aft_mapped_to_init')
     parser.add_argument('--truth', default='/drone0/ground_truth/odometry')
-    parser.add_argument('--csv', default='/tmp/zav_odometry_error.csv')
+    parser.add_argument('--csv', default='/tmp/argo_odometry_error.csv')
     parser.add_argument('--plot', action='store_true', help='Show live position/attitude error plots')
     args = parser.parse_args()
     import rclpy
@@ -48,7 +48,7 @@ def main():
 
     class Compare(Node):
         def __init__(self):
-            super().__init__('zav_odometry_comparison')
+            super().__init__('argo_odometry_comparison')
             self.truth = deque(maxlen=30000)
             self.pending = deque(maxlen=2000)
             self.alignment = None

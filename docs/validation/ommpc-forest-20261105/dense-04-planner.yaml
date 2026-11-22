@@ -1,11 +1,11 @@
 fsm:
   click_goal_en: true
-  click_goal_topic: /zav/goal_pose
+  click_goal_topic: /argo/goal_pose
   click_height: 1.5
   click_yaw_en: false
   replan_rate: 1.0
-  cmd_topic: /zav_super/internal_unused_pos_cmd
-  mpc_cmd_topic: /zav_super/internal_unused_mpc_cmd
+  cmd_topic: /argo_super/internal_unused_pos_cmd
+  mpc_cmd_topic: /argo_super/internal_unused_mpc_cmd
   timer_en: false
 super_planner:
   backup_traj_en: true

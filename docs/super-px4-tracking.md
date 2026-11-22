@@ -1,6 +1,6 @@
 # SUPER → PX4 SITL 추종과 backup 복구
 
-zav_sim의 ENU 정렬 및 Mid360 +22° 장착을 전제로 하는 실험용 연결이다.
+argo_sim의 ENU 정렬 및 Mid360 +22° 장착을 전제로 하는 실험용 연결이다.
 실기체용 설정이 아니다. 2026-11-04: 궤적 추종, backup 실행 유지,
 정지 후 동일 목표 재계획까지 구현했다. 2026-11-05 Warehouse SITL에서 정상 추종,
 실제 backup 복구, 중단·자동 착륙 시험을 통과했다.
@@ -8,7 +8,7 @@ zav_sim의 ENU 정렬 및 Mid360 +22° 장착을 전제로 하는 실험용 연�
 
 ## 실행
 
-각 터미널에서 기존 env/zav_sim 환경과 workspace setup을 사용한다.
+각 터미널에서 기존 env/argo_sim 환경과 workspace setup을 사용한다.
 
 ```bash
 cd /home/goat/zenith_ws
@@ -17,27 +17,27 @@ source /opt/ros/humble/setup.bash
 source install/setup.bash
 ```
 
-1. zav_sim 실행 후 Play. `./run_fastlivo.sh` 실행.
+1. argo_sim 실행 후 Play. `./run_fastlivo.sh` 실행.
 2. 기존 flight_manager가 있다면 착륙 후 종료하고 다음으로 실행한다. PX4 setpoint 발행기는 하나만 사용한다.
 
 ```bash
-ros2 run zav_control flight_manager --ros-args -p super_tracking:=true -p use_sim_time:=true
+ros2 run argo_control flight_manager --ros-args -p super_tracking:=true -p use_sim_time:=true
 ```
 
 3. 기존 replanner를 종료하고 다음으로 실행한다.
 
 ```bash
-ros2 launch zav_super zav_super_replanner.launch.py \
+ros2 launch argo_super argo_super_replanner.launch.py \
   rviz:=true replan_mode:=tracking_guarded replan_rate_hz:=1.0 \
   enable_tracking_commands:=true
 ```
 
 4. `/clock`, `/aft_mapped_to_init`, `/fmu/out/vehicle_local_position` 갱신 및
-   `/zav/lio_safety/ready=true` 확인. flight_manager에서 T로 이륙하고 호버링을 기다린다.
+   `/argo/lio_safety/ready=true` 확인. flight_manager에서 T로 이륙하고 호버링을 기다린다.
 5. flight_manager에서 2를 누른 뒤 RViz에서 가까운 자유 공간에 새 목표를 지정한다.
    처음에는 수평 0.5~1m, 현재 LIO 고도와 같은 높이를 사용한다.
    RViz 2D 목표 z=0은 camera_init z=1.5로 바뀐다. 높이를 명시하려면
-   `/zav/goal_pose` PoseStamped를 camera_init 좌표로 발행한다.
+   `/argo/goal_pose` PoseStamped를 camera_init 좌표로 발행한다.
 6. 일반적인 재계획 실패에는 2를 다시 누르거나 목표를 재발행할 필요가 없다.
    기존 committed 궤적을 실행하며 재시도하고, backup 종료 후 동일 목표로 다시 계획한다.
 7. Space: 추종 중단·호버링. 1: 수동 복귀. L: 착륙.
@@ -54,7 +54,7 @@ ros2 launch zav_super zav_super_replanner.launch.py \
 - 정지 상태 계획도 실패하면 종점 호버 명령을 유지하며 1초 간격으로 재시도한다.
   목표 무효가 확인되면 `INVALID_GOAL_HOLDING`으로 자동 재시도를 중단한다.
 - 이동 중 새 목표는 기존 committed 궤적 종료·정지 확인 뒤 계획한다.
-  이는 움직이는 상태에서 rest-to-rest 궤적으로 바뀌는 불연속을 피하기 위한 ZAV 동작이다.
+  이는 움직이는 상태에서 rest-to-rest 궤적으로 바뀌는 불연속을 피하기 위한 ARGO 동작이다.
 - `EMER`, 잘못된 committed 궤적, odometry 유실, 추종 오차 초과, 시계 역행은
   snapshot을 제거하고 자동 재출발하지 않는다. flight_manager watchdog/LIO 안전 처리가 계속 적용된다.
 - preview 기본값은 제어 샘플을 발행하지 않으며 기존 실패 시 중단 동작을 유지한다.
@@ -62,7 +62,7 @@ ros2 launch zav_super zav_super_replanner.launch.py \
 ## 상태 확인
 
 ```bash
-ros2 topic echo /zav_super/replan_status
+ros2 topic echo /argo_super/replan_status
 ```
 
 대표 상태:
@@ -79,9 +79,9 @@ ros2 topic echo /zav_super/replan_status
 
 ## 제어 연결과 제한
 
-- `/zav_super/tracking_command` Odometry의 pose와 twist는 모두 camera_init 좌표다.
+- `/argo_super/tracking_command` Odometry의 pose와 twist는 모두 camera_init 좌표다.
   별도 50Hz 콜백이 snapshot을 평가하므로 최적화가 직접 명령 타이머를 점유하지 않는다.
-- super_tracking=true인 flight_manager는 `/zav/goal_pose`, `/zav/cmd_vel`을 직접 구독하지 않는다.
+- super_tracking=true인 flight_manager는 `/argo/goal_pose`, `/argo/cmd_vel`을 직접 구독하지 않는다.
 - 동시각에 가까운 LIO/PX4 피드백으로 위치 오차를 PX4 로컬 원점으로 옮기고
   ENU 오차/속도를 NED로 변환한다. yaw는 유지한다. yaw 궤적·가속도 feedforward는 미구현이다.
 - 명령·LIO·PX4 수신 0.25초, ROS stamp 0.3초, LIO safety ready 수신 1초 검사와
@@ -124,7 +124,7 @@ flight_manager를 착륙 후 재시작해야 한다. 오차 차단 시 목표·�
 - flight_manager는 공분산 계약이 유효한 LIO 속도로 지연 위치를 명령 시각에 맞춘다.
   stamp를 바꾸지 않으며 0.3초 시각 범위와 0.5m 차단 한계는 유지한다.
 - ROG-Map은 child-frame twist를 world 속도로 회전해 실제 정지 확인에 사용한다.
-- `/zav_super/execution_enabled`가 fresh true일 때만 플래너가 추종을 실행한다.
+- `/argo_super/execution_enabled`가 fresh true일 때만 플래너가 추종을 실행한다.
   flight_manager를 먼저 실행하고 T → 호버 → 2 → 새 목표 순서로 사용한다.
   착륙·수동 중단·차단은 이전 목표도 취소한다. 이전 바이너리를 혼용하지 않도록
   수정 적용 후 flight_manager와 replanner를 모두 재시작한다.

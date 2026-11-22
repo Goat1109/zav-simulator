@@ -33,10 +33,10 @@
     }
   },
   "nodes": [
-    "zav_lio_px4_odom_bridge",
+    "argo_lio_px4_odom_bridge",
     "laserMapping",
-    "zav_runtime_observer",
-    "zav_flight_manager",
+    "argo_runtime_observer",
+    "argo_flight_manager",
     "mid360_tcp_receiver",
     "px4_gateway_cyclone"
   ],

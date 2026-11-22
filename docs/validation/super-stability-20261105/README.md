@@ -71,7 +71,7 @@ Python 추종·제어 타이머·안전 테스트 25개가 통과했다.
 
 시뮬레이터, FAST-LIVO, 추종 replanner를 실행하고 다른 flight_manager를 종료한다.
 다음 드라이버가 실제 manager를 생성해 이륙·mode 2·목표·착륙을 제어한다.
-로컬 PX4와 zav_sim 프로세스 및 단일 PX4 publisher를 확인하고 기존 로그는 덮어쓰지 않는다.
+로컬 PX4와 argo_sim 프로세스 및 단일 PX4 publisher를 확인하고 기존 로그는 덮어쓰지 않는다.
 
 ```bash
 source simulator/environment.sh

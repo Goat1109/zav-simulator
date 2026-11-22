@@ -1,5 +1,5 @@
 # EPIC d73c3150e57d669ac21bcad5c859f52c2827c9ba factory.yaml + algorithm.xml.
-# ZAV vehicle, sensor calibration, ROS topics and warehouse ROI retained.
+# ARGO vehicle, sensor calibration, ROS topics and warehouse ROI retained.
 # factory.yaml omits maxBdrMag; explicitly use upstream garage.yaml value (10000).
 /**:
   ros__parameters:

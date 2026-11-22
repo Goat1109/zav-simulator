@@ -208,7 +208,7 @@ def scene_options(directory, scenario):
 def add_super_scene(world, scenario):
     directory = Path(__file__).resolve().parents[2] / 'assets/super'
     options = scene_options(directory,scenario)
-    override = os.environ.get('ZAV_SUPER_TERRAIN_USD')
+    override = os.environ.get('ARGO_SUPER_TERRAIN_USD')
     if override:
         from pxr import Usd, UsdGeom, UsdPhysics
         path = Path(override).expanduser().resolve()

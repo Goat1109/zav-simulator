@@ -4,13 +4,13 @@ Goal is ACTIVE: user requests continuous SITL test/fix until stable, notify only
 when evidence supports stability. Do not mark complete based on unit tests alone.
 No subagents allowed. All flight commands in this run are authorized SITL tests.
 
-Live system started locally (ROS_DOMAIN_ID=119 inherited env; .zav.env=0 but
+Live system started locally (ROS_DOMAIN_ID=119 inherited env; .argo.env=0 but
 simulator/environment.sh preserves caller domain). Native GPU/display :1.
-- Simulator launcher exec session 64949; tmux zav_sim, PX4 pane 0, Isaac pane 1.
-- Latest FAST-LIVO supervisor exec session 74253, output /tmp/zav_stability_fastlivo.log.
-- Latest replanner session 64108, output /tmp/zav_stability_replanner.log.
+- Simulator launcher exec session 64949; tmux argo_sim, PX4 pane 0, Isaac pane 1.
+- Latest FAST-LIVO supervisor exec session 74253, output /tmp/argo_stability_fastlivo.log.
+- Latest replanner session 64108, output /tmp/argo_stability_replanner.log.
 - Latest autonomous flight: session 83387, recovery-07.jsonl, output
-  /tmp/zav_stability_flight.log. It auto-lands and waits for disarm on success/failure.
+  /tmp/argo_stability_flight.log. It auto-lands and waits for disarm on success/failure.
   ALWAYS check process/current log before starting another manager.
 
 New instrumented driver: simulator/tools/runtime/check_super_tracking.py
@@ -36,7 +36,7 @@ Changes during this work:
    imu_propagation_buffer.hpp integrates EVERY buffered IMU at its own interval,
    supports EKF state reset replay, does not publish state newer than input.
    Actual landing LIO jump disappeared after this correction.
-4. Manager publishes retained Bool /zav_super/execution_enabled at 5Hz and changes;
+4. Manager publishes retained Bool /argo_super/execution_enabled at 5Hz and changes;
    requires armed+flying+mode2+setpoints allowed+not blocked/LIO-latched. Replanner
    requires fresh true enable, drops goals when disabled, cancels old mission on
    landing/manual/blocked. Unit test topic remaps include this new Bool channel.
@@ -65,16 +65,16 @@ Test records:
   replans but injection occurred too early, before backup existed.
 - recovery-07 CURRENT: waits until status backup=GENERATED then injects 10 failures.
   Must prove EXECUTING_BACKUP, stop + PlanFromRest automatic restart, complete goals,
-  normal land, no manager/safety latch. Output /tmp/zav_stability_flight.log.
+  normal land, no manager/safety latch. Output /tmp/argo_stability_flight.log.
 
 Baro raw telemetry in 04 and05 was ~10Hz, max gap .114/.107s. The rare >1s gap in03
 was not yet captured in raw baro recording (recording added after03). Current strict
 READY logic should still stop for genuine stale proof; do not waive/ignore it.
 
-Validation passed after current changes: C++ zav_super CTest 3/3; FAST-LIVO test
+Validation passed after current changes: C++ argo_super CTest 3/3; FAST-LIVO test
 imu_propagation_buffer 1/1; Python tracking/control-timer/safety ROS 24 passed
 (before most recent new pure Bool handshake test; rerun that set once before final).
-Build logs: /tmp/zav_stability_build.log, /tmp/zav_stability_livo_build.log.
+Build logs: /tmp/argo_stability_build.log, /tmp/argo_stability_livo_build.log.
 
 Remaining acceptance work:
 - Actual committed BACKUP recovery proof (07 in progress).

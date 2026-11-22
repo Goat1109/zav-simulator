@@ -1,4 +1,4 @@
-# [ZAV 변경] 평면에서 관측 불가능한 수평 이동을 검증하기 위한 선택적 테스트 장면입니다.
+# [ARGO 변경] 평면에서 관측 불가능한 수평 이동을 검증하기 위한 선택적 테스트 장면입니다.
 """Small deterministic scene with geometry and visual features for SLAM checks."""
 import random
 from pxr import Gf, UsdGeom, UsdPhysics, Vt

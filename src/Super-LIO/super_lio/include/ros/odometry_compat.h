@@ -1,4 +1,4 @@
-// ZAV: FAST-LIVO mounted-IMU Odometry contract, opt-in in ROSWrapper.
+// ARGO: FAST-LIVO mounted-IMU Odometry contract, opt-in in ROSWrapper.
 #pragma once
 #include <Eigen/Core>
 #include <nav_msgs/msg/odometry.hpp>
@@ -14,7 +14,7 @@ inline void setFastLivoContract(nav_msgs::msg::Odometry& odom,
   odom.twist.twist.linear.x = velocity_imu[0];
   odom.twist.twist.linear.y = velocity_imu[1];
   odom.twist.twist.linear.z = velocity_imu[2];
-  // Same conservative velocity contract as ZAV's patched FAST-LIVO output.
+  // Same conservative velocity contract as ARGO's patched FAST-LIVO output.
   // This is an assumed variance, not the propagated ESKF covariance.
   for (int axis=0; axis<3; ++axis) odom.twist.covariance[axis*7] = 0.04;
 }

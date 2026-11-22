@@ -17,7 +17,7 @@ def main():
     from nav_msgs.msg import Odometry
     from sensor_msgs.msg import Imu,Image,PointCloud2
     from livox_ros_driver2.msg import CustomMsg
-    rclpy.init();node=rclpy.create_node('zav_runtime_observer')
+    rclpy.init();node=rclpy.create_node('argo_runtime_observer')
     qos=QoSProfile(depth=10,reliability=ReliabilityPolicy.BEST_EFFORT)
     counts={};latest={};subscriptions=[]
     def callback(key):

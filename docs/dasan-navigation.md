@@ -1,6 +1,6 @@
 # Dasan 복도 주행
 
-현재 실행 설정은 `src/zav_super/config/common.yaml`로 통합됐다. 내용은 Dasan 최종값 그대로이며 이전 파일은 `src/zav_super/config_archive/20261118/`에 보존했다. 아래의 예전 `dasan.yaml` 경로는 과거 기록이다.
+현재 실행 설정은 `src/argo_super/config/common.yaml`로 통합됐다. 내용은 Dasan 최종값 그대로이며 이전 파일은 `src/argo_super/config_archive/20261118/`에 보존했다. 아래의 예전 `dasan.yaml` 경로는 과거 기록이다.
 
 현재 기본 경로는 116.83m 상층 왕복으로 확장했다. [확장 경로·시험 결과](dasan-long-route.md)를 먼저 참고한다. 아래의 43.74m 출발점과 회귀 기록은 이전 짧은 경로에 대한 내용이다.
 
@@ -61,7 +61,7 @@ python3 simulator/tools/super/dasan_route.py
 
 ## 설정
 
-별도 설정은 `src/zav_super/config/dasan.yaml`이다. 기존 `common_super_lio.yaml`과 `ommpc_high_speed.yaml`은 유지한다. penalty, `traj_opt` 전체, 최대 속도·가속도·저크, OMMPC 설정은 기존 common과 같다.
+별도 설정은 `src/argo_super/config/dasan.yaml`이다. 기존 `common_super_lio.yaml`과 `ommpc_high_speed.yaml`은 유지한다. penalty, `traj_opt` 전체, 최대 속도·가속도·저크, OMMPC 설정은 기존 common과 같다.
 
 지도는 고정 원점의 전체 건물 지도가 아닌 45×45×18m 슬라이딩 지도다. 높이가 다른 환경에도 절대 바닥/천장을 가정하지 않으며, 실시간 LiDAR raycasting으로 점유를 갱신한다. 해상도 0.15m, inflation 3칸(0.45m), 기체 반경 0.4m를 사용한다. `p_miss=0.45`는 재방문 때 빈 공간 관측으로 오래된 점유를 갱신하기 위한 값이다. 3D 목표 Z를 보존하기 위해 `fsm.click_height=-10`을 사용한다. 기본 1.5m 고정값은 다른 층 목표를 덮어쓸 수 있다.
 
@@ -70,7 +70,7 @@ python3 simulator/tools/super/dasan_route.py
 ```bash
 ./run_super_sim.sh mixed
 ./run_super.sh --scenario mixed --backend super_lio --profile common \
-  --config src/zav_super/config/dasan.yaml --execute
+  --config src/argo_super/config/dasan.yaml --execute
 ```
 
 ## 실험 상태
@@ -104,7 +104,7 @@ python3 simulator/tools/super/publish_bag_route.py \
 - 위치는 유한한 XYZ이며 서로 다른 두 점 이상이어야 한다. 단위 quaternion의 yaw를 목표로 사용한다. 전부 0인 quaternion은 yaw 미지정이다. 탐사 yaw를 속도 방향으로 덮어쓰지 않는다. 위치가 같은 yaw-only 회전 구간은 별도 명령 계약이 필요하다.
 - 동일 위치/yaw 배열의 재발행은 진행을 초기화하지 않는다. 다른 새 경로는 현재 기체 위치 2m 이내에서 시작해야 한다. 오래된 전체 경로를 처음부터 다시 따라가지 않도록 발행기가 현재 위치부터 경로를 제공한다.
 - 새 경로는 기존 실행 궤적을 controller에 직접 덮어쓰지 않고 SUPER의 새 목표로 전달해 재계획한다. 기본 preview 4m에 현재 속도의 jerk 제한 제동 거리와 0.5초 응답 여유를 더하되 planner horizon 15m 안으로 제한한다. 계산에는 YAML의 기존 max_acc/max_jerk를 읽어 사용하며 한계값 자체를 바꾸지 않는다. 실제 왕복 반전점은 건너뛰지 않는다. 진행점은 국소 전방 구간에 투영하며, 왕복/교차 경로에서 전체 최근접점을 검색하지 않는다.
-- 경로 끝에서 위치 오차 0.15m/속도 0.3m/s 미만을 확인하고 `/zav/super/hold` 성공 응답을 받은 뒤 `WAITING_PATH`로 다음 탐사 경로를 기다린다. hold는 신선하고 정지한 비행 피드백이 있을 때만 수락되며, 이동 중 heartbeat 검사/FAULT를 무시하는 기능이 아니다. 외부 경로의 끝을 전체 탐사 종료로 취급하거나 자동 착륙하지 않는다. 착륙은 `/zav/super/land` 서비스의 명시적인 요청이다.
+- 경로 끝에서 위치 오차 0.15m/속도 0.3m/s 미만을 확인하고 `/argo/super/hold` 성공 응답을 받은 뒤 `WAITING_PATH`로 다음 탐사 경로를 기다린다. hold는 신선하고 정지한 비행 피드백이 있을 때만 수락되며, 이동 중 heartbeat 검사/FAULT를 무시하는 기능이 아니다. 외부 경로의 끝을 전체 탐사 종료로 취급하거나 자동 착륙하지 않는다. 착륙은 `/argo/super/land` 서비스의 명시적인 요청이다.
 - `super_planner.goal_yaw_en=true`가 필요하다. SUPER가 위치와 함께 yaw를 재계획한다. 경로 입력은 공간상의 목표이며 EPIC 원래 yaw 시간표를 그대로 추종하는 기능은 아니다.
 - 점유된 목표의 보정은 Dasan에서 요청점으로부터 최대 0.3m다. 매번 보정된 점을 다시 보정해 목표가 누적 이동하던 동작을 수정했다. 새 장애물 때문에 원래 경로를 그대로 지나갈 수 없으면 SUPER의 실시간 회피가 우선한다.
 
@@ -115,7 +115,7 @@ python3 simulator/tools/super/publish_bag_route.py \
 
 ## 후속 수정과 회귀검사
 
-초기 PX4 roll이 180°인 상태에서 EKF만 물리 안정 후 재시작하면 0°가 됐다(`interior-trial07/ekf-before.txt`, `ekf-after.txt`). ZAV_v1은 첫 HIL 센서 전달을 1초 늦춰 물리 spawn 접촉이 안정된 실제 센서부터 전달한다. 합성 가속도나 truth feedback을 넣지 않으며, 이후 lockstep timestamp 간격은 그대로다. 새 실행의 초기 roll 0°는 `interior-trial08/ekf-startup.txt`에서 확인했다. 다른 PX4 차량의 기본 backend 지연은 0이고 ZAV_v1 프리셋에서 1초를 지정한다.
+초기 PX4 roll이 180°인 상태에서 EKF만 물리 안정 후 재시작하면 0°가 됐다(`interior-trial07/ekf-before.txt`, `ekf-after.txt`). ARGO_v1은 첫 HIL 센서 전달을 1초 늦춰 물리 spawn 접촉이 안정된 실제 센서부터 전달한다. 합성 가속도나 truth feedback을 넣지 않으며, 이후 lockstep timestamp 간격은 그대로다. 새 실행의 초기 roll 0°는 `interior-trial08/ekf-startup.txt`에서 확인했다. 다른 PX4 차량의 기본 backend 지연은 0이고 ARGO_v1 프리셋에서 1초를 지정한다.
 
 명시적 탐사 yaw가 있을 때 SUPER 내부 yaw 중간점을 속도 방향으로 만들던 동작도 수정했다. 명시된 yaw로 최단 각도를 따라 보간하며, yaw 미지정 시에는 기존 진행 방향 정책을 사용한다. yaw 속도 제한이나 penalty는 변경하지 않았다. 전진/후진 독립 yaw와 ±π 연결을 실제 yaw optimizer C++ 검사로 확인한다.
 
@@ -123,7 +123,7 @@ python3 simulator/tools/super/publish_bag_route.py \
 
 ```bash
 source simulator/ros_setup.sh
-colcon test --packages-select zav_super super_planner --event-handlers console_direct+
+colcon test --packages-select argo_super super_planner --event-handlers console_direct+
 python3 simulator/tests/check_px4_lockstep.py
 ```
 

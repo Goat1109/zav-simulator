@@ -19,12 +19,12 @@
 
 ```bash
 # 매 실행마다 새 출력 경로를 사용한다. 기존 파일에 덧붙이지 않는다.
-ZAV_CONTACT_REPORT_PATH="$PWD/log/my_super_trial/contacts.jsonl" \
+ARGO_CONTACT_REPORT_PATH="$PWD/log/my_super_trial/contacts.jsonl" \
   ./run_super_sim.sh high_speed
 
 # 다른 터미널. 실험할 공통 YAML을 명시한다.
 ./run_super.sh --scenario high_speed --backend super_lio --profile common \
-  --config "$PWD/src/zav_super/config/common_super_lio_reference.yaml" --execute
+  --config "$PWD/src/argo_super/config/common_super_lio_reference.yaml" --execute
 ```
 
 두 명령의 scenario만 dense로 바꾸면 같은 설정을 사용한다. reference는 재현용 비교 기준이며 무접촉 최적값으로 선정한 파일이 아니다. 계측 환경변수가 없으면 기존 기본 실행에서는 ContactReportAPI를 추가하지 않는다. contact API는 runtime stage의 기체 rigid body에만 적용하며 질량, 관성, 충돌 형상, 물리 200Hz/렌더 20Hz와 controller 출력 경로는 바꾸지 않는다. 파일을 원본 USD로 저장하지 않는다.
@@ -119,11 +119,11 @@ LIO 최대 위치 오차는 high_speed 3.559m, dense 0.464m였다. 수신과 sta
 
 여기서 0.150m로 계산이 제한된 항목은 세밀 계산 cap까지의 하한이며 정확한 최솟값 0.150m를 뜻하지 않는다. 실제 acc/jerk 최대는 high_speed 7.683m/s²/31.622m/s³, dense 6.620m/s²/39.754m/s³였다. nominal 6/10 제한의 실제 준수를 달성한 설정은 아니다. 최대 관측 메시지 간격은 약 0.625초이며 마지막 TRACKING snapshot까지의 메시지 침묵 tail은 각 실행 약 0.03초였다. 메시지 사이 간격만 확인하면 마지막 메시지 뒤 침묵을 놓칠 수 있어 tail 및 fault 시각까지의 간격도 별도 기록한다.
 
-`common_super_lio.yaml`을 위 검증 파일과 바이트까지 동일하게 갱신했다. SHA256은 `8dbc396dc28df0c9f51fceaa5635f305bc0ab01a3bf7dc410ffc57c140158ee0`이다. 이전 common 파일은 `common_super_lio_20hz_reference.yaml`에 보존했으며 이전 SHA256 `40ef48f821b1c22d405315c56ca1a56ede2e29b7fdf7a9095fb941ee574ed8ac`도 확인했다. zav_super 한 패키지만 빌드했고 install의 common 파일도 검증 SHA와 일치했다. 시나리오별 legacy YAML과 controller/SUPER/Super-LIO C++는 변경하지 않았다.
+`common_super_lio.yaml`을 위 검증 파일과 바이트까지 동일하게 갱신했다. SHA256은 `8dbc396dc28df0c9f51fceaa5635f305bc0ab01a3bf7dc410ffc57c140158ee0`이다. 이전 common 파일은 `common_super_lio_20hz_reference.yaml`에 보존했으며 이전 SHA256 `40ef48f821b1c22d405315c56ca1a56ede2e29b7fdf7a9095fb941ee574ed8ac`도 확인했다. argo_super 한 패키지만 빌드했고 install의 common 파일도 검증 SHA와 일치했다. 시나리오별 legacy YAML과 controller/SUPER/Super-LIO C++는 변경하지 않았다.
 
 ```bash
 # 새 디렉터리/파일 경로로 진단을 켜면 검증과 같은 관측 조건을 사용한다.
-ZAV_CONTACT_REPORT_PATH="$PWD/log/my_common_trial/contacts.jsonl" \
+ARGO_CONTACT_REPORT_PATH="$PWD/log/my_common_trial/contacts.jsonl" \
   ./run_super_sim.sh high_speed
 # 다른 터미널
 ./run_super.sh --scenario high_speed --backend super_lio --profile common --execute

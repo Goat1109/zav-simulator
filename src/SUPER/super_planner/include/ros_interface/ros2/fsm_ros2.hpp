@@ -52,7 +52,7 @@ namespace fsm {
         rclcpp::Publisher<mars_quadrotor_msgs::msg::PolynomialTrajectory>::SharedPtr mpc_cmd_pub_;
         rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_pub_;
         rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr goal_sub_;
-        rclcpp::Subscription<std_msgs::msg::String>::SharedPtr zav_status_sub_;
+        rclcpp::Subscription<std_msgs::msg::String>::SharedPtr argo_status_sub_;
 
         rclcpp::TimerBase::SharedPtr execution_timer_, replan_timer_, cmd_timer_;
         rclcpp::CallbackGroup::SharedPtr exec_cbk_group_, replan_cbk_group_, cmd_cbk_group_, goal_cbk_group_;
@@ -314,19 +314,19 @@ namespace fsm {
             // 初始化参数读取
             nh_ = nh;
             cfg_ = Config(cfg_path);
-            if (nh_->declare_parameter<bool>("zav_mission_gate", false)) {
-                zav_status_sub_ = nh_->create_subscription<std_msgs::msg::String>(
-                    "/zav/super/controller_status", 10,
+            if (nh_->declare_parameter<bool>("argo_mission_gate", false)) {
+                argo_status_sub_ = nh_->create_subscription<std_msgs::msg::String>(
+                    "/argo/super/controller_status", 10,
                     [this](const std_msgs::msg::String::SharedPtr msg) {
                         const bool ended = msg->data == "LANDING" || msg->data == "LANDED" ||
                             msg->data.rfind("FAULT:", 0) == 0 || msg->data.rfind("STOPPED:", 0) == 0;
                         if (ended && !stop) {
                             stop = true;
-                            RCLCPP_INFO(nh_->get_logger(), "ZAV planner paused: %s", msg->data.c_str());
+                            RCLCPP_INFO(nh_->get_logger(), "ARGO planner paused: %s", msg->data.c_str());
                         } else if (msg->data == "TAKEOFF" && stop) {
                             stop = false;
-                            ChangeState("ZAV takeoff", WAIT_GOAL);
-                            RCLCPP_INFO(nh_->get_logger(), "ZAV planner resumed for takeoff");
+                            ChangeState("ARGO takeoff", WAIT_GOAL);
+                            RCLCPP_INFO(nh_->get_logger(), "ARGO planner resumed for takeoff");
                         }
                     });
             }

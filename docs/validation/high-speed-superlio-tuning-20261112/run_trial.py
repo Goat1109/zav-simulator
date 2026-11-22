@@ -2,13 +2,13 @@
 import argparse,json,os,pty,signal,subprocess,time,fcntl,termios,struct,sys
 from pathlib import Path
 import yaml
-os.environ['ZAV_HEADLESS']='0'
+os.environ['ARGO_HEADLESS']='0'
 WS=Path(__file__).resolve().parents[3]; ROOT=Path(__file__).resolve().parent
 p=argparse.ArgumentParser();p.add_argument('name');p.add_argument('--boundary',required=True);p.add_argument('--timeout',type=float,default=220);p.add_argument('--reference-config',type=Path);p.add_argument('--robot-radius',type=float);p.add_argument('--inflation-step',type=int);a=p.parse_args()
 trial=ROOT/a.name;trial.mkdir(exist_ok=False)
-share=WS/'install/zav_super/share/zav_super'
+share=WS/'install/argo_super/share/argo_super'
 config=share/'config'/('high_speed_super_lio.yaml' if 'high_speed_super_lio.yaml' in (share/'launch/benchmark.launch.py').read_text() else 'high_speed.yaml')
-original=config.read_text(); data=yaml.safe_load((a.reference_config or WS/'src/zav_super/config/high_speed.yaml').read_text());data['traj_opt']['boundary'].update(json.loads(a.boundary))
+original=config.read_text(); data=yaml.safe_load((a.reference_config or WS/'src/argo_super/config/high_speed.yaml').read_text());data['traj_opt']['boundary'].update(json.loads(a.boundary))
 if a.robot_radius is not None:data['super_planner']['robot_r']=a.robot_radius
 if a.inflation_step is not None:data['rog_map']['inflation_step']=a.inflation_step
 loaded=yaml.safe_dump(data,sort_keys=False);config.write_text(loaded);(trial/'loaded-high_speed.yaml').write_text(loaded)
@@ -27,7 +27,7 @@ try:
     deadline=time.monotonic()+100
     while time.monotonic()<deadline:
         if sim.poll() is not None:raise RuntimeError('Simulator launcher exited')
-        log=Path('/tmp/zav_isaac_sim.log')
+        log=Path('/tmp/argo_isaac_sim.log')
         if log.exists() and '[Ready] high_speed' in log.read_text(errors='replace'):break
         time.sleep(1)
     else:raise RuntimeError('Simulator readiness timeout')
@@ -70,6 +70,6 @@ finally:
             except ProcessLookupError:pass
             try:child.wait(timeout=15)
             except subprocess.TimeoutExpired:os.killpg(child.pid,signal.SIGKILL)
-    log=Path('/tmp/zav_isaac_sim.log')
+    log=Path('/tmp/argo_isaac_sim.log')
     if log.exists():(trial/'isaac.log').write_bytes(log.read_bytes())
     config.write_text(original)

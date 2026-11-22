@@ -8,7 +8,7 @@
 
 ## 설정과 경로
 
-`src/zav_super/config/common.yaml`은 확장 전과 바이트 단위로 같고 SHA-256은 `a757c64015713ec4107769578ed55661c0b40eb5a011a9c46fac090c5f38bea9`다. penalty, 최대 속도·가속도·저크, 지도/LIO/OMMPC 값은 바꾸지 않았다. 오프라인 경로는 손-held 센서 위치에 밀착하기보다 같은 복도의 여유가 큰 중앙을 선호하고 연속성을 고려해 선택했다. 이것은 비행 YAML의 trajectory penalty 변경이 아니다. 지도·카메라 색상·충돌 형상도 그대로다.
+`src/argo_super/config/common.yaml`은 확장 전과 바이트 단위로 같고 SHA-256은 `a757c64015713ec4107769578ed55661c0b40eb5a011a9c46fac090c5f38bea9`다. penalty, 최대 속도·가속도·저크, 지도/LIO/OMMPC 값은 바꾸지 않았다. 오프라인 경로는 손-held 센서 위치에 밀착하기보다 같은 복도의 여유가 큰 중앙을 선호하고 연속성을 고려해 선택했다. 이것은 비행 YAML의 trajectory penalty 변경이 아니다. 지도·카메라 색상·충돌 형상도 그대로다.
 
 모든 최종 경로 선분은 같은 PCD 복셀에서 4cm 간격으로 최소 중심 여유 0.55m를 검사했다. 입력 생성의 6cm 샘플링과 최종 검사 사이에서 드러난 약 14μm 부족은 해당 경유점을 1mm 옮겨 재검사했으며 기준을 낮추지 않았다. 이 정적 여유가 실제 추종 오차까지 보장하는 것은 아니다.
 
@@ -20,7 +20,7 @@
 
 저장된 bag 경로는 오프라인 지도 좌표이고 비행 제어와 SUPER는 온라인 Super-LIO 좌표를 쓴다. 긴 왕복 후 두 좌표가 어긋나면 지도에서 안전했던 고정 경유점도 온라인 점유 지도에서는 벽 안으로 판단될 수 있다. trial11에서는 복도 왕복 후 약 0.9m 위치 차이가 발생했다. 이 차이를 정답 pose로 제어하거나 복도를 줄여서 감추지 않는다.
 
-`bag_map_alignment=true`인 bag 시험 발행기만 `/zav/super/cloud_world`의 실제 LiDAR 관측을 저장 PCD와 point-to-plane ICP로 정합한다. 온라인/저장 지도 좌표의 기울기 차이를 포함한 회전·평행이동(6DoF)을 구하고, 다음 XYZ/yaw 경로를 현재 LIO 좌표로 변환한다. 제어 odometry는 바꾸지 않으며 저장 PCD를 ROG-Map에 주입하지 않는다. 참조 지도 해시는 임무와 일치해야 한다. 정합은 충분한 평면 관측, 관측 가능성, 잔차·inlier·보정 크기 검사를 통과해야 한다.
+`bag_map_alignment=true`인 bag 시험 발행기만 `/argo/super/cloud_world`의 실제 LiDAR 관측을 저장 PCD와 point-to-plane ICP로 정합한다. 온라인/저장 지도 좌표의 기울기 차이를 포함한 회전·평행이동(6DoF)을 구하고, 다음 XYZ/yaw 경로를 현재 LIO 좌표로 변환한다. 제어 odometry는 바꾸지 않으며 저장 PCD를 ROG-Map에 주입하지 않는다. 참조 지도 해시는 임무와 일치해야 한다. 정합은 충분한 평면 관측, 관측 가능성, 잔차·inlier·보정 크기 검사를 통과해야 한다.
 
 이전 분할 Path 모드에서는 viewpoint 정지 시 정합했다. 현재 연속 모드는 초기 정합 후 이동 중에도 약 1초 간격으로 실제 점군을 정합한다. `/mission/bag_frame_correction`으로 기존 경로에 강체 좌표 변환만 적용하며, 경로 revision·segment·누적 진행 거리·preview 진행을 초기화하지 않는다. 새 Path는 보내지 않는다. 추가로 5초 이상 진전 없이 실제 정지한 경우에는 남은 순서 경로를 복구 정합할 수 있다. 이동 중 주기적으로 새 Path를 발행하는 동작은 되돌아감 회귀 때문에 제거했다. 활성 경로의 순서·진행 상태는 비행 중 유지한다. 이미 지난 segment만 제외하며 복도 끝·되돌아오는 가지·다음 계단의 모든 미방문 경유점을 보존한다. 정지 정체 복구는 구간당 최대 세 번이며, 해결되지 않으면 기존 60초 no-progress 착륙 보호가 동작한다. `aligned_remaining_path_republished` 로그에 남긴다. 이는 복도를 생략하는 기능과 다르다.
 
@@ -135,7 +135,7 @@ trial20 최초 접촉에서 SUPER 참조와 실제body는0.988m,추정body와 �
 
 trial30은 simulation 275.405초에 203/203 경유점을 완료했고, 284.585초에 LANDED를 확인했다. navigation 검사 구간은 8.360~278.860초로 끝점 정지 대기도 포함한다. 충격·관통 0건, 복도 끝 실제 body 최소 거리는 순서대로 0.100/0.167/0.259/0.194m다. 7개 높이 구간과 최상층 종료점에 모두 도달했으며 최종 body Z는 22.995m로 지상 복귀가 아니다. 정답 pose는 센서 시각/실행 결과의 오프라인 검증에만 사용했다.
 
-검증: Super-LIO ctest 2/2, SUPER ctest 2/2, zav_super ctest 2/2(임무 회귀 22개 포함), 물리 상태/IMU 수학/실제 센서 발행 및 획득 시계 회귀, 원본 지도 해시와 0.55m 정적 경로 여유 검사가 통과했다. 센서 시뮬레이션·계획/경로 전달 코드를 수정했으며 penalty·최대 속도/가속도/저크·LIO/지도/OMMPC YAML 값과 지형 형상은 변경하지 않았다.
+검증: Super-LIO ctest 2/2, SUPER ctest 2/2, argo_super ctest 2/2(임무 회귀 22개 포함), 물리 상태/IMU 수학/실제 센서 발행 및 획득 시계 회귀, 원본 지도 해시와 0.55m 정적 경로 여유 검사가 통과했다. 센서 시뮬레이션·계획/경로 전달 코드를 수정했으며 penalty·최대 속도/가속도/저크·LIO/지도/OMMPC YAML 값과 지형 형상은 변경하지 않았다.
 
 
 최종 코드에서 디버그 출력을 제거하고 Isaac·RViz를 새로 실행한 trial31도 전체 완료했다. 272.205초에 203/203 경유점, 281.785초에 최상층 LANDED, navigation 7.810~275.980초 충격·관통 0건이다. 복도 끝 최소 body 거리는 0.151/0.137/0.281/0.148m다. 두 번의 완주 모두 단일 Path revision1을 유지했고, source chunk 생략이나 중간 hold는 없었다. 최종 통합 보고서는 `log/frontier-20261118/completion-fix/verification.html`, 기계 판정은 `verification-summary.json`이며 `verified_full_runs=2`, `complete=true`다. 첫 성공을 특정 실행의 초기 시계 위상에만 의존한 결과로 두지 않고 재시작 후 반복 검증했다.

@@ -1,4 +1,4 @@
-# [ZAV 변경] 기존 PX4 body IMU를 유지하고, 별도 장착 원점의 specific force를 계산합니다.
+# [ARGO 변경] 기존 PX4 body IMU를 유지하고, 별도 장착 원점의 specific force를 계산합니다.
 """Rigidly mounted ROS-frame IMU, independent of the PX4 body IMU.
 
 This is an ideal rigid-body model with optional white noise, not a calibrated

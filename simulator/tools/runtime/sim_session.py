@@ -11,11 +11,11 @@ import tempfile
 import time
 
 WORKSPACE = Path(__file__).resolve().parents[3]
-RUNNER = WORKSPACE / 'simulator/scripts/run_zav_sim.sh'
+RUNNER = WORKSPACE / 'simulator/scripts/run_argo_sim.sh'
 
 
 def session_path():
-    return Path(f'/tmp/zav-sim-session-{os.getuid()}.json')
+    return Path(f'/tmp/argo-sim-session-{os.getuid()}.json')
 
 
 def read_session(path=None):
@@ -37,6 +37,9 @@ def read_session(path=None):
         if data['scene'] not in ('warehouse', 'high_speed', 'dense', 'mixed', 'dasan', 'frontier'):
             return None
         data['domain'] = domain
+        data.setdefault('vehicle', 'argo_v1')
+        if data['vehicle'] not in ('argo_v1', 'argo_v2'):
+            return None
         return data
     except (OSError, ValueError, TypeError, KeyError):
         return None
@@ -44,14 +47,16 @@ def read_session(path=None):
 
 def write_session(pid):
     data = {'pid': int(pid), 'domain': int(os.environ.get('ROS_DOMAIN_ID', '0')),
-            'scene': os.environ.get('ZAV_SUPER_SCENE') or 'warehouse',
-            'transport': os.environ.get('ZAV_ROS_TRANSPORT', 'fastdds'),
+            'vehicle': os.environ.get('ARGO_VEHICLE', 'argo_v1'),
+            'calibration_dir': os.environ.get('PEGASUS_FASTLIVO_CONFIG_DIR', ''),
+            'scene': os.environ.get('ARGO_SUPER_SCENE') or 'warehouse',
+            'transport': os.environ.get('ARGO_ROS_TRANSPORT', 'fastdds'),
             'localhost_only': os.environ.get('ROS_LOCALHOST_ONLY', '0')}
-    if os.environ.get('ZAV_SUPER_MISSION_FILE'):
-        data['mission'] = str(Path(os.environ['ZAV_SUPER_MISSION_FILE']).expanduser().resolve())
+    if os.environ.get('ARGO_SUPER_MISSION_FILE'):
+        data['mission'] = str(Path(os.environ['ARGO_SUPER_MISSION_FILE']).expanduser().resolve())
     path = session_path()
     with tempfile.NamedTemporaryFile(mode='w', dir=path.parent,
-                                     prefix=f'.zav-sim-session-{os.getuid()}-', delete=False) as f:
+                                     prefix=f'.argo-sim-session-{os.getuid()}-', delete=False) as f:
         json.dump(data, f)
         temporary = Path(f.name)
     temporary.replace(path)
@@ -66,11 +71,13 @@ def clear_session(pid):
         pass
 
 
-def wait_for_session(scenario, timeout=30.):
+def wait_for_session(scenario, timeout=30., vehicle=None):
     deadline = time.monotonic() + timeout
     while True:
         session = read_session()
         if session:
+            if vehicle and session['vehicle'] != vehicle:
+                raise RuntimeError(f"Simulator aircraft is {session['vehicle']}, requested {vehicle}")
             if session['scene'] != scenario:
                 raise RuntimeError(f"Simulator scene is {session['scene']}, requested {scenario}. "
                                    f"Restart with ./run_super_sim.sh {scenario}")
@@ -82,7 +89,14 @@ def wait_for_session(scenario, timeout=30.):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=('write', 'clear'))
-    parser.add_argument('--pid', type=int, required=True)
+    parser.add_argument('action', choices=('write', 'clear', 'check-vehicle'))
+    parser.add_argument('--pid', type=int)
     args = parser.parse_args()
-    (write_session if args.action == 'write' else clear_session)(args.pid)
+    if args.action == 'check-vehicle':
+        session=read_session()
+        requested=os.environ.get('ARGO_VEHICLE','argo_v1')
+        if not session or session['vehicle'] != requested:
+            parser.exit(2, 'A different aircraft is already running; stop its simulator before switching.\n')
+    else:
+        if args.pid is None: parser.error('--pid is required')
+        (write_session if args.action == 'write' else clear_session)(args.pid)

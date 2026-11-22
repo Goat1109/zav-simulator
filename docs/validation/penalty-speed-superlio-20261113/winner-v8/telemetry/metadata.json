@@ -3,7 +3,7 @@
   "created_at": "2026-11-13T19:50:24.114615+09:00",
   "scenario": "high_speed",
   "backend": "super_lio",
-  "planner_config_path": "/home/goat/zenith_ws/install/zav_super/share/zav_super/config/high_speed_super_lio.yaml",
+  "planner_config_path": "/home/goat/zenith_ws/install/argo_super/share/argo_super/config/high_speed_super_lio.yaml",
   "planner": {
     "fsm": {
       "click_goal_en": true,
@@ -144,8 +144,8 @@
       },
       "ros_callback": {
         "enable": true,
-        "cloud_topic": "/zav/super/cloud_world",
-        "odom_topic": "/zav/super/odom",
+        "cloud_topic": "/argo/super/cloud_world",
+        "odom_topic": "/argo/super/odom",
         "odom_timeout": 0.5
       },
       "visualization": {
@@ -197,7 +197,7 @@
   ],
   "topics": {
     "truth": "/drone0/ground_truth/odometry",
-    "lio": "/zav/super/odom"
+    "lio": "/argo/super/odom"
   },
   "frames": {
     "truth": "mounted IMU pose/twist in isaac_world/mid360_imu; converted offline to body origin/world ENU",

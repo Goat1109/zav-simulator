@@ -13,9 +13,10 @@ def summarize(source, output):
     rows=[r for r in rows if 'lio_body' in r and 'truth_imu' in r]
     if not rows:raise ValueError('No paired odometry in record')
     workspace=Path(__file__).resolve().parents[3]
-    sys.path.insert(0,str(workspace/'simulator/pegasus/simulator/logic/sensors'))
-    from fastlivo_calibration import load_calibration
-    calibration=load_calibration(workspace/'src/FAST-LIVO2/config',[.01215,0.,.11503],[0.,22.,0.])
+    sys.path.insert(0,str(workspace/'simulator'))
+    from vehicle_profiles import load_profile, sensor_calibration
+    calibration=(rows[0] if 'imu_position' in rows[0] else
+                 sensor_calibration(load_profile(rows[0].get('vehicle','argo_v1'))))
     mount=Rotation.from_euler('ZYX',calibration['imu_orientation'],degrees=True)
     truth={r['truth_imu']['stamp']:r['truth_imu']for r in rows}
     times=np.array(sorted(truth))
@@ -51,7 +52,7 @@ def summarize(source, output):
         matplotlib.use('Agg')
         import matplotlib.pyplot as plt
         fig,axes=plt.subplots(1,2,figsize=(10,5))
-        axes[0].plot(physical[:,0],physical[:,1],label='Physical ZAV')
+        axes[0].plot(physical[:,0],physical[:,1],label='Physical ARGO')
         axes[0].plot(estimated[:,0],estimated[:,1],label='Selected LIO',alpha=.7)
         axes[0].set(xlabel='World X (m)',ylabel='World Y (m)',title='SUPER benchmark path')
         axes[0].axis('equal');axes[0].legend();axes[0].grid(True)

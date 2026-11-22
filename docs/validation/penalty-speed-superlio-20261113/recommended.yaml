@@ -124,8 +124,8 @@ rog_map:
     - 3
   ros_callback:
     enable: true
-    cloud_topic: /zav/super/cloud_world
-    odom_topic: /zav/super/odom
+    cloud_topic: /argo/super/cloud_world
+    odom_topic: /argo/super/odom
     odom_timeout: 0.5
   visualization:
     enable: true

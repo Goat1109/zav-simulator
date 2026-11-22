@@ -139,7 +139,7 @@ def run_session(relay_command, launch_command, lock_path, relay_env=None, log_pa
 def check_existing_nodes(workspace):
     """The old shell's lock may be gone even though its ROS nodes survived."""
     executables = {str(workspace / 'install/fast_livo/lib/fast_livo/fastlivo_mapping'),
-                   str(workspace / 'install/zav_control/lib/zav_control/lio_px4_bridge'),
+                   str(workspace / 'install/argo_control/lib/argo_control/lio_px4_bridge'),
                    str(workspace / 'install/super_lio/lib/super_lio/super_lio_node'),
                    str(workspace / 'install/fast_lio/lib/fast_lio/fastlio_mapping')}
     stale = []
@@ -163,13 +163,28 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--rviz-dir', required=True, type=Path)
     parser.add_argument('--backend', choices=('fastlivo', 'fastlio', 'super_lio'), default='fastlivo')
+    parser.add_argument('--vehicle',choices=('argo_v1','argo_v2'),default=os.environ.get('ARGO_VEHICLE'))
     args, launch_args = parser.parse_known_args()
+    sys.path.insert(0,str(Path(__file__).resolve().parent))
+    from sim_session import read_session
+    session=read_session()
+    if session:
+        if args.vehicle and args.vehicle!=session['vehicle']:
+            parser.error(f"Simulator is {session['vehicle']}, requested {args.vehicle}")
+        os.environ['ARGO_VEHICLE']=session['vehicle']
+        if session.get('calibration_dir'):
+            os.environ['PEGASUS_FASTLIVO_CONFIG_DIR']=session['calibration_dir']
+        os.environ['ROS_DOMAIN_ID']=str(session['domain'])
+        os.environ['ROS_LOCALHOST_ONLY']=session['localhost_only']
+        os.environ['ARGO_ROS_TRANSPORT']=session['transport']
+    elif args.vehicle:
+        os.environ['ARGO_VEHICLE']=args.vehicle
     directory = args.rviz_dir.resolve()
     relay_env = dict(os.environ)
-    if os.environ.get('ZAV_ROS_TRANSPORT') == 'cyclone_tcp':
+    if os.environ.get('ARGO_ROS_TRANSPORT') == 'cyclone_tcp':
         relay_env['CYCLONEDDS_URI'] = (directory / 'cyclonedds_publisher.xml').as_uri()
     command = [sys.executable, str(directory.parent / 'runtime/sensor_relay.py'), 'client',
-               '--host', os.environ.get('ZAV_SENSOR_HOST', '127.0.0.1'),
+               '--host', os.environ.get('ARGO_SENSOR_HOST', '127.0.0.1'),
                '--camera-port', '17443' if args.backend == 'fastlivo' else '0',
                '--imu-port', '17444', '--livox-port', '17445']
     if args.backend != 'fastlivo':
@@ -177,9 +192,9 @@ def main():
     try:
         return run_session(command, ['ros2', 'launch', str(directory / 'fastlivo_sim.launch.py'),
                                      *launch_args],
-                           f'/tmp/zav-fastlivo-{os.getuid()}.lock', relay_env,
-                           '/tmp/zav-fastlivo-relay.log',
-                           lambda: check_existing_nodes(Path(os.environ['ZAV_WS_DIR'])))
+                           f'/tmp/argo-fastlivo-{os.getuid()}.lock', relay_env,
+                           '/tmp/argo-fastlivo-relay.log',
+                           lambda: check_existing_nodes(Path(os.environ['ARGO_WS_DIR'])))
     except (OSError, RuntimeError) as exc:
         print(f'[LIO] {exc}', file=sys.stderr, flush=True)
         return 1

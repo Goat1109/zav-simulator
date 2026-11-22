@@ -91,7 +91,7 @@ FAST-LIVO와 flight manager를 재시작하세요. 이전 EKF 진단 DDS export�
 
 # 별도 터미널
 source simulator/ros_setup.sh
-ros2 topic echo /zav/lio_safety/status
+ros2 topic echo /argo/lio_safety/status
 ```
 
 상태에는 `comparison`, 측정 dt, 위치/자세 잔차와 허용치, `latched`, `reasons`,
@@ -149,13 +149,13 @@ relay 발견 실패와 safety 상태 미수신은 서로 다른 오류로 표시
 source simulator/ros_setup.sh
 # 착륙 ACK/지면 감지와 기압계 융합 확인 토픽 export
 python3 scripts/configure_lio_safety_dds.py
-cp simulator/px4/10020_isaac_zav src/PX4-Autopilot/ROMFS/px4fmu_common/init.d-posix/airframes/10020_isaac_zav
+cp simulator/px4/10020_isaac_argo src/PX4-Autopilot/ROMFS/px4fmu_common/init.d-posix/airframes/10020_isaac_argo
 make -C src/PX4-Autopilot -j2 px4_sitl_default
-colcon build --symlink-install --packages-select zav_control
+colcon build --symlink-install --packages-select argo_control
 
-PYTHONPATH="$PWD/src/zav_control:${PYTHONPATH:-}" python3 -m pytest -q \
-  src/zav_control/test/test_lio_safety.py src/zav_control/test/test_lio_safety_ros.py \
-  src/zav_control/test/test_baro_parameter_link.py
+PYTHONPATH="$PWD/src/argo_control:${PYTHONPATH:-}" python3 -m pytest -q \
+  src/argo_control/test/test_lio_safety.py src/argo_control/test/test_lio_safety_ros.py \
+  src/argo_control/test/test_baro_parameter_link.py
 ```
 
 자동화 검증은 정상 이동/회전, 작은 보정 허용, 위치·자세 점프, 느린 수신/긴 간격/입력 정지에서

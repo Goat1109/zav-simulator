@@ -4,7 +4,7 @@
 
 - 저장소 작업 폴더에서 `./scripts/verify.sh` 통과.
 - Git index의 전체 소스만 별도 디렉토리로 내보낸 사본에서 `./scripts/verify.sh` 통과.
-  사본에는 `.zav.env`, build/install, 다운로드한 PX4/Agent, 기존 Pegasus checkout이 없음.
+  사본에는 `.argo.env`, build/install, 다운로드한 PX4/Agent, 기존 Pegasus checkout이 없음.
   검사에 필요한 시스템 ROS·NumPy·SciPy는 현재 PC의 설치를 사용함.
 - `./setup.sh --dry-run` 통과.
 - 실제 Windows Isaac `python.bat`에서 `pip install --dry-run --no-index -r`로

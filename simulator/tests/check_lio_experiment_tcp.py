@@ -24,7 +24,7 @@ def free_port():
 
 def main():
     os.environ.update(ROS_DOMAIN_ID='49', RMW_IMPLEMENTATION='rmw_cyclonedds_cpp',
-                      ZAV_ROS_TRANSPORT='cyclone_tcp')
+                      ARGO_ROS_TRANSPORT='cyclone_tcp')
     monitor_port, relay_port = free_port(), free_port()
     assert monitor_port != relay_port
     with tempfile.TemporaryDirectory(prefix='lio-tcp-test-') as temp:
@@ -52,7 +52,7 @@ def main():
         retained = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
                               durability=DurabilityPolicy.TRANSIENT_LOCAL)
         odom_pub = node.create_publisher(Odometry, '/LIVO2/imu_propagate', qos)
-        status_pub = node.create_publisher(String, '/zav/lio_safety/status', retained)
+        status_pub = node.create_publisher(String, '/argo/lio_safety/status', retained)
         health = dict(state='READY', ready=True, armed=False, latched=False,
                       landing_mode_confirmed=False, landing_complete=False, land_ack=None)
         observed = []
@@ -63,7 +63,7 @@ def main():
                 health.update(state='FAILED', ready=False, armed=False, latched=True,
                               landing_mode_confirmed=True, landing_complete=True, land_ack=0)
 
-        subscription = node.create_subscription(Odometry, '/zav/lio_safety/test/odom', shadow, qos)
+        subscription = node.create_subscription(Odometry, '/argo/lio_safety/test/odom', shadow, qos)
         original = Odometry()
         original.pose.pose.orientation.w = 1.
         processes = []

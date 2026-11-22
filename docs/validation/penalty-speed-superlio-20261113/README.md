@@ -80,7 +80,7 @@ acc/jerk 값은 물리 기체의 body 원점 속도 벡터를 약 0.21초 평활
 ./show_super_flight.sh
 ```
 
-적용 파일은 `src/zav_super/config/high_speed_super_lio.yaml` 및 동일한 install 복사본이다. 기존 명령은 그대로이며 dense·다른 LIO 프로파일은 바꾸지 않았다.
+적용 파일은 `src/argo_super/config/high_speed_super_lio.yaml` 및 동일한 install 복사본이다. 기존 명령은 그대로이며 dense·다른 LIO 프로파일은 바꾸지 않았다.
 
 ## 전체 탐색 기록
 

@@ -38,7 +38,7 @@ def main():
         'lio.map.save_interval': 250, 'lio.sensor.blind': .5,
         'lio.sensor.voxel_fliter_size': .2, 'lio.sensor.filter_rate': 2,
         'lio.sensor.gravity_norm': 9.80665,
-        # Mid360 factory LiDAR -> internal IMU translation, also used by ZAV.
+        # Mid360 factory LiDAR -> internal IMU translation, also used by ARGO.
         'lio.extrinsic.lidar_imu': [-.011, -.02329, -.04412, 1.,0.,0.,0.,1.,0.,0.,0.,1.],
         'lio.output.robot': False, 'lio.output.map': False, 'lio.eva.timer': False})
     (out/'mapping.yaml').write_text(yaml.safe_dump(config, sort_keys=False))

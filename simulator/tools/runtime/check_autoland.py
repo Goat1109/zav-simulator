@@ -27,11 +27,11 @@ def main():
     from px4_msgs.msg import VehicleLandDetected, FailsafeFlags, VehicleCommandAck, VehicleCommand
     from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
     from std_msgs.msg import String
-    from zav_control.zav_flight_manager import ZAVFlightManager
+    from argo_control.argo_flight_manager import ARGOFlightManager
 
     args.log.parent.mkdir(parents=True, exist_ok=True)
     rclpy.init()
-    node = ZAVFlightManager()
+    node = ARGOFlightManager()
     qos = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
     retained = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
                           durability=DurabilityPolicy.TRANSIENT_LOCAL)
@@ -50,10 +50,10 @@ def main():
     node.create_subscription(Odometry, '/drone0/ground_truth/odometry', truth, qos)
     node.create_subscription(VehicleLandDetected, '/fmu/out/vehicle_land_detected',
                              lambda msg: observed.update(landed=msg.landed), qos)
-    node.create_subscription(String, '/zav/lio_safety/status', safety, retained)
+    node.create_subscription(String, '/argo/lio_safety/status', safety, retained)
     node.create_subscription(FailsafeFlags, '/fmu/out/failsafe_flags', flags, qos)
     node.create_subscription(VehicleCommandAck, '/fmu/out/vehicle_command_ack', ack, qos)
-    injector = node.create_publisher(String, '/zav/lio_safety/test/command', 10)
+    injector = node.create_publisher(String, '/argo/lio_safety/test/command', 10)
     stage, start, last_log, hover_stamp = 'preflight', time.monotonic(), 0., None
     ground_z = None
     airborne = False

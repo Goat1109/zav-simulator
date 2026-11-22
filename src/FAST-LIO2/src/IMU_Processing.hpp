@@ -153,7 +153,7 @@ void ImuProcess::set_acc_bias_cov(const V3D &b_a)
   cov_bias_acc = b_a;
 }
 
-extern bool zav_compat;
+extern bool argo_compat;
 
 void ImuProcess::IMU_init(const MeasureGroup &meas, esekfom::esekf<state_ikfom, 12, input_ikfom> &kf_state, int &N)
 {
@@ -193,7 +193,7 @@ void ImuProcess::IMU_init(const MeasureGroup &meas, esekfom::esekf<state_ikfom, 
   }
   state_ikfom init_state = kf_state.get_x();
   init_state.grav = S2(- mean_acc / mean_acc.norm() * G_m_s2);
-  if (zav_compat) {
+  if (argo_compat) {
     init_state.rot=SO3(Eigen::Quaterniond::FromTwoVectors(mean_acc.normalized(),V3D::UnitZ()));
     init_state.grav=S2(V3D(0.,0.,-G_m_s2));
   }

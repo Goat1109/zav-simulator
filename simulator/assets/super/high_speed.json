@@ -1,10 +1,14 @@
 {
   "source_sha256": "e469aa2150ed33ef8f8f3359bfb924a0283dc7e9d640cd83a98ad1723d3a34c4",
   "resolution_m": 0.05,
-  "format_version": 2,
+  "format_version": 3,
+  "flat_floor": true,
+  "landing_pad": null,
+  "colors_sha256": null,
   "points": 186905,
   "occupied_voxels": 19594,
   "chunks": 51,
+  "exposed_faces": 97888,
   "bounds_min": [
     -7.5,
     -55.0,

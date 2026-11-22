@@ -51,7 +51,7 @@ python3 src/epic_ros2/test/integration/startup_freshness.py --output /tmp/epic-f
 ```bash
 python3 src/epic_ros2/test/integration/make_scenes.py --output-dir /tmp/epic-scenes
 # 터미널 1: 아래 loop를 다른 생성 장면 이름으로 바꿀 수 있다.
-ZAV_SUPER_TERRAIN_USD=/tmp/epic-scenes/loop.usda ./run_super_sim.sh frontier
+ARGO_SUPER_TERRAIN_USD=/tmp/epic-scenes/loop.usda ./run_super_sim.sh frontier
 # 터미널 2: 시뮬레이터 준비 후
 ./run_super.sh --scenario frontier --route-source epic --execute
 ```

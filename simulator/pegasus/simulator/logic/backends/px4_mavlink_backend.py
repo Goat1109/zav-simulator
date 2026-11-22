@@ -642,7 +642,7 @@ class PX4MavlinkBackend(Backend):
         # Start by assuming that we have not received data for the actuators for the current step
         self._received_actuator = False
 
-        # [ZAV 변경] PX4 may stop actuator updates on disarm/disconnect. An
+        # [ARGO 변경] PX4 may stop actuator updates on disarm/disconnect. An
         # unbounded receive blocks Isaac's physics/UI and the next HIL sensor
         # packet, so both sides can wait forever. Preserve normal lockstep but
         # allow a missing actuator packet to recover on the next physics step.

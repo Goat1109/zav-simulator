@@ -57,5 +57,5 @@ continued command rate, stationary restart, and manual/LIO interruption.
 Based on the previously inspected official revision
 2ad3419c127a617c6d7df6925e81a14175a9c096: ordinary FAILED leaves FOLLOW_TRAJ active;
 command timer continues evaluating committed trajectory; after completion away
-from goal, FSM returns to GENERATE_TRAJ. ZAV adds an explicit measured-speed settle
+from goal, FSM returns to GENERATE_TRAJ. ARGO adds an explicit measured-speed settle
 gate and fail-closed sensor/error/clock handling around the existing safety gateway.

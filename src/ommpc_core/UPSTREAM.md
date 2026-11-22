@@ -9,6 +9,6 @@ ROS-independent solver/dynamics implement OMMPC; this is not a replacement PD.
 Local changes: ament CMake build, exported OSQP 0.6.3/Eigen dependency,
 OSQP CSC-descriptor cleanup and invalid-call guard, SUPER yaw polynomial
 sampling (the upstream TODO), yaw-time offset, wrapped-angle handling and
-local yaw reference governor for discontinuous goal replans, and the separate PX4 ROS2 adapter in zav_super.
+local yaw reference governor for discontinuous goal replans, and the separate PX4 ROS2 adapter in argo_super.
 The original package license is TODO; no blanket license is asserted here.
 polynomial_trajectory.h carries its own MIT notice, which is retained.

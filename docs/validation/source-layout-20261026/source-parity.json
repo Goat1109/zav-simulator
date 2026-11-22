@@ -8,7 +8,7 @@
     "simulator/pegasus/simulator/logic/backends/px4_mavlink_backend.py",
     "simulator/pegasus/simulator/logic/sensors/mounted_imu.py",
     "simulator/pegasus/simulator/logic/sensors/fastlivo_calibration.py",
-    "simulator/pegasus/simulator/logic/vehicles/multirotors/zav_v1.py",
+    "simulator/pegasus/simulator/logic/vehicles/multirotors/argo_v1.py",
     "simulator/slam_test_scene.py",
     "simulator/tools/rviz/cyclonedds_fastlivo.xml",
     "simulator/tools/rviz/cyclonedds_bridge.xml",

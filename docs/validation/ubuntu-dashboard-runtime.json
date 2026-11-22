@@ -35,8 +35,8 @@
   "nodes": [
     "mid360_tcp_receiver",
     "laserMapping",
-    "zav_lio_px4_odom_bridge",
-    "zav_runtime_observer",
+    "argo_lio_px4_odom_bridge",
+    "argo_runtime_observer",
     "simulator_vehicle_0"
   ],
   "ev_publishers": 1,

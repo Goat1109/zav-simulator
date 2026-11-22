@@ -34,5 +34,5 @@
 /tf
 /visualization_marker
 /voxels
-/zav/cmd_vel
-/zav/goal_pose
+/argo/cmd_vel
+/argo/goal_pose

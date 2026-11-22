@@ -1,6 +1,6 @@
 # OMMPC / PX4 controller comparison — 2026-11-05
 
-[실행 안내](../../ommpc-forest-comparison.md). 기존 PX4 원시 기록은 `../zav-forest-20261105/`에 보존한다. 실제 Isaac ZAV / MID360 / FAST-LIVO / SUPER / PX4 SITL을 사용했다. 공개 OMMPC 코어 commit `29cf38acf6a9a6fb9627c189d6e66afbcc605244`, OSQP 0.6.3이다.
+[실행 안내](../../ommpc-forest-comparison.md). 기존 PX4 원시 기록은 `../argo-forest-20261105/`에 보존한다. 실제 Isaac ARGO / MID360 / FAST-LIVO / SUPER / PX4 SITL을 사용했다. 공개 OMMPC 코어 commit `29cf38acf6a9a6fb9627c189d6e66afbcc605244`, OSQP 0.6.3이다.
 
 ## high_speed, 계획 2m/s, 원본 200m 왕복
 
@@ -13,7 +13,7 @@
 
 `high-01`은 초기 연결 버전, `high-02`는 실제 LIO 측정 시각에 맞춰 reference 평가를 보강한 버전이다. 두 OMMPC 실행 모두 정상 왕복·착륙/disarm, 접촉 0, 원본 XY 범위 유지, 이동 중 OMMPC/body-rate authority 100%였다. `high-02`의 실제 최고 속도는 약 2.07m/s, 나무 표면 거리 하한 1.284m, MPC 계산 최대 약 2.00ms였다. [전체 수치](high-comparison.json).
 
-이 시험들은 기존 R270/H250 원통 충돌체와 같은 플래너 YAML 조건이다. 이후 사용자 치수에 맞춘 hull/팽창 변경은 [별도 시험](../zav-footprint-20261105/README.md)으로 구분한다. 시각 정렬 지표는 모든 명령을 읽은 뒤 측정 시각에서 보간했으며 reference 속도 0.2m/s 이상 구간을 집계했다. 경로가 동일하지 않고 최종 시각 보강 버전의 반복 수가 적으므로 통계적 우월성이나 8/25m/s 재현으로 해석하지 않는다.
+이 시험들은 기존 R270/H250 원통 충돌체와 같은 플래너 YAML 조건이다. 이후 사용자 치수에 맞춘 hull/팽창 변경은 [별도 시험](../argo-footprint-20261105/README.md)으로 구분한다. 시각 정렬 지표는 모든 명령을 읽은 뒤 측정 시각에서 보간했으며 reference 속도 0.2m/s 이상 구간을 집계했다. 경로가 동일하지 않고 최종 시각 보강 버전의 반복 수가 적으므로 통계적 우월성이나 8/25m/s 재현으로 해석하지 않는다.
 
 ![명령/측정 시각 정렬 오차](high-tracking-errors.png)
 

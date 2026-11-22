@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert LIO IMU odometry for EPIC and forward EPIC commands to ZAV/PX4."""
+"""Convert LIO IMU odometry for EPIC and forward EPIC commands to ARGO/PX4."""
 import copy
 import json
 import math
@@ -57,12 +57,12 @@ class IsaacAdapter(Node):
         sensor = QoSProfile(depth=200, reliability=ReliabilityPolicy.BEST_EFFORT)
         retained = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.odom_pub = self.create_publisher(Odometry, '/epic/odom', 20)
-        self.goal_pub = self.create_publisher(PoseStamped, '/zav/goal_pose', 10)
-        self.land_pub = self.create_publisher(Bool, '/zav/epic/land_requested', 10)
+        self.goal_pub = self.create_publisher(PoseStamped, '/argo/goal_pose', 10)
+        self.land_pub = self.create_publisher(Bool, '/argo/epic/land_requested', 10)
         self.create_subscription(TakeoffLand, '/px4ctrl/takeoff_land', self.on_land, 10)
         self.status_pub = self.create_publisher(String, '/epic/status', retained)
         self.trajectory_pub = self.create_publisher(
-            TrajectorySetpoint, '/zav/epic_trajectory_setpoint_ned', 10
+            TrajectorySetpoint, '/argo/epic_trajectory_setpoint_ned', 10
         ) if self.get_parameter('trajectory_feedforward').value else None
         self.clock_pub = self.create_publisher(
             Clock, '/clock', QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
@@ -75,7 +75,7 @@ class IsaacAdapter(Node):
         self.create_subscription(Empty, '/epic/heartbeat', self.on_heartbeat, 10)
         self.create_subscription(Marker, '/epic/state', self.on_state, 10)
         self.create_subscription(PositionCommand, '/epic/position_cmd', self.on_command, 20)
-        self.create_subscription(String, '/zav/lio_safety/status', self.on_safety, retained)
+        self.create_subscription(String, '/argo/lio_safety/status', self.on_safety, retained)
         self.create_timer(.5, self.publish_status)
 
     def on_clock(self, message):
@@ -150,7 +150,7 @@ class IsaacAdapter(Node):
     def publish_goal(self, position, heading):
         out = PoseStamped()
         out.header.stamp = self.get_clock().now().to_msg()
-        out.header.frame_id = 'zav_neu'
+        out.header.frame_id = 'argo_neu'
         out.pose.position.x, out.pose.position.y, out.pose.position.z = map(float, position)
         out.pose.orientation.z, out.pose.orientation.w = math.sin(heading / 2), math.cos(heading / 2)
         self.goal_pub.publish(out)

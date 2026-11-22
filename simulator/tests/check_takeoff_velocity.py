@@ -4,9 +4,9 @@ import math
 from pathlib import Path
 import time
 from types import SimpleNamespace
-source = Path(__file__).resolve().parents[2] / 'src/zav_control/zav_control/zav_flight_manager.py'
+source = Path(__file__).resolve().parents[2] / 'src/argo_control/argo_control/argo_flight_manager.py'
 tree = ast.parse(source.read_text())
-method = next(n for c in tree.body if isinstance(c, ast.ClassDef) and c.name == 'ZAVFlightManager'
+method = next(n for c in tree.body if isinstance(c, ast.ClassDef) and c.name == 'ARGOFlightManager'
               for n in c.body if isinstance(n, ast.FunctionDef) and n.name == 'update_teleop')
 namespace = dict(math=math, time=time)
 exec(compile(ast.Module(body=[method], type_ignores=[]), str(source), 'exec'), namespace)

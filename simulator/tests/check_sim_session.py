@@ -16,8 +16,8 @@ with tempfile.TemporaryDirectory() as directory:
     path = Path(directory) / 'session.json'
     with patch.object(module, 'session_path', return_value=path):
         assert module.read_session() is None
-        with patch.dict(os.environ, {'ROS_DOMAIN_ID': '119', 'ZAV_SUPER_SCENE': 'high_speed',
-                                     'ZAV_ROS_TRANSPORT': 'fastdds', 'ROS_LOCALHOST_ONLY': '0'}):
+        with patch.dict(os.environ, {'ROS_DOMAIN_ID': '119', 'ARGO_SUPER_SCENE': 'high_speed',
+                                     'ARGO_ROS_TRANSPORT': 'fastdds', 'ROS_LOCALHOST_ONLY': '0'}):
             module.write_session(os.getpid())
         with patch.dict(os.environ, {'ROS_DOMAIN_ID': '120'}):
             session = module.wait_for_session('high_speed', timeout=0.)
@@ -34,8 +34,8 @@ with tempfile.TemporaryDirectory() as directory:
         assert module.read_session() is None, 'Stale PID accepted'
         module.clear_session(99999999)
         assert not path.exists()
-        with patch.dict(os.environ, {'ZAV_SUPER_SCENE': 'frontier',
-                                     'ZAV_SUPER_MISSION_FILE': str(Path(directory)/'top-floor.json')}):
+        with patch.dict(os.environ, {'ARGO_SUPER_SCENE': 'frontier',
+                                     'ARGO_SUPER_MISSION_FILE': str(Path(directory)/'top-floor.json')}):
             module.write_session(os.getpid())
         assert module.wait_for_session('frontier', timeout=0.)['mission'] == str(Path(directory)/'top-floor.json')
         module.clear_session(os.getpid())
@@ -44,8 +44,17 @@ with tempfile.TemporaryDirectory() as directory:
             raise AssertionError('Missing simulator accepted')
         except RuntimeError:
             pass
-        with patch.dict(os.environ, {'ROS_DOMAIN_ID': '119', 'ZAV_SUPER_SCENE': 'mixed'}):
+        with patch.dict(os.environ, {'ROS_DOMAIN_ID': '119', 'ARGO_SUPER_SCENE': 'mixed'}):
             module.write_session(os.getpid())
         assert module.wait_for_session('mixed', timeout=0.)['scene'] == 'mixed'
+        module.clear_session(os.getpid())
+        with patch.dict(os.environ, {'ARGO_SUPER_SCENE':'high_speed','ARGO_VEHICLE':'argo_v2'}):
+            module.write_session(os.getpid())
+        assert module.wait_for_session('high_speed',timeout=0.,vehicle='argo_v2')['vehicle']=='argo_v2'
+        try:
+            module.wait_for_session('high_speed',timeout=0.,vehicle='argo_v1')
+            raise AssertionError('Mismatched aircraft accepted')
+        except RuntimeError as exc:
+            assert 'argo_v2' in str(exc)
         module.clear_session(os.getpid())
 print('SIM_SESSION_OK: live PID, cross-terminal domain, scene mismatch, stale record and cleanup')

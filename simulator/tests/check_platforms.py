@@ -9,14 +9,14 @@ root = Path(__file__).resolve().parents[1]
 for script in root.rglob('*.sh'):
     subprocess.run(['bash', '-n', str(script)], check=True)
 for platform, expected in [('native', 'rmw_fastrtps_cpp'), ('wsl', 'rmw_cyclonedds_cpp')]:
-    env = dict(os.environ, ZAV_ENV_FILE='/nonexistent-zav-test-config', ZAV_SIM_PLATFORM=platform, ZAV_ROS_TRANSPORT='auto', ROS_DOMAIN_ID='49')
+    env = dict(os.environ, ARGO_ENV_FILE='/nonexistent-argo-test-config', ARGO_SIM_PLATFORM=platform, ARGO_ROS_TRANSPORT='auto', ROS_DOMAIN_ID='49')
     code = 'source "$1" && python3 -c \'import os,json; print(json.dumps({k:os.environ.get(k) for k in ["RMW_IMPLEMENTATION","ROS_DOMAIN_ID","CYCLONEDDS_URI"]}))\''
     output = subprocess.check_output(['bash', '-c', code, 'test', str(root / 'tools/rviz/ros_env.sh')], env=env, text=True)
     values = json.loads(output)
     assert values['RMW_IMPLEMENTATION'] == expected, values
     assert values['ROS_DOMAIN_ID'] == '49'
     assert bool(values['CYCLONEDDS_URI']) == (platform == 'wsl'), values
-with tempfile.TemporaryDirectory(prefix='zav-platform-') as temp:
+with tempfile.TemporaryDirectory(prefix='argo-platform-') as temp:
     temp = Path(temp)
     home, binaries, isaac = temp / 'home', temp / 'bin', temp / 'Isaac with spaces'
     for path in [home, binaries, isaac]: path.mkdir()
@@ -35,14 +35,14 @@ assert 'PYTHONPATH' not in os.environ
 assert 'CYCLONEDDS_URI' not in os.environ
 assert '/opt/ros/' not in os.environ['LD_LIBRARY_PATH']
 assert os.environ['ISAAC_PATH']==os.environ['ISAAC_TEST_ROOT']
-assert sys.argv[1].endswith('/simulator/zav_sim.py')
+assert sys.argv[1].endswith('/simulator/argo_sim.py')
 print('NATIVE_ISAAC_ENV_OK', flush=True)
 CHECK
 exit 7
 ''')
     for path in [python, binaries / 'tmux', binaries / 'sleep']: path.chmod(0o755)
-    env = dict(os.environ, HOME=str(home), XDG_CONFIG_HOME=str(home / '.config'), ZAV_SIM_PLATFORM='native',
-               PEGASUS_DIR=str(temp / 'Pegasus'), ZAV_WS_DIR=str(temp / 'workspace'),
+    env = dict(os.environ, HOME=str(home), XDG_CONFIG_HOME=str(home / '.config'), ARGO_SIM_PLATFORM='native',
+               PEGASUS_DIR=str(temp / 'Pegasus'), ARGO_WS_DIR=str(root.parent),
                ISAAC_TEST_ROOT=str(isaac), PYTHONPATH='/opt/ros/humble/lib/python3.10/site-packages',
                LD_LIBRARY_PATH='/opt/ros/humble/lib:/some/workspace/install/lib', CYCLONEDDS_URI='stale',
                PATH=str(binaries) + ':' + os.environ['PATH'])

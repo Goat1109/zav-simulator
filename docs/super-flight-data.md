@@ -35,7 +35,7 @@
 
 기본 수치는 **3차원 벡터 크기**다. 가속도는 속도 벡터의 시간 미분이며 중력을 포함한 IMU specific force가 아니다. 따라서 속력의 크기가 일정해도 회전하면 가속도와 저크가 나타난다.
 
-실제 기체 데이터는 `/drone0/ground_truth/odometry`의 mounted IMU 속도를 world ENU로 회전하고 `ω × lever-arm` 속도를 빼서 body 원점 속도로 변환한다. LIO는 `/zav/super/odom`의 world 속도를 사용한다. 이 노드는 구독만 하며 ground truth를 제어에 주입하지 않는다.
+실제 기체 데이터는 `/drone0/ground_truth/odometry`의 mounted IMU 속도를 world ENU로 회전하고 `ω × lever-arm` 속도를 빼서 body 원점 속도로 변환한다. LIO는 `/argo/super/odom`의 world 속도를 사용한다. 이 노드는 구독만 하며 ground truth를 제어에 주입하지 않는다.
 
 원래 odometry timestamp(시뮬레이션 초)로 각 연속 구간을 균일하게 재표본화한다. 속도 벡터에 3차 Savitzky–Golay 필터를 적용해 1차/2차 미분으로 가속도/저크를 계산한다. 기본 윈도는 약 **0.21초**다. 잡음이 미분에서 커지므로 이 값은 필터 조건을 명시한 최대값이며, 무필터 순간 접촉 피크와 같지 않다. 각 연속 구간 양끝 반 윈도는 제외하고, 0.1초 초과 수신 공백·시간 역행·비정상 샘플은 구간을 나눠 미분한다.
 

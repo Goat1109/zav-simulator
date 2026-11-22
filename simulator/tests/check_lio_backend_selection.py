@@ -21,7 +21,7 @@ for backend in ('fastlivo', 'super_lio'):
     argv = [str(path), '--rviz-dir', str(root/'simulator/tools/rviz'),
             '--backend', backend, 'rviz:=False']
     with patch.object(module, 'run_session', capture), patch.object(sys, 'argv', argv), \
-            patch.dict(os.environ, {'ZAV_WS_DIR':str(root)}):
+            patch.dict(os.environ, {'ARGO_WS_DIR':str(root)}):
         assert module.main() == 0
 fast, super_lio = calls
 assert fast[2] == super_lio[2], 'Mappers must share the same exclusive lock'

@@ -76,7 +76,7 @@ def main():
     args, ros_args = parser.parse_known_args()
     if ros_args and ros_args[0] != '--ros-args':
         parser.error('Unknown arguments: '+ ' '.join(ros_args))
-    lock = open(f'/tmp/zav-baro-parameter-{os.getuid()}.lock', 'w')
+    lock = open(f'/tmp/argo-baro-parameter-{os.getuid()}.lock', 'w')
     try:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
@@ -88,13 +88,13 @@ def main():
     from std_msgs.msg import Bool, String
     from px4_msgs.msg import VehicleStatus
     rclpy.init(args=ros_args)
-    node = rclpy.create_node('zav_baro_parameter_bridge')
+    node = rclpy.create_node('argo_baro_parameter_bridge')
     connection = mavutil.mavlink_connection(args.connection, source_system=255, source_component=191)
     link = ParameterLink(connection)
     state = dict(desired=0, armed=True, status_rx=None, status_stamp=None)
     retained = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
                           durability=DurabilityPolicy.TRANSIENT_LOCAL)
-    publisher = node.create_publisher(String, '/zav/lio_safety/baro_parameter', retained)
+    publisher = node.create_publisher(String, '/argo/lio_safety/baro_parameter', retained)
 
     def request(msg):
         # A failure request stays enabled until the whole session restarts.
@@ -110,7 +110,7 @@ def main():
         state.update(armed=msg.arming_state == VehicleStatus.ARMING_STATE_ARMED,
                      status_rx=time.monotonic(), status_stamp=msg.timestamp)
 
-    node.create_subscription(Bool, '/zav/lio_safety/baro_enable', request, retained)
+    node.create_subscription(Bool, '/argo/lio_safety/baro_enable', request, retained)
     node.create_subscription(VehicleStatus, '/fmu/out/vehicle_status', status,
                              QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
 

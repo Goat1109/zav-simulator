@@ -33,7 +33,7 @@ PhysX에 함께 보입니다. 재구성된 복도·연결통로와 계단실의 
 기존 복셀 지형을 명시적으로 선택하려면 다음과 같이 실행합니다.
 
 ```bash
-ZAV_SUPER_TERRAIN_USD="$PWD/simulator/assets/super/frontier.usdc" ./run_super_sim.sh frontier
+ARGO_SUPER_TERRAIN_USD="$PWD/simulator/assets/super/frontier.usdc" ./run_super_sim.sh frontier
 ```
 
 현재 기본 경로는 복도 길이를 자르지 않은 500m 층별 복도 끝 방문·최상층 종료 시험 경로다. 현재는 중간 강제 정지를 제거한 하나의 연속 Path를 쓴다. 센서·추정 시각과 계획 실행을 수정한 trial30·31에서 두 번 연속 500.54m/203경유점 전체 완료·최상층 자연 바닥 LANDED·navigation 충격/관통 0건을 확인했다. 이전 186m 성공 경로는 별도 보존했다. 상세 결과는 [전 층 경로 기록](frontier-all-floors.md)을 참고한다. 아래 78m 왕복은 이전 검증 기록이다.
@@ -55,7 +55,7 @@ Dasan과 같은 FAST-LIVO2/카메라 보정으로 재생했지만 초기 설정�
 
 ## 공통 설정
 
-실행 설정은 모든 장면에서 `src/zav_super/config/common.yaml` 하나다. 이전 최종 `dasan.yaml`과 바이트 단위로 같다(SHA-256 `a757c64015713ec4107769578ed55661c0b40eb5a011a9c46fac090c5f38bea9`). 원래 공통값과 다른 YAML은 `src/zav_super/config_archive/20261118/`에 원본 그대로 백업했으며 manifest에 해시를 보존했다. penalty, 속도·가속도·저크, OMMPC, 지도/LIO 값은 Dasan 최종값 그대로다. 이륙 높이와 위치는 환경 임무에서 공급한다.
+실행 설정은 모든 장면에서 `src/argo_super/config/common.yaml` 하나다. 이전 최종 `dasan.yaml`과 바이트 단위로 같다(SHA-256 `a757c64015713ec4107769578ed55661c0b40eb5a011a9c46fac090c5f38bea9`). 원래 공통값과 다른 YAML은 `src/argo_super/config_archive/20261118/`에 원본 그대로 백업했으며 manifest에 해시를 보존했다. penalty, 속도·가속도·저크, OMMPC, 지도/LIO 값은 Dasan 최종값 그대로다. 이륙 높이와 위치는 환경 임무에서 공급한다.
 
 공통 경로 소비자는 먼 목표를 향한 직선이 상위 3D polyline을 map resolution(0.15m)보다 크게 자르지 않도록 preview를 제한한다. 이는 전역 지도나 truth를 제어에 넣지 않고 경유점의 공간 순서를 보존하는 규칙이다. 직선 경로에는 기존 braking lookahead를 유지한다. 모든 시나리오에 같은 규칙을 사용한다.
 
@@ -94,8 +94,8 @@ bag 시험 발행기의 `viewpoint_pause_indices`는 이 방법으로 계단 중
 ```
 
 새 워크스페이스에서는 `source simulator/ros_setup.sh` 후
-`colcon build --symlink-install --packages-up-to zav_super`로 EPIC을 포함해 빌드합니다.
-EPIC은 Super-LIO의 `/zav/super/odom`과 `/zav/super/cloud_world`를 받아 이륙 완료 후
+`colcon build --symlink-install --packages-up-to argo_super`로 EPIC을 포함해 빌드합니다.
+EPIC은 Super-LIO의 `/argo/super/odom`과 `/argo/super/cloud_world`를 받아 이륙 완료 후
 `/mission/exploration_path`에 world 좌표의 XYZ와 관측 yaw를 발행합니다. SUPER가 로컬 궤적을
 재계획하고 OMMPC가 PX4를 제어합니다. 건물 탐사 설정에 적용하는 `frontier_bounds.yaml`은
 EPIC의 검색 범위 두 값만 지정합니다. 실내 경계는 Isaac의 지형에 들어 있습니다.
@@ -171,4 +171,4 @@ python3 simulator/tools/super/dasan_route.py --scenario frontier \
 
 USD는 `./run_super_sim.sh frontier`가 Isaac 환경 안에서 자동 생성/갱신한다. 일반 system Python 또는 Isaac venv만으로 `pcd_scene.py`를 실행하면 pxr 경로가 없어 실패할 수 있다.
 
-검증은 `simulator/tests/check_measured_scene.py frontier`(지도/RGB/USD/패드 해시·bounds와 5cm 선분 여유), `test_dasan_route.py`(벽/미관측 외부 연결 거부), `src/zav_super/test/test_bag_mission.py`(16개, 3D viewpoint·yaw 보존·preview·경로 교체 등), `ctest --test-dir build/zav_super`로 수행했다.
+검증은 `simulator/tests/check_measured_scene.py frontier`(지도/RGB/USD/패드 해시·bounds와 5cm 선분 여유), `test_dasan_route.py`(벽/미관측 외부 연결 거부), `src/argo_super/test/test_bag_mission.py`(16개, 3D viewpoint·yaw 보존·preview·경로 교체 등), `ctest --test-dir build/argo_super`로 수행했다.

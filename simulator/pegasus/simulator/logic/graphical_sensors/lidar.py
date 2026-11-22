@@ -70,7 +70,7 @@ class Lidar(GraphicalSensor):
         # Get the camera name that was actually created (and update the camera name)
         self._lidar_name = self._stage_prim_path.rpartition("/")[-1]
 
-        # [ZAV 변경] 저장된 USD의 센서 subtree만 참조해 body 아래에 장착합니다.
+        # [ARGO 변경] 저장된 USD의 센서 subtree만 참조해 body 아래에 장착합니다.
         if self._usd_path:
             # Reference only the sensor subtree, excluding saved lights/render settings.
             stage = PegasusInterface().world.stage

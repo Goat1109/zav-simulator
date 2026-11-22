@@ -4,7 +4,7 @@ from pathlib import Path
 import yaml
 ROOT=Path(__file__).resolve().parent;WS=ROOT.parents[2]
 while not(ROOT/'completion-phase-finished.json').exists():time.sleep(1)
-while Path(f'/tmp/zav-sim-session-{os.getuid()}.json').exists():time.sleep(1)
+while Path(f'/tmp/argo-sim-session-{os.getuid()}.json').exists():time.sleep(1)
 time.sleep(5)
 def evaluate(name):
  subprocess.run(['python3',str(ROOT/'evaluate.py'),name],check=True)
@@ -41,12 +41,12 @@ for candidate in candidates:
   if mean<=fallback_time*1.01:best=attempt;break
  persist(attempts)
 recommended=ROOT/'recommended.yaml';recommended.write_text('# GUI penalty tuning: high_speed + super_lio only.\n# See docs/validation/penalty-speed-superlio-20261113/README.md.\n'+(ROOT/best['seed']/'loaded-high_speed.yaml').read_text())
-source=WS/'src/zav_super/config/high_speed_super_lio.yaml';expected=json.loads((ROOT/'policy-source-hash.json').read_text())
+source=WS/'src/argo_super/config/high_speed_super_lio.yaml';expected=json.loads((ROOT/'policy-source-hash.json').read_text())
 assert hashlib.sha256(source.read_bytes()).hexdigest()==expected['sha256'],'Source changed while testing; recommendation saved separately'
 initial=json.loads((ROOT/'initial-hashes.json').read_text())
 for p,h in initial.items():
- if p!='src/zav_super/config/high_speed_super_lio.yaml':assert hashlib.sha256((WS/p).read_bytes()).hexdigest()==h,p
-shutil.copy2(recommended,source);shutil.copy2(source,WS/'install/zav_super/share/zav_super/config/high_speed_super_lio.yaml')
+ if p!='src/argo_super/config/high_speed_super_lio.yaml':assert hashlib.sha256((WS/p).read_bytes()).hexdigest()==h,p
+shutil.copy2(recommended,source);shutil.copy2(source,WS/'install/argo_super/share/argo_super/config/high_speed_super_lio.yaml')
 persist(attempts,best)
 shutil.copy2(ROOT/'verification.json',ROOT/'verification-previous-strict.json')
 shutil.copy2(ROOT/'verification-completion.json',ROOT/'verification.json')

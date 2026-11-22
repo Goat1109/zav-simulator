@@ -106,7 +106,7 @@ class MonocularCamera(GraphicalSensor):
             resolution=self._resolution)
         
         # Set the camera position locally with respect to the drone
-        # [ZAV 변경] SciPy XYZW를 Isaac WXYZ로 바꾸고 FLU body 기준 장착 방향을 명시합니다.
+        # [ARGO 변경] SciPy XYZW를 Isaac WXYZ로 바꾸고 FLU body 기준 장착 방향을 명시합니다.
         quaternion = Rotation.from_euler("ZYX", self._orientation, degrees=True).as_quat()
         self._camera.set_local_pose(
             np.array(self._position), quaternion[[3, 0, 1, 2]], camera_axes="world"
@@ -118,7 +118,7 @@ class MonocularCamera(GraphicalSensor):
         self._camera.initialize()
 
         # Set the correct properties of the camera (this must be done after the camera object is initialized)
-        # [ZAV 변경] 실제 FAST-LIVO K/D와 해상도를 렌더링 광학계에 적용합니다.
+        # [ARGO 변경] 실제 FAST-LIVO K/D와 해상도를 렌더링 광학계에 적용합니다.
         self._camera.set_lens_distortion_model("OmniLensDistortionOpenCvPinholeAPI")
         self._camera.set_resolution(self._resolution, maintain_square_pixels=True)
         self._camera.set_clipping_range(*self._clipping_range)

@@ -17,7 +17,7 @@ if [[ -z "$(git config user.email || true)" ]]; then
 fi
 git add -- .
 if ! git diff --cached --quiet; then
-    git commit -m 'Package ZAV simulator with locked dependencies and portable setup'
+    git commit -m 'Package ARGO simulator with locked dependencies and portable setup'
 fi
 if gh repo view "$REPO" --json isPrivate >/dev/null 2>&1; then
     [[ "$(gh repo view "$REPO" --json isPrivate --jq .isPrivate)" == true ]] || { echo 'Refusing to upload to a public repository.' >&2; exit 1; }
@@ -27,7 +27,7 @@ if gh repo view "$REPO" --json isPrivate >/dev/null 2>&1; then
         git remote add origin "https://github.com/$REPO.git"
     fi
 else
-    gh repo create "$REPO" --private --description 'ZAV GPS-free Isaac Sim 5.1.0 / PX4 / FAST-LIVO2 simulator' --source . --remote origin
+    gh repo create "$REPO" --private --description 'ARGO GPS-free Isaac Sim 5.1.0 / PX4 / FAST-LIVO2 simulator' --source . --remote origin
 fi
 branch=$(git symbolic-ref --quiet --short HEAD) || { echo 'Checkout a branch before publishing.' >&2; exit 1; }
 git push --set-upstream origin "$branch"

@@ -35,7 +35,7 @@ angular-only and thrust-only penalties, corridor violation, hover bounds, and
 both installed-source YAML parameter sets. Python tests cover per-stream timeout
 messages and existing tracking/LIO safety behavior.
 
-Validation result: colcon build zav_super + zav_control passed; CTest
+Validation result: colcon build argo_super + argo_control passed; CTest
 backup_constraints 1/1 passed; Python tracking + LIO ROS tests 19 passed.
 
 ## Follow-up: actual acceleration violation after the first correction

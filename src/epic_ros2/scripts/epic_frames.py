@@ -1,4 +1,4 @@
-"""Rigid IMU/body conversion and LIO-world -> ZAV North/East/Up command alignment."""
+"""Rigid IMU/body conversion and LIO-world -> ARGO North/East/Up command alignment."""
 import math
 import numpy as np
 from scipy.spatial.transform import Rotation

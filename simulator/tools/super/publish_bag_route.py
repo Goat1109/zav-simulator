@@ -57,7 +57,7 @@ def main():
     latest_sensor=QoSProfile(depth=1,reliability=ReliabilityPolicy.BEST_EFFORT)
     publisher=node.create_publisher(NavPath,'/mission/exploration_path',qos)
     correction_pub=node.create_publisher(String,'/mission/bag_frame_correction',10)
-    landing=node.create_client(Trigger,'/zav/super/land')
+    landing=node.create_client(Trigger,'/argo/super/land')
     state={'mission':{},'controller':'','position':None,'speed':float('inf'),'stamp':None,
            'cloud':None,'cloud_stamp':None}
     alignment=None
@@ -76,7 +76,7 @@ def main():
             except (ValueError,TypeError):return
             state['cloud']=points
             state['cloud_stamp']=msg.header.stamp.sec+msg.header.stamp.nanosec*1e-9
-        node.create_subscription(PointCloud2,'/zav/super/cloud_world',cloud,latest_sensor)
+        node.create_subscription(PointCloud2,'/argo/super/cloud_world',cloud,latest_sensor)
         if args.replace_after_meters>0:raise ValueError('Aligned bag chunks cannot use the suffix replacement test')
     def status(msg):
         try:state['mission']=json.loads(msg.data)
@@ -85,9 +85,9 @@ def main():
         p=msg.pose.pose.position;v=msg.twist.twist.linear
         state['position']=(p.x,p.y,p.z);state['speed']=math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z)
         state['stamp']=msg.header.stamp.sec+msg.header.stamp.nanosec*1e-9
-    node.create_subscription(String,'/zav/super/mission_status',status,qos)
-    node.create_subscription(String,'/zav/super/controller_status',lambda m:state.update(controller=m.data),1)
-    node.create_subscription(Odometry,'/zav/super/odom',odom,latest_sensor)
+    node.create_subscription(String,'/argo/super/mission_status',status,qos)
+    node.create_subscription(String,'/argo/super/controller_status',lambda m:state.update(controller=m.data),1)
+    node.create_subscription(Odometry,'/argo/super/odom',odom,latest_sensor)
     points=[mission['takeoff'],*mission['waypoints']];original=list(points)
     yaws=mission.get('yaw_waypoints',[None]*len(points))
     if args.yaw_policy=='fixed':yaws=[float(mission['spawn_yaw'])]*len(points)

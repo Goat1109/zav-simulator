@@ -4,7 +4,7 @@ from pathlib import Path
 import yaml
 ROOT=Path(__file__).resolve().parent;WS=ROOT.parents[2]
 while not(ROOT/'bracket-finished.json').exists():time.sleep(1)
-while Path(f'/tmp/zav-sim-session-{__import__("os").getuid()}.json').exists():time.sleep(1)
+while Path(f'/tmp/argo-sim-session-{__import__("os").getuid()}.json').exists():time.sleep(1)
 time.sleep(5)
 rows=[json.loads(p.read_text())for p in ROOT.glob('*/evaluation.json')]
 candidates=sorted([r for r in rows if r['eligible']],key=lambda r:r['ranking_time_sim_s'])
@@ -25,7 +25,7 @@ for candidate in candidates:
  if attempt['all_passed']:selected=attempt;break
 if selected is None:raise RuntimeError('No candidate passed three fresh GUI flights; source settings remain unchanged')
 recommended=ROOT/'recommended.yaml';recommended.write_text('# GUI penalty tuning: high_speed + super_lio only.\n# See docs/validation/penalty-speed-superlio-20261113/README.md.\n'+(ROOT/selected['seed']/'loaded-high_speed.yaml').read_text())
-source=WS/'src/zav_super/config/high_speed_super_lio.yaml'
+source=WS/'src/argo_super/config/high_speed_super_lio.yaml'
 initial=json.loads((ROOT/'initial-hashes.json').read_text());assert hashlib.sha256(source.read_bytes()).hexdigest()==initial[str(source.relative_to(WS))],'Source was edited during tuning; recommendation retained separately'
 # The search only changed planner penalties and three dynamic boundaries.
 baseline=yaml.safe_load((ROOT/'initial.yaml').read_text());final=yaml.safe_load(recommended.read_text());other=__import__('copy').deepcopy(final)
@@ -36,6 +36,6 @@ for family in ('exp_traj','backup_traj'):
 assert other==baseline,'Unexpected non-penalty planner changes'
 for p,h in initial.items():
  if p!=str(source.relative_to(WS)):assert hashlib.sha256((WS/p).read_bytes()).hexdigest()==h,p
-shutil.copy2(recommended,source);shutil.copy2(source,WS/'install/zav_super/share/zav_super/config/high_speed_super_lio.yaml')
+shutil.copy2(recommended,source);shutil.copy2(source,WS/'install/argo_super/share/argo_super/config/high_speed_super_lio.yaml')
 (ROOT/'verification.json').write_text(json.dumps({'attempts':attempts,'selected':selected['seed'],'runs':selected['runs'],'all_passed':True,'source_applied':str(source)},indent=2)+'\n')
 print('VERIFIED AND APPLIED',selected['seed'],flush=True)

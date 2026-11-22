@@ -22,7 +22,7 @@ assert os.environ.get('RMW_IMPLEMENTATION') in ('rmw_fastrtps_cpp', 'rmw_cyclone
 cyclone = os.environ['RMW_IMPLEMENTATION'] == 'rmw_cyclonedds_cpp'
 if cyclone:
     os.environ['CYCLONEDDS_URI'] = '<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="lo"/></Interfaces><AllowMulticast>false</AllowMulticast><Transport>tcp</Transport></General><Discovery><Peers><Peer Address="127.0.0.1:17542"/></Peers></Discovery><TCP><Port>17542</Port></TCP></Domain></CycloneDDS>'
-os.environ['ZAV_SIM_PLATFORM'] = 'native'
+os.environ['ARGO_SIM_PLATFORM'] = 'native'
 import rclpy
 from rclpy.serialization import serialize_message
 from rclpy.qos import QoSProfile, ReliabilityPolicy
@@ -66,9 +66,9 @@ q = QoSProfile(depth=256, reliability=ReliabilityPolicy.BEST_EFFORT)
 subscriptions = [node.create_subscription(t,p,cb(k),q) for t,p,k in (
     (PointCloud2,'/drone0/mid360/pointcloud','cloud'), (Image,'/drone0/front_camera/color/image_raw','image'),
     (Imu,'/drone0/mid360/imu','imu'), (CustomMsg,'/drone0/mid360/lidar','livox'))]
-spec = importlib.util.spec_from_file_location('flight', root.parent / 'src/zav_control/zav_control/zav_flight_manager.py')
+spec = importlib.util.spec_from_file_location('flight', root.parent / 'src/argo_control/argo_control/argo_flight_manager.py')
 module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
-with contextlib.redirect_stdout(io.StringIO()): manager = module.ZAVFlightManager()
+with contextlib.redirect_stdout(io.StringIO()): manager = module.ARGOFlightManager()
 # VOLATILE publisher reproduces the direct native PX4 endpoint (no WSL gateway).
 position_pub = node.create_publisher(VehicleLocalPosition,'/fmu/out/vehicle_local_position',q)
 position = VehicleLocalPosition(xy_valid=True,z_valid=True,z=-2.)

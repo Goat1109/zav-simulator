@@ -15,7 +15,7 @@ xwininfo: Window id: 0x204 (the root window) (has no name)
         0x40000b (has no name): ()  1x1+-1+-1  +-201+-201
      0x402703 (has no name): ()  599x1071+1020+19  +1020+19
         1 child:
-        0x4e00106 "/home/goat/zenith_ws/install/zav_super/share/zav_super/rviz/super.rviz - RViz": ("rviz2" "rviz2")  579x1016+10+45  +1030+64
+        0x4e00106 "/home/goat/zenith_ws/install/argo_super/share/argo_super/rviz/super.rviz - RViz": ("rviz2" "rviz2")  579x1016+10+45  +1030+64
            2 children:
            0x4e00109 "Qt NET_WM User Time Window": ()  1x1+-1+-1  +1029+63
            0x4e00013 "rviz2": ("rviz2" "rviz2")  1199x908+25+70  +1055+134

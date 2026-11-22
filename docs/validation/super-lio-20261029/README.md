@@ -1,6 +1,6 @@
 # Super-LIO 통합 검증 — 2026-10-29
 
-Windows Isaac Sim 5.1 + WSL2 Ubuntu 22.04 / ROS Humble / PX4 SITL / Full Warehouse에서 검증했다. Super-LIO ROS2 commit `f89f48dc7aea6cfa262f18e4d03b319e04e0dbd2`에 ZAV 호환 ROS wrapper를 적용했다.
+Windows Isaac Sim 5.1 + WSL2 Ubuntu 22.04 / ROS Humble / PX4 SITL / Full Warehouse에서 검증했다. Super-LIO ROS2 commit `f89f48dc7aea6cfa262f18e4d03b319e04e0dbd2`에 ARGO 호환 ROS wrapper를 적용했다.
 
 ## 결과
 
@@ -20,7 +20,7 @@ Windows Isaac Sim 5.1 + WSL2 Ubuntu 22.04 / ROS Humble / PX4 SITL / Full Warehou
 
 초기 GUI 시험은 복귀 중 중단됐고, headless 시험과 다음 재시험도 중단됐다. 이를 성공으로 간주하지 않았다. 원인 추적 시 종료 직전 Kit의 `is_running=true`, `is_exiting=false`, stage 유효 상태를 확인했다. 임시 검증 코드의 Windows 파일 교체와 WSL reader 간 경합에서 `PermissionError`가 발생하는 것을 별도 부하 시험으로 재현했다. 해당 계측 코드가 예외 후 `finally`에서 SimulationApp을 닫아 정상 종료처럼 보이게 만들었다.
 
-검증용 telemetry 교체 실패 시 다음 표본에서 재시도하도록 보완하고, 다른 예외는 종료 전에 traceback을 기록하도록 변경했다. 그 후 GUI 상태의 전체 임무 시험이 끝까지 통과했다. 이 계측 코드는 `.cache`에만 있으며, 제품의 `simulator/zav_sim.py`에는 포함하지 않는다. 중단 기록을 Isaac 자체의 런타임 결함이라고 확정하지 않는다.
+검증용 telemetry 교체 실패 시 다음 표본에서 재시도하도록 보완하고, 다른 예외는 종료 전에 traceback을 기록하도록 변경했다. 그 후 GUI 상태의 전체 임무 시험이 끝까지 통과했다. 이 계측 코드는 `.cache`에만 있으며, 제품의 `simulator/argo_sim.py`에는 포함하지 않는다. 중단 기록을 Isaac 자체의 런타임 결함이라고 확정하지 않는다.
 
 ## 재현 자료
 

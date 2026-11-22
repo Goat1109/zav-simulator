@@ -123,7 +123,7 @@
     "simulator/assets/super/frontier_visual/frontier_collision.usdc": "36ca4fa1f3535abe7ef319ecc79f620efcf2b91c875f4dd28891c9a3e5f0b75c",
     "simulator/assets/super/frontier_visual/frontier_textured_flight.usda": "3c3357e6c4586db7d4d6980c8c9d58e920481fb01d00217dd2eeaae1e1991be7",
     "simulator/assets/super/frontier_visual/frontier_textured.usdc": "a0cf99ad9ffc170b1fcfcfd29f086cba5963d076ad70d663dc92bc3e379dc00d",
-    "src/zav_super/config/common.yaml": "a757c64015713ec4107769578ed55661c0b40eb5a011a9c46fac090c5f38bea9",
+    "src/argo_super/config/common.yaml": "a757c64015713ec4107769578ed55661c0b40eb5a011a9c46fac090c5f38bea9",
     "simulator/assets/super/frontier_mission.json": "e1fc44a84c0aad17cffed5df5bd9b04c85ef84ad1ff623daa9e0ce5c45dd7ca2"
   },
   "active_static_colliders": 86,
@@ -132,7 +132,7 @@
     "simulator/assets/super/frontier_visual/frontier_collision.usdc": "36ca4fa1f3535abe7ef319ecc79f620efcf2b91c875f4dd28891c9a3e5f0b75c",
     "simulator/assets/super/frontier_visual/frontier_textured_flight.usda": "c4c46e50c6647f58e4f962f771b7055b43d95c30cad743ca33fd44c426ec4c83",
     "simulator/assets/super/frontier_visual/frontier_textured.usdc": "a0cf99ad9ffc170b1fcfcfd29f086cba5963d076ad70d663dc92bc3e379dc00d",
-    "src/zav_super/config/common.yaml": "a757c64015713ec4107769578ed55661c0b40eb5a011a9c46fac090c5f38bea9",
+    "src/argo_super/config/common.yaml": "a757c64015713ec4107769578ed55661c0b40eb5a011a9c46fac090c5f38bea9",
     "simulator/assets/super/frontier_mission.json": "e1fc44a84c0aad17cffed5df5bd9b04c85ef84ad1ff623daa9e0ce5c45dd7ca2"
   },
   "packaging_note": "The generated flight USDA trailing blank line was removed for Git whitespace checks; geometry, collision winding, pad and controller settings are unchanged from the validated tests."

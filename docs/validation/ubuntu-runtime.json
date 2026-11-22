@@ -36,9 +36,9 @@
     "mid360_tcp_receiver",
     "simulator_vehicle_0",
     "laserMapping",
-    "zav_lio_px4_odom_bridge",
-    "zav_runtime_observer",
-    "zav_flight_manager",
+    "argo_lio_px4_odom_bridge",
+    "argo_runtime_observer",
+    "argo_flight_manager",
     "rviz",
     "transform_listener_impl_574919540f10"
   ],

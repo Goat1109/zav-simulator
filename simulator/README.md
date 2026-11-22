@@ -1,10 +1,10 @@
 # 시뮬레이터 소스
 
-이 폴더 자체가 실행 원본입니다. `zav_sim.py`와 `pegasus/`의 코드를 수정하고
-루트의 `./run_zav_sim.sh`로 재실행하세요. 복사·배포·Python 빌드가 필요하지 않습니다.
+이 폴더 자체가 실행 원본입니다. `argo_sim.py`와 `pegasus/`의 코드를 수정하고
+루트의 `./run_argo_sim.sh`로 재실행하세요. 복사·배포·Python 빌드가 필요하지 않습니다.
 
-- `zav_sim.py`: 주기, 센서 설정, 장면, 메인 루프
-- `pegasus/simulator/logic/vehicles/multirotors/zav_v1.py`: 기체 설정
+- `argo_sim.py`: 주기, 센서 설정, 장면, 메인 루프
+- `pegasus/simulator/logic/vehicles/multirotors/argo_v1.py`: 기체 설정
 - `pegasus/simulator/logic/sensors/`: IMU·캘리브레이션
 - `pegasus/simulator/logic/graphical_sensors/`: LiDAR·카메라
 - `pegasus/simulator/logic/backends/`: PX4·ROS·TCP 통신

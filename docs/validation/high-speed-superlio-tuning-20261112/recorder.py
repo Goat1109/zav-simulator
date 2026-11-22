@@ -30,14 +30,14 @@ def main():
     if session:
         os.environ['ROS_DOMAIN_ID']=str(session['domain'])
         os.environ['ROS_LOCALHOST_ONLY']=session['localhost_only']
-    rclpy.init();node=Node('zav_super_validation_recorder');latest={}
+    rclpy.init();node=Node('argo_super_validation_recorder');latest={}
     events=args.output.with_name('odom-events.jsonl').open('w')
     def odom(key,msg):
         p,q,v=msg.pose.pose.position,msg.pose.pose.orientation,msg.twist.twist.linear
         latest[key]={'stamp':msg.header.stamp.sec+msg.header.stamp.nanosec*1e-9,
                      'p':[p.x,p.y,p.z],'q':[q.w,q.x,q.y,q.z],'v':[v.x,v.y,v.z]}
         events.write(json.dumps({'rx':time.monotonic(), 'key':key, **latest[key]})+'\n');events.flush()
-    for topic,key in [('/zav/super/odom','lio_body'),('/drone0/ground_truth/odometry','truth_imu')]:
+    for topic,key in [('/argo/super/odom','lio_body'),('/drone0/ground_truth/odometry','truth_imu')]:
         node.create_subscription(Odometry,topic,lambda m,k=key:odom(k,m),qos)
     def rates(m):latest['rates']=[m.roll,m.pitch,m.yaw,*list(map(float,m.thrust_body))]
     def mode(m):latest['mode']={'rates':m.flag_control_rates_enabled,'attitude':m.flag_control_attitude_enabled,'position':m.flag_control_position_enabled,'velocity':m.flag_control_velocity_enabled,'acceleration':m.flag_control_acceleration_enabled,'altitude':m.flag_control_altitude_enabled}
@@ -48,7 +48,7 @@ def main():
     node.create_subscription(VehicleRatesSetpoint,'/fmu/in/vehicle_rates_setpoint',rates,qos)
     node.create_subscription(VehicleControlMode,'/fmu/out/vehicle_control_mode',mode,qos)
     node.create_subscription(VehicleStatus,'/fmu/out/vehicle_status',status,qos)
-    node.create_subscription(String,'/zav/super/controller_status',lambda m:latest.update(controller=m.data),10)
+    node.create_subscription(String,'/argo/super/controller_status',lambda m:latest.update(controller=m.data),10)
     node.create_subscription(PolynomialTrajectory,'/planning_cmd/poly_traj',poly,qos)
     begin=time.monotonic();last=0.
     with args.output.open('w') as file:

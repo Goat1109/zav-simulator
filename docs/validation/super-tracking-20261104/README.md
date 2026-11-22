@@ -1,6 +1,6 @@
 # 2026-11-04 SUPER tracking integration
 
-Build: zav_control + zav_super passed.
+Build: argo_control + argo_super passed.
 Tests: test_super_tracking.py and test_lio_safety_ros.py, 16 passed.
 Startup smoke: ROS_DOMAIN_ID=87, tracking_guarded + enable_tracking_commands=true,
 rviz=false. Initialization succeeded; stopped deliberately after six seconds by

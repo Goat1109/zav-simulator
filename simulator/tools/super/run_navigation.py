@@ -26,6 +26,8 @@ def preflight(workspace):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--vehicle',choices=('argo_v1','argo_v2'),default=os.environ.get('ARGO_VEHICLE'),
+                        help='Default: inherit aircraft from the running simulator')
     parser.add_argument('--scenario',choices=('warehouse','high_speed','dense','mixed','dasan','frontier'),default='high_speed')
     parser.add_argument('--backend',choices=('super_lio',),default='super_lio')
     parser.add_argument('--profile',choices=('common',),default='common',
@@ -48,9 +50,12 @@ def main():
         if args.profile!='common':parser.error('--config requires --profile common')
         args.config=args.config.expanduser().resolve()
         if not args.config.is_file():parser.error(f'Configuration file not found: {args.config}')
-    ws=Path(os.environ['ZAV_WS_DIR'])
+    ws=Path(os.environ['ARGO_WS_DIR'])
     print('[SUPER] Waiting for simulator session...', flush=True)
-    session=wait_for_session(args.scenario)
+    session=wait_for_session(args.scenario,vehicle=args.vehicle)
+    os.environ['ARGO_VEHICLE']=session['vehicle']
+    if session.get('calibration_dir'):
+        os.environ['PEGASUS_FASTLIVO_CONFIG_DIR']=session['calibration_dir']
     if session.get('mission'):
         spawn_mission=Path(session['mission']).resolve()
         if args.mission and args.mission.expanduser().resolve()!=spawn_mission:
@@ -58,15 +63,15 @@ def main():
         args.mission=spawn_mission
     os.environ['ROS_DOMAIN_ID']=str(session['domain'])
     os.environ['ROS_LOCALHOST_ONLY']=session['localhost_only']
-    os.environ['ZAV_ROS_TRANSPORT']=session['transport']
-    print(f"[SUPER] scene={session['scene']} ROS_DOMAIN_ID={session['domain']} "
+    os.environ['ARGO_ROS_TRANSPORT']=session['transport']
+    print(f"[SUPER] aircraft={session['vehicle']} scene={session['scene']} ROS_DOMAIN_ID={session['domain']} "
           f"(simulator launcher PID {session['pid']})", flush=True)
-    if os.environ.get('ZAV_ROS_TRANSPORT')=='cyclone_tcp':
+    if os.environ.get('ARGO_ROS_TRANSPORT')=='cyclone_tcp':
         raise RuntimeError('SUPER currently requires native DDS; the existing WSL isolated domains need additional topic routes')
     relay=[sys.executable,str(ws/'simulator/tools/runtime/sensor_relay.py'),'client',
-           '--host',os.environ.get('ZAV_SENSOR_HOST','127.0.0.1'),'--camera-port','17443' if args.backend=='fastlivo' else '0',
+           '--host',os.environ.get('ARGO_SENSOR_HOST','127.0.0.1'),'--camera-port','17443' if args.backend=='fastlivo' else '0',
            '--imu-port','17444','--livox-port','17445']
-    command=['ros2','launch','zav_super','benchmark.launch.py',f'scenario:={args.scenario}',
+    command=['ros2','launch','argo_super','benchmark.launch.py',f'scenario:={args.scenario}',
              f'backend:={args.backend}',f'profile:={args.profile}',f'execute:={str(args.execute).lower()}',f'rviz:={str(not args.no_rviz).lower()}',f'route_source:={args.route_source}']
     if args.mission:command.append(f'mission:={args.mission.expanduser().resolve()}')
     if args.config:command.append(f'common_config:={args.config}')
@@ -75,7 +80,7 @@ def main():
     output.mkdir(parents=True,exist_ok=False)
     command.append(f'telemetry_dir:={output}')
     print(f'[SUPER] Flight data: {output} (report.html / motion.png / summary.json / kinematics.csv)',flush=True)
-    result=run_session(relay,command,f'/tmp/zav-fastlivo-{os.getuid()}.lock',log_path='/tmp/zav-super-relay.log',
+    result=run_session(relay,command,f'/tmp/argo-fastlivo-{os.getuid()}.lock',log_path='/tmp/argo-super-relay.log',
                        preflight=lambda:preflight(ws))
     # Supervision may terminate the recorder before plotting during Ctrl+C.
     raw=output/'samples.jsonl';report=output/'report.html'

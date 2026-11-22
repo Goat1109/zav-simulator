@@ -29,7 +29,8 @@ ROBOTS_ASSETS = ASSET_PATH + "/Robots"
 
 # Define the built in robots of the extension
 ROBOTS = {
-    "ZAV_v1": ROBOTS_ASSETS + "/ZAV_v1/ZAV_v1.usd",
+    "argo_v2": ROBOTS_ASSETS + "/argo_v2/argo_v2.usda",
+    "argo_v1": ROBOTS_ASSETS + "/argo_v1/argo_v1.usd",
     "Iris": ROBOTS_ASSETS + "/Iris/iris.usd",
     "Pegasus": ROBOTS_ASSETS + "/Pegasus/pegasus.usd",
     "PegasusOptimized": ROBOTS_ASSETS + "/Pegasus/pegasus_optimized.usdc"

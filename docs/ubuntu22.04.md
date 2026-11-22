@@ -11,7 +11,7 @@
 
 ROS 저장소는 공식 `ros2-apt-source` 1.3.0 패키지로 등록합니다. Ubuntu 22.04를 막 설치한 경우 먼저 OS 업데이트를 마치고 재부팅한 다음 진행하세요. [ROS 2 Humble 공식 설치 문서](https://github.com/ros2/ros2_documentation/blob/humble/source/Installation/Ubuntu-Install-Debs.rst).
 
-설치기는 `.bashrc`에 표시된 ZAV 블록을 추가하고, `~/.config/zav/simulation.env`와 홈 실행기를 등록합니다. 기존 파일은 최초 변경 전 `.before-zav-simulator` 사본으로 보관합니다. 홈 설정을 바꾸고 싶지 않으면 `--no-shell-integration`을 추가하고 매 터미널에서 `simulator/ros_setup.sh`를 직접 source하세요.
+설치기는 `.bashrc`에 표시된 ARGO 블록을 추가하고, `~/.config/argo/simulation.env`와 홈 실행기를 등록합니다. 기존 파일은 최초 변경 전 `.before-argo-simulator` 사본으로 보관합니다. 홈 설정을 바꾸고 싶지 않으면 `--no-shell-integration`을 추가하고 매 터미널에서 `simulator/ros_setup.sh`를 직접 source하세요.
 
 Python 코드는 저장소 원본을 직접 실행하므로 수정 후 재실행하면 적용됩니다.
 `git pull` 후 Python 변경만 있다면 복사나 빌드가 필요 없습니다.

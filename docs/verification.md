@@ -3,7 +3,7 @@
 ## 저장소 원본 직접 실행 구조 검증 (2026-10-26)
 
 `simulation/`을 `simulator/`로 정리하고 Pegasus 기반 소스를 함께 포함했습니다.
-`deploy_sim.py`와 overlay 복사를 제거했습니다. 실행기는 `simulator/zav_sim.py`를
+`deploy_sim.py`와 overlay 복사를 제거했습니다. 실행기는 `simulator/argo_sim.py`를
 직접 실행하며, Windows Isaac도 WSL 저장소의 같은 파일을 UNC 경로로 읽습니다.
 이번 실행은 기존 ROS/PX4 빌드 결과를 사용했습니다. 새 clone의 전체 재설치·재빌드는
 실행하지 않았습니다. 기존 Pegasus checkout은 `.cache/refactor-backup/PegasusSimulator-legacy`로 옮긴
@@ -48,7 +48,7 @@ LIO 1,238개, EV 569개, PX4 local position 1,112개를 받았습니다.
   남겼습니다. supervisor가 자식·포트를 회수하고 재실행은 가능했지만, mapper의 정상
   종료까지 검증한 것은 아닙니다. FAST-LIVO C++ 소스는 이번 구조 변경에서 수정하지
   않았으며 이 종료 오류의 원인은 확인하지 않았습니다.
-- Windows 전역 키 입력 대신 Flight Manager에만 `ZAV_SIM_PLATFORM=native`를 지정해
+- Windows 전역 키 입력 대신 Flight Manager에만 `ARGO_SIM_PLATFORM=native`를 지정해
   터미널 입력으로 비행했습니다. Isaac/PX4/센서/DDS는 Windows+WSL 구성이었습니다.
 
 [이번 검증 원시 결과](validation/source-layout-20261026/)에 수신 결과·비행 위치·
@@ -99,7 +99,7 @@ Windows Isaac Sim 5.1.0 / RTX 4070 Ti와 WSL2 Ubuntu 22.04에서 실제 실행�
 | RViz | RGB 영상 및 FAST-LIVO 궤적 표시 확인 |
 | ROS CLI | 데몬 재시작 후 38개 조회했으나, 반복 진단 후 재조회 시 2개만 표시되는 현상 재발. 지속 해결은 미완료 |
 
-터미널 방향키 시험은 flight_manager 프로세스에만 `ZAV_SIM_PLATFORM=native`를
+터미널 방향키 시험은 flight_manager 프로세스에만 `ARGO_SIM_PLATFORM=native`를
 임시 지정해 Windows 전역 키 읽기를 비활성화했습니다. Isaac/PX4/센서/DDS는
 계속 Windows+WSL 구성이었습니다. Windows 전역 다중 키 입력과 Ubuntu 단독
 GPU 실행을 이 시험으로 검증한 것은 아닙니다.
@@ -197,10 +197,10 @@ PX4 상단 콘솔에서는 `param show MPC_XY_VEL_MAX`가 새 설치에서 12이
 - `isaacsim` 없음 / 버전 불일치: bootstrap에 지정한 Isaac Python 경로를 확인합니다. 일반 시스템 Python이나 이전 컴퓨터의 venv를 지정하지 않습니다.
 - PX4 속도 값이 다름: [파라미터 적용 순서](parameters.md)를 확인하세요. 텍스트 `.params`를 열었다고 자동 적용되는 것은 아닙니다.
 - RViz의 GLib/Snap 오류: 프로젝트의 `run_mid360_rviz.sh`를 사용합니다. 실행기가 Snap GTK/GIO 라이브러리 환경을 정리합니다.
-- `/fmu/out/*` 없음: `/tmp/micro_xrce_agent.log`, ROS domain ID, UDP 8888 Agent를 확인합니다. WSL에서는 `/tmp/zav-px4-gateway.log`도 확인합니다.
-- 센서 없음: `/tmp/mid360-tcp-wsl.log`, `/tmp/zav_isaac_sim.log`, Windows/WSL 네트워크 모드와 포트를 확인합니다.
+- `/fmu/out/*` 없음: `/tmp/micro_xrce_agent.log`, ROS domain ID, UDP 8888 Agent를 확인합니다. WSL에서는 `/tmp/argo-px4-gateway.log`도 확인합니다.
+- 센서 없음: `/tmp/mid360-tcp-wsl.log`, `/tmp/argo_isaac_sim.log`, Windows/WSL 네트워크 모드와 포트를 확인합니다.
 - EV 없음: `/LIVO2/imu_propagate`, `/drone0/mid360/imu`, PX4 `sensor_combined`와 `timesync_status`가 모두 필요한 브리지 입력입니다. duplicate bridge 에러이면 따로 실행한 브리지를 종료하세요.
-- 재빌드 메모리 부족: `ZAV_BUILD_JOBS=1 ./scripts/build.sh`를 사용합니다. FAST-LIVO C++ 컴파일은 메모리를 많이 사용합니다.
+- 재빌드 메모리 부족: `ARGO_BUILD_JOBS=1 ./scripts/build.sh`를 사용합니다. FAST-LIVO C++ 컴파일은 메모리를 많이 사용합니다.
 - 조직 repo 생성 거절: GitHub CLI 인증 계정의 조직 접근/저장소 생성 권한, 조직 SSO 정책을 확인합니다. 저장소를 공개로 바꾸지 않습니다.
 
 ## Ubuntu 실제 실행 기록
@@ -211,7 +211,7 @@ PX4 상단 콘솔에서는 `param show MPC_XY_VEL_MAX`가 새 설치에서 12이
 
 이 기록은 disarmed 상태에서 센서부터 EKF까지의 연결을 확인한 것입니다. 이번 배포 검증에서 이륙·이동·정지 성능을 다시 측정하지는 않았습니다. 기존 비행 제어 소스와 설정을 유지했습니다. Windows/WSL의 별도 비행 검증은 문서 상단을 참고하세요.
 
-통합 `run_zav_sim.sh`의 tmux 대시보드에서도 같은 경로를 재확인했습니다. Agent·Fast DDS·Fast CDR·Micro XRCE client·Micro CDR를 모두 저장소의 `.local/lib`에서 로딩했고, 20초간 EV 811개와 유효한 EKF 위치를 수신했습니다. [통합 실행 관찰 결과](validation/ubuntu-dashboard-runtime.json).
+통합 `run_argo_sim.sh`의 tmux 대시보드에서도 같은 경로를 재확인했습니다. Agent·Fast DDS·Fast CDR·Micro XRCE client·Micro CDR를 모두 저장소의 `.local/lib`에서 로딩했고, 20초간 EV 811개와 유효한 EKF 위치를 수신했습니다. [통합 실행 관찰 결과](validation/ubuntu-dashboard-runtime.json).
 
 PX4 상단 pane에서 Ctrl+C를 입력했을 때 대시보드·Isaac·PX4·Agent가 함께 종료되는 것도 확인했습니다. PX4 pane 전용 실행기에 종료 trap을 추가해 기존에 PX4만 종료되던 동작을 수정했습니다.
 

@@ -1,4 +1,4 @@
-# ZAV: LiDAR + IMU only. Mount extrinsics are overridden from FAST-LIVO calibration at launch.
+# ARGO: LiDAR + IMU only. Mount extrinsics are overridden from FAST-LIVO calibration at launch.
 /**:
   ros__parameters:
     lio.map.save_map: false
