@@ -42,12 +42,14 @@ exit 7
 ''')
     for path in [python, binaries / 'tmux', binaries / 'sleep']: path.chmod(0o755)
     env = dict(os.environ, HOME=str(home), XDG_CONFIG_HOME=str(home / '.config'), ARGO_SIM_PLATFORM='native',
+               ARGO_ENV_FILE=str(temp / 'nonexistent.env'), ARGO_VEHICLE='argo_v1',
+               PEGASUS_FASTLIVO_CONFIG_DIR=str(root.parent / 'src/FAST-LIVO2/config'),
                PEGASUS_DIR=str(temp / 'Pegasus'), ARGO_WS_DIR=str(root.parent),
                ISAAC_TEST_ROOT=str(isaac), PYTHONPATH='/opt/ros/humble/lib/python3.10/site-packages',
                LD_LIBRARY_PATH='/opt/ros/humble/lib:/some/workspace/install/lib', CYCLONEDDS_URI='stale',
                PATH=str(binaries) + ':' + os.environ['PATH'])
     env.pop('ISAAC_PYTHON', None); env.pop('ISAAC_SIM_PATH', None)
-    result = subprocess.run(['bash', str(root / 'scripts/run_isaac_sim.sh')], env=env, text=True, capture_output=True)
+    result = subprocess.run(['bash', str(root / 'scripts/run_isaac_sim.sh')], env=env, text=True, capture_output=True, timeout=20)
     assert result.returncode == 7, (result.returncode, result.stdout, result.stderr)
     assert 'NATIVE_ISAAC_ENV_OK' in result.stdout
 print('PLATFORMS_OK: native/WSL DDS, domain preservation, native interpreter, ABI isolation, exit propagation')
