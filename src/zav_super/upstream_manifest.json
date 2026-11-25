@@ -1,0 +1,1821 @@
+{
+  "repository": "https://github.com/Goat1109/zav-simulator",
+  "branch": "argo_v2",
+  "commit": "ef2788ff1f99431e67b79093ac3b7b0bfe269a0b",
+  "files": [
+    {
+      "path": "src/SUPER/COPYING",
+      "source_path": "src/SUPER/COPYING",
+      "upstream_sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/COPYING.LESSER",
+      "source_path": "src/SUPER/COPYING.LESSER",
+      "upstream_sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/UPSTREAM.md",
+      "source_path": "src/SUPER/UPSTREAM.md",
+      "upstream_sha256": "36df3b7da70bb8c9fbdacd2e05a11fcf8091964cf20ff36409e5ed568da03d2f",
+      "sha256": "36df3b7da70bb8c9fbdacd2e05a11fcf8091964cf20ff36409e5ed568da03d2f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/mars_quadrotor_msgs/CMakeLists.txt",
+      "source_path": "src/SUPER/mars_quadrotor_msgs/CMakeLists.txt",
+      "upstream_sha256": "4677bd88cc1395f741599cb85446a0a27dfd9fc7199767e58d55f0e2848628cb",
+      "sha256": "4677bd88cc1395f741599cb85446a0a27dfd9fc7199767e58d55f0e2848628cb",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/mars_quadrotor_msgs/msg/PolynomialTrajectory.msg",
+      "source_path": "src/SUPER/mars_quadrotor_msgs/msg/PolynomialTrajectory.msg",
+      "upstream_sha256": "ec01c43ce88640eab348d6b49ce709458e9ee9e5fd6db92c557c5a5a125f276b",
+      "sha256": "ec01c43ce88640eab348d6b49ce709458e9ee9e5fd6db92c557c5a5a125f276b",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/mars_quadrotor_msgs/msg/PositionCommand.msg",
+      "source_path": "src/SUPER/mars_quadrotor_msgs/msg/PositionCommand.msg",
+      "upstream_sha256": "36324f6c4ed3b2b0269ea7b38246b89ad147dc953966cb597dbfb93bfde36d5a",
+      "sha256": "36324f6c4ed3b2b0269ea7b38246b89ad147dc953966cb597dbfb93bfde36d5a",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/mars_quadrotor_msgs/package.xml",
+      "source_path": "src/SUPER/mars_quadrotor_msgs/package.xml",
+      "upstream_sha256": "edef23c200691ab7fcdc579dbac9ad720c5ecf065adf91061043b8cd7092b322",
+      "sha256": "edef23c200691ab7fcdc579dbac9ad720c5ecf065adf91061043b8cd7092b322",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/CMakeLists.txt",
+      "source_path": "src/SUPER/rog_map/CMakeLists.txt",
+      "upstream_sha256": "5cc411925807111022925e2aa191841e09eae24a7ba225f7bafde558baeb8e48",
+      "sha256": "5cc411925807111022925e2aa191841e09eae24a7ba225f7bafde558baeb8e48",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/fmt/args.h",
+      "source_path": "src/SUPER/rog_map/include/fmt/args.h",
+      "upstream_sha256": "f98b552f9d9b994126b7ee17c417736edccb7008532711757141ff5d0229a8b5",
+      "sha256": "f98b552f9d9b994126b7ee17c417736edccb7008532711757141ff5d0229a8b5",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/fmt/chrono.h",
+      "source_path": "src/SUPER/rog_map/include/fmt/chrono.h",
+      "upstream_sha256": "d4439ba39c44b800ecec8b531eb6db9d360bc58b4a544e06d20f33f4d5436684",
+      "sha256": "d4439ba39c44b800ecec8b531eb6db9d360bc58b4a544e06d20f33f4d5436684",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/fmt/color.h",
+      "source_path": "src/SUPER/rog_map/include/fmt/color.h",
+      "upstream_sha256": "6add41088918c5e2054b0b54c0b5df36c260129fadcd8dc2e21a8d0c0b63a568",
+      "sha256": "6add41088918c5e2054b0b54c0b5df36c260129fadcd8dc2e21a8d0c0b63a568",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/fmt/compile.h",
+      "source_path": "src/SUPER/rog_map/include/fmt/compile.h",
+      "upstream_sha256": "7f684ac58d7369aa3754cb90570bf0ff15ce60cc37908347dbe40244126dc4c0",
+      "sha256": "7f684ac58d7369aa3754cb90570bf0ff15ce60cc37908347dbe40244126dc4c0",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/fmt/core.h",
+      "source_path": "src/SUPER/rog_map/include/fmt/core.h",
+      "upstream_sha256": "9499dc187c78f4f88c55f878afd375662912439b0cff69c8299a6054350432f7",
+      "sha256": "9499dc187c78f4f88c55f878afd375662912439b0cff69c8299a6054350432f7",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/fmt/format-inl.h",
+      "source_path": "src/SUPER/rog_map/include/fmt/format-inl.h",
+      "upstream_sha256": "ba707e9533a864c47261edaac1d32ede71dee91eb793fc05ab0eab0f4210dfc4",
+      "sha256": "ba707e9533a864c47261edaac1d32ede71dee91eb793fc05ab0eab0f4210dfc4",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/fmt/format.h",
+      "source_path": "src/SUPER/rog_map/include/fmt/format.h",
+      "upstream_sha256": "bf68a9fb87c98e49258cccf6ca3d6e7c9cc1ee358e642cc535ee80579623b724",
+      "sha256": "bf68a9fb87c98e49258cccf6ca3d6e7c9cc1ee358e642cc535ee80579623b724",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/fmt/os.h",
+      "source_path": "src/SUPER/rog_map/include/fmt/os.h",
+      "upstream_sha256": "7c54dcaa87927ddd256ac4afef1e279a1bb514a393665315c473a2745fa452dd",
+      "sha256": "7c54dcaa87927ddd256ac4afef1e279a1bb514a393665315c473a2745fa452dd",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/fmt/ostream.h",
+      "source_path": "src/SUPER/rog_map/include/fmt/ostream.h",
+      "upstream_sha256": "a8666d8f0711fa6fd97773e7719517f1f45f4bfaedcb0c7f37e1e2f94ef450a1",
+      "sha256": "a8666d8f0711fa6fd97773e7719517f1f45f4bfaedcb0c7f37e1e2f94ef450a1",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/fmt/printf.h",
+      "source_path": "src/SUPER/rog_map/include/fmt/printf.h",
+      "upstream_sha256": "cd925173b9dc61bd2e7b8413d7fb28349188f56ca4d9ebfd2cd6d5041232d3a6",
+      "sha256": "cd925173b9dc61bd2e7b8413d7fb28349188f56ca4d9ebfd2cd6d5041232d3a6",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/fmt/ranges.h",
+      "source_path": "src/SUPER/rog_map/include/fmt/ranges.h",
+      "upstream_sha256": "779137ff50fed087ab2d39a48ca6e91022b1bb55aa2b316df7a37fa7a2b6945b",
+      "sha256": "779137ff50fed087ab2d39a48ca6e91022b1bb55aa2b316df7a37fa7a2b6945b",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/fmt/std.h",
+      "source_path": "src/SUPER/rog_map/include/fmt/std.h",
+      "upstream_sha256": "89218d93e3addbe148f610702b2ce96baad9728ad25b91c61c2b2aaaf22aec9e",
+      "sha256": "89218d93e3addbe148f610702b2ce96baad9728ad25b91c61c2b2aaaf22aec9e",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/fmt/xchar.h",
+      "source_path": "src/SUPER/rog_map/include/fmt/xchar.h",
+      "upstream_sha256": "7fc509910bfa8250e8828a542e030e393b8a024bcf09538b3bba030fdc030958",
+      "sha256": "7fc509910bfa8250e8828a542e030e393b8a024bcf09538b3bba030fdc030958",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/rog_map/esdf_map.h",
+      "source_path": "src/SUPER/rog_map/include/rog_map/esdf_map.h",
+      "upstream_sha256": "6292c03cbb895d836e1facb07aa65c990369c6754990532e34b754d5c29d143f",
+      "sha256": "6292c03cbb895d836e1facb07aa65c990369c6754990532e34b754d5c29d143f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/rog_map/free_cnt_map.h",
+      "source_path": "src/SUPER/rog_map/include/rog_map/free_cnt_map.h",
+      "upstream_sha256": "9fea7a745b70d172bf57b2347d5c74559bdc6c7372329940b58dbcf92b8b79f8",
+      "sha256": "9fea7a745b70d172bf57b2347d5c74559bdc6c7372329940b58dbcf92b8b79f8",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/rog_map/inf_map.h",
+      "source_path": "src/SUPER/rog_map/include/rog_map/inf_map.h",
+      "upstream_sha256": "9c45f5d6071c96363f50018c8c252a22290331311d9395eab0c9e4ab9e64013d",
+      "sha256": "9c45f5d6071c96363f50018c8c252a22290331311d9395eab0c9e4ab9e64013d",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/rog_map/prob_map.h",
+      "source_path": "src/SUPER/rog_map/include/rog_map/prob_map.h",
+      "upstream_sha256": "e79bf7c567e0ea53bd6ca615b0e6acb0a15183a5c312091b66ee58fbadab4819",
+      "sha256": "e79bf7c567e0ea53bd6ca615b0e6acb0a15183a5c312091b66ee58fbadab4819",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/rog_map/rog_map.h",
+      "source_path": "src/SUPER/rog_map/include/rog_map/rog_map.h",
+      "upstream_sha256": "4a8438e6634da1cdf8527f9cfea6aef0d13ad294f27da7074d42acbcb3304349",
+      "sha256": "4a8438e6634da1cdf8527f9cfea6aef0d13ad294f27da7074d42acbcb3304349",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/rog_map/rog_map_core/common_lib.hpp",
+      "source_path": "src/SUPER/rog_map/include/rog_map/rog_map_core/common_lib.hpp",
+      "upstream_sha256": "9cfbe48faa0f0ae84409eec409f1a975eaa9bee50c1832dc6c96c1b0084b4823",
+      "sha256": "9cfbe48faa0f0ae84409eec409f1a975eaa9bee50c1832dc6c96c1b0084b4823",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/rog_map/rog_map_core/config.hpp",
+      "source_path": "src/SUPER/rog_map/include/rog_map/rog_map_core/config.hpp",
+      "upstream_sha256": "bb64f05497895c762f24dfa97d9a2f7a8a834d4fa5df2bc3213399fcec569171",
+      "sha256": "bb64f05497895c762f24dfa97d9a2f7a8a834d4fa5df2bc3213399fcec569171",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/rog_map/rog_map_core/counter_map.h",
+      "source_path": "src/SUPER/rog_map/include/rog_map/rog_map_core/counter_map.h",
+      "upstream_sha256": "5357ae5a1225e5f850092038bdf984b1e0bd47f99549ee557b5976fa5ff8500e",
+      "sha256": "5357ae5a1225e5f850092038bdf984b1e0bd47f99549ee557b5976fa5ff8500e",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/rog_map/rog_map_core/nearest_cell_search.hpp",
+      "source_path": "src/SUPER/rog_map/include/rog_map/rog_map_core/nearest_cell_search.hpp",
+      "upstream_sha256": "63ebd49448ac24c2153c43d4a3766b418ba185ecbba8523621041b56645c1724",
+      "sha256": "63ebd49448ac24c2153c43d4a3766b418ba185ecbba8523621041b56645c1724",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/rog_map/rog_map_core/raycaster.cpp",
+      "source_path": "src/SUPER/rog_map/include/rog_map/rog_map_core/raycaster.cpp",
+      "upstream_sha256": "32b40e6f9efef9681f03ce2797be6eb7449dc62eb2af1e6414422f304d870dec",
+      "sha256": "32b40e6f9efef9681f03ce2797be6eb7449dc62eb2af1e6414422f304d870dec",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/rog_map/rog_map_core/raycaster.h",
+      "source_path": "src/SUPER/rog_map/include/rog_map/rog_map_core/raycaster.h",
+      "upstream_sha256": "99ab27a1172ecbd4ce12d477107ea9d88108ba3ac309cf6b8aa42839b1043d6d",
+      "sha256": "99ab27a1172ecbd4ce12d477107ea9d88108ba3ac309cf6b8aa42839b1043d6d",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/rog_map/rog_map_core/sliding_map.h",
+      "source_path": "src/SUPER/rog_map/include/rog_map/rog_map_core/sliding_map.h",
+      "upstream_sha256": "884cd6ca0b33f2ad91f7a99be1ff0ca215add7405e522d79ac268fa65631b749",
+      "sha256": "884cd6ca0b33f2ad91f7a99be1ff0ca215add7405e522d79ac268fa65631b749",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/rog_map_ros/rog_map_ros2.hpp",
+      "source_path": "src/SUPER/rog_map/include/rog_map_ros/rog_map_ros2.hpp",
+      "upstream_sha256": "d11dc112863295d5dcb0a0fae1ad9f87478e3d485ea12a0e1858e48d477aafc6",
+      "sha256": "d11dc112863295d5dcb0a0fae1ad9f87478e3d485ea12a0e1858e48d477aafc6",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/super_utils/README.md",
+      "source_path": "src/SUPER/rog_map/include/super_utils/README.md",
+      "upstream_sha256": "79fc51bdde4bae5edcd715f96eb3e8d591aac1dfe9dc35d5dd297b6159666e8d",
+      "sha256": "79fc51bdde4bae5edcd715f96eb3e8d591aac1dfe9dc35d5dd297b6159666e8d",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/super_utils/backward.hpp",
+      "source_path": "src/SUPER/rog_map/include/super_utils/backward.hpp",
+      "upstream_sha256": "7633095c4b8378adce9e45693b6904b9063a3611836abf16eeb17e71ad174b82",
+      "sha256": "7633095c4b8378adce9e45693b6904b9063a3611836abf16eeb17e71ad174b82",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/super_utils/color_msg_utils.hpp",
+      "source_path": "src/SUPER/rog_map/include/super_utils/color_msg_utils.hpp",
+      "upstream_sha256": "059257732daf802e385f6286a4617d9939219adc369db3c3f353c3317c8ad281",
+      "sha256": "059257732daf802e385f6286a4617d9939219adc369db3c3f353c3317c8ad281",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/super_utils/color_text.hpp",
+      "source_path": "src/SUPER/rog_map/include/super_utils/color_text.hpp",
+      "upstream_sha256": "6b37180d7f19052dbcb91b4b37cbaf22b2b5e0409a387a123e6aad7e96aeddf3",
+      "sha256": "6b37180d7f19052dbcb91b4b37cbaf22b2b5e0409a387a123e6aad7e96aeddf3",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/super_utils/eigen_alias.hpp",
+      "source_path": "src/SUPER/rog_map/include/super_utils/eigen_alias.hpp",
+      "upstream_sha256": "540f2e69bd89fa637f1e41bbbfa6107078fb1cf65163491dc56e3d844ba20ee5",
+      "sha256": "540f2e69bd89fa637f1e41bbbfa6107078fb1cf65163491dc56e3d844ba20ee5",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/super_utils/fmt_eigen.hpp",
+      "source_path": "src/SUPER/rog_map/include/super_utils/fmt_eigen.hpp",
+      "upstream_sha256": "b8fcf5f30b400642cf091c23815ba38eee727ff32842da22262b774ed3e6c21b",
+      "sha256": "b8fcf5f30b400642cf091c23815ba38eee727ff32842da22262b774ed3e6c21b",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/super_utils/scope_timer.hpp",
+      "source_path": "src/SUPER/rog_map/include/super_utils/scope_timer.hpp",
+      "upstream_sha256": "7fa830d83ab90b712816f33b1c3fbacddbf47b83c5e69373a5ee944c7189ec29",
+      "sha256": "7fa830d83ab90b712816f33b1c3fbacddbf47b83c5e69373a5ee944c7189ec29",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/super_utils/tinycolormap.hpp",
+      "source_path": "src/SUPER/rog_map/include/super_utils/tinycolormap.hpp",
+      "upstream_sha256": "b466745c94d3bae2de2932360151ae626c923911062a13e6e38dff3b820c8780",
+      "sha256": "b466745c94d3bae2de2932360151ae626c923911062a13e6e38dff3b820c8780",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/super_utils/type_utils.hpp",
+      "source_path": "src/SUPER/rog_map/include/super_utils/type_utils.hpp",
+      "upstream_sha256": "9c7df746b775b97112a8fd6b342766a2999d371797a6e2f63dd5ed0908309b72",
+      "sha256": "9c7df746b775b97112a8fd6b342766a2999d371797a6e2f63dd5ed0908309b72",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/include/super_utils/yaml_loader.hpp",
+      "source_path": "src/SUPER/rog_map/include/super_utils/yaml_loader.hpp",
+      "upstream_sha256": "95299eb6c92cb8a213197db5e289bcad0a49045f31c7152879581dc270b44d4f",
+      "sha256": "95299eb6c92cb8a213197db5e289bcad0a49045f31c7152879581dc270b44d4f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/log/.gitkeep",
+      "source_path": "src/SUPER/rog_map/log/.gitkeep",
+      "upstream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/log/rm_info_log.csv",
+      "source_path": "src/SUPER/rog_map/log/rm_info_log.csv",
+      "upstream_sha256": "bce318ba97ea0366a0cb8d920a4a8c29b0b8a20ecbf4bc01128c2a4f0aa94ad2",
+      "sha256": "5a01af51bf6cd6f7e6708c1f3e5facb5b4b6c29441cda5e02d9d809b57068ba1",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/rog_map/log/rm_performance_log.csv",
+      "source_path": "src/SUPER/rog_map/log/rm_performance_log.csv",
+      "upstream_sha256": "783c203e0a0123ae5e0f9701034751ea7db3f8d52a1e312de7bb74f275ac8721",
+      "sha256": "52de684c2c89bed4752548093d5987f55c617af643a04d75bd5fc16b372da5eb",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/rog_map/package.xml",
+      "source_path": "src/SUPER/rog_map/package.xml",
+      "upstream_sha256": "09f40d8b142759a93a579541b04b0e4620ee0a1a9717bf40c0bf09d603ccf138",
+      "sha256": "09f40d8b142759a93a579541b04b0e4620ee0a1a9717bf40c0bf09d603ccf138",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/src/rog_map/counter_map.cpp",
+      "source_path": "src/SUPER/rog_map/src/rog_map/counter_map.cpp",
+      "upstream_sha256": "5fd38074eb1cc03bd4dbbade7178eb9152e13a9473eb994133ab1a96deeb790d",
+      "sha256": "5fd38074eb1cc03bd4dbbade7178eb9152e13a9473eb994133ab1a96deeb790d",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/src/rog_map/esdf_map.cpp",
+      "source_path": "src/SUPER/rog_map/src/rog_map/esdf_map.cpp",
+      "upstream_sha256": "214145af8539ca4fbf04cb118eb603bb5f57c3eb623062f98b8fae1a84a412d4",
+      "sha256": "214145af8539ca4fbf04cb118eb603bb5f57c3eb623062f98b8fae1a84a412d4",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/src/rog_map/inf_map.cpp",
+      "source_path": "src/SUPER/rog_map/src/rog_map/inf_map.cpp",
+      "upstream_sha256": "aa45e84c5a207e3d3af32e3f09d94fadd8778f6a791b2f7dea85e0f9cc17226c",
+      "sha256": "aa45e84c5a207e3d3af32e3f09d94fadd8778f6a791b2f7dea85e0f9cc17226c",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/src/rog_map/prob_map.cpp",
+      "source_path": "src/SUPER/rog_map/src/rog_map/prob_map.cpp",
+      "upstream_sha256": "d4a440574538b85a78fa31c9adcd1cd7de0a0a27db3e2322cff5756c8fb74b39",
+      "sha256": "d4a440574538b85a78fa31c9adcd1cd7de0a0a27db3e2322cff5756c8fb74b39",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/src/rog_map/rog_map.cpp",
+      "source_path": "src/SUPER/rog_map/src/rog_map/rog_map.cpp",
+      "upstream_sha256": "e8995db7b369c58bf1867340625f9613dea422d3cecc158cb895c31226a8d0cf",
+      "sha256": "e8995db7b369c58bf1867340625f9613dea422d3cecc158cb895c31226a8d0cf",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/src/rog_map/sliding_map.cpp",
+      "source_path": "src/SUPER/rog_map/src/rog_map/sliding_map.cpp",
+      "upstream_sha256": "72d93569357ee77ab234f4ed1e254de50a3ac8d6b2774a7775c554a6718c5eb9",
+      "sha256": "72d93569357ee77ab234f4ed1e254de50a3ac8d6b2774a7775c554a6718c5eb9",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/rog_map/test/nearest_cell_search.cpp",
+      "source_path": "src/SUPER/rog_map/test/nearest_cell_search.cpp",
+      "upstream_sha256": "a42d41f0dd831ad96329764083ef87fe83104a1c0b999c8b484e0b2ef0e2bbfb",
+      "sha256": "a42d41f0dd831ad96329764083ef87fe83104a1c0b999c8b484e0b2ef0e2bbfb",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/Apps/fsm_node_ros2.cpp",
+      "source_path": "src/SUPER/super_planner/Apps/fsm_node_ros2.cpp",
+      "upstream_sha256": "0397fa7796ad53c6dc5b1880b4c4535be8b0845d4e2e3a6499866c30b591a033",
+      "sha256": "0397fa7796ad53c6dc5b1880b4c4535be8b0845d4e2e3a6499866c30b591a033",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/CMakeLists.txt",
+      "source_path": "src/SUPER/super_planner/CMakeLists.txt",
+      "upstream_sha256": "d4aa145a6c1bf955fb85f7af8b554d79e5af10a754be07415e54aa7f32680e30",
+      "sha256": "27d15b1f95b9a71049d8202d20dfb21fc28b61cecff195b562503143282164db",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/config/static_dense.yaml",
+      "source_path": "src/SUPER/super_planner/config/static_dense.yaml",
+      "upstream_sha256": "be84ea89135215ca8f20fc02ca1892cb90b8935d044a13ddcea8e3f657a01ae9",
+      "sha256": "be84ea89135215ca8f20fc02ca1892cb90b8935d044a13ddcea8e3f657a01ae9",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/config/static_high_speed.yaml",
+      "source_path": "src/SUPER/super_planner/config/static_high_speed.yaml",
+      "upstream_sha256": "aa93256729d3a12ffa51bf06c24c92e60e07f205d39e8ef060e408a96371d733",
+      "sha256": "aa93256729d3a12ffa51bf06c24c92e60e07f205d39e8ef060e408a96371d733",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/access.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/access.hpp",
+      "upstream_sha256": "84f8e157ab247dddaf4ace33602d0b2d152bb922e5c614d0b359b7242bd5255e",
+      "sha256": "84f8e157ab247dddaf4ace33602d0b2d152bb922e5c614d0b359b7242bd5255e",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/archives/adapters.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/archives/adapters.hpp",
+      "upstream_sha256": "920019e4682edb7db3c20470a17b74d28eb1749491ee94d805e5df8443d7bb1b",
+      "sha256": "920019e4682edb7db3c20470a17b74d28eb1749491ee94d805e5df8443d7bb1b",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/archives/binary.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/archives/binary.hpp",
+      "upstream_sha256": "23c3b0956594b49820ec91a5296539ac2e25a41270299874a00e099395fd6ba1",
+      "sha256": "23c3b0956594b49820ec91a5296539ac2e25a41270299874a00e099395fd6ba1",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/archives/binary_file_handler.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/archives/binary_file_handler.hpp",
+      "upstream_sha256": "6dcbd5254b3cee3b3629d8aed3d58b833af162b6570d954a57b98a2b85d37ea9",
+      "sha256": "6dcbd5254b3cee3b3629d8aed3d58b833af162b6570d954a57b98a2b85d37ea9",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/archives/json.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/archives/json.hpp",
+      "upstream_sha256": "f31a678dcc961ee741b4eec9b83c694ef908762ae763310df9b68420dda8d9a5",
+      "sha256": "f31a678dcc961ee741b4eec9b83c694ef908762ae763310df9b68420dda8d9a5",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/archives/portable_binary.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/archives/portable_binary.hpp",
+      "upstream_sha256": "aa01f981eac16a23de9718064fa9bbb8feedac296ee17fdc1601ae43c99dd366",
+      "sha256": "aa01f981eac16a23de9718064fa9bbb8feedac296ee17fdc1601ae43c99dd366",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/archives/xml.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/archives/xml.hpp",
+      "upstream_sha256": "55f8bfb6ab516e8b6eb7462ad71b2007e19e44c6f9b488b95ded46fdd49b6013",
+      "sha256": "55f8bfb6ab516e8b6eb7462ad71b2007e19e44c6f9b488b95ded46fdd49b6013",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/cereal.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/cereal.hpp",
+      "upstream_sha256": "036d721d6fc8b84cfc8056b7b24d237431a17822a3f7e5b137789cae7e424a27",
+      "sha256": "036d721d6fc8b84cfc8056b7b24d237431a17822a3f7e5b137789cae7e424a27",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/details/helpers.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/details/helpers.hpp",
+      "upstream_sha256": "159e79148bdc5c63a01d0769161b2c46ac54a9ce1d16206566753ce7ac46b0b9",
+      "sha256": "159e79148bdc5c63a01d0769161b2c46ac54a9ce1d16206566753ce7ac46b0b9",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/details/polymorphic_impl.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/details/polymorphic_impl.hpp",
+      "upstream_sha256": "19f77498793137218172c22b670dda993d9c27cf11ca75aeff6f411c1f38e0db",
+      "sha256": "19f77498793137218172c22b670dda993d9c27cf11ca75aeff6f411c1f38e0db",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/details/polymorphic_impl_fwd.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/details/polymorphic_impl_fwd.hpp",
+      "upstream_sha256": "0423ead989c6ab472e4c7473376d95ca7be46771695706ff7a290e0054aa1ad1",
+      "sha256": "0423ead989c6ab472e4c7473376d95ca7be46771695706ff7a290e0054aa1ad1",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/details/static_object.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/details/static_object.hpp",
+      "upstream_sha256": "a0c20289499e3c6db3476c8013f34a92887ad575c2d7bed5a8bda3fd152e4069",
+      "sha256": "a0c20289499e3c6db3476c8013f34a92887ad575c2d7bed5a8bda3fd152e4069",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/details/traits.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/details/traits.hpp",
+      "upstream_sha256": "89ec46a466a0d21be3df9b72367ba18f24c44477996e494a674c5024549ad29c",
+      "sha256": "89ec46a466a0d21be3df9b72367ba18f24c44477996e494a674c5024549ad29c",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/details/util.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/details/util.hpp",
+      "upstream_sha256": "463063f82172a5c96858998fa708e43c34adf226817c9e765ed439cb821994b6",
+      "sha256": "463063f82172a5c96858998fa708e43c34adf226817c9e765ed439cb821994b6",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/LICENSE",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/LICENSE",
+      "upstream_sha256": "642e7003561473f4f1f3dd09e053ee2a6ecfb0563e961a3392e914295f9d350c",
+      "sha256": "642e7003561473f4f1f3dd09e053ee2a6ecfb0563e961a3392e914295f9d350c",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/base64.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/base64.hpp",
+      "upstream_sha256": "d9e523e8736ac0c68064c7ad312a222f285e82bf6c96a1b1c2cadaffff9fc64f",
+      "sha256": "d9e523e8736ac0c68064c7ad312a222f285e82bf6c96a1b1c2cadaffff9fc64f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/LICENSE",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/LICENSE",
+      "upstream_sha256": "dc2ef044e52a4c0ea784f9b54229775ce5275505cc09f21283dfa301e9c962fa",
+      "sha256": "dc2ef044e52a4c0ea784f9b54229775ce5275505cc09f21283dfa301e9c962fa",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/allocators.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/allocators.h",
+      "upstream_sha256": "eb14a98d27a20e9381b07a0bc86aeb0845f079f2f896085a673eca6d8e3dd0d9",
+      "sha256": "eb14a98d27a20e9381b07a0bc86aeb0845f079f2f896085a673eca6d8e3dd0d9",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/cursorstreamwrapper.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/cursorstreamwrapper.h",
+      "upstream_sha256": "793a239a7841ad102b77526af87d5c37e6ea6e338a5c5bd31dfb7adedea40ce3",
+      "sha256": "793a239a7841ad102b77526af87d5c37e6ea6e338a5c5bd31dfb7adedea40ce3",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/document.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/document.h",
+      "upstream_sha256": "8b8701b7a383cd6f41711fc91b007e52a05aaee5ff0f76a43d8fa93397995078",
+      "sha256": "8b8701b7a383cd6f41711fc91b007e52a05aaee5ff0f76a43d8fa93397995078",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/encodedstream.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/encodedstream.h",
+      "upstream_sha256": "410c0fe9f778b5181f9e00ca4f77a107421e7ca2ae443335a153cf7929acb619",
+      "sha256": "410c0fe9f778b5181f9e00ca4f77a107421e7ca2ae443335a153cf7929acb619",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/encodings.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/encodings.h",
+      "upstream_sha256": "f753db0a026aa3450dc2c1e9dded09a69fc24d2f2bfd704b40cc316912ca8114",
+      "sha256": "f753db0a026aa3450dc2c1e9dded09a69fc24d2f2bfd704b40cc316912ca8114",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/error/en.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/error/en.h",
+      "upstream_sha256": "8f657ee931628041ef48e9dd293570f9159a0730ad60da9dee21474a5caf7329",
+      "sha256": "8f657ee931628041ef48e9dd293570f9159a0730ad60da9dee21474a5caf7329",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/error/error.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/error/error.h",
+      "upstream_sha256": "4ac2adbd9c73b797a8e559dd7ba950c90b2de6296e7d9e84c3b69b4bd0877a25",
+      "sha256": "4ac2adbd9c73b797a8e559dd7ba950c90b2de6296e7d9e84c3b69b4bd0877a25",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/filereadstream.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/filereadstream.h",
+      "upstream_sha256": "d2bf436769cb26408022bbedc78b7ca3a0ab96c5246ee480f96f64a44f581695",
+      "sha256": "d2bf436769cb26408022bbedc78b7ca3a0ab96c5246ee480f96f64a44f581695",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/filewritestream.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/filewritestream.h",
+      "upstream_sha256": "f5da171cec98e3f5e3d8ce37aee268ec56a6cb46ffca21dc2d758a5f9ce5ff27",
+      "sha256": "f5da171cec98e3f5e3d8ce37aee268ec56a6cb46ffca21dc2d758a5f9ce5ff27",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/fwd.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/fwd.h",
+      "upstream_sha256": "fe1bace06c3940c8797163d0be9ad62ce4f90e8a14dcd2a6cbc3eba0dc703020",
+      "sha256": "fe1bace06c3940c8797163d0be9ad62ce4f90e8a14dcd2a6cbc3eba0dc703020",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/biginteger.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/biginteger.h",
+      "upstream_sha256": "6125cc192f0794c489544063d26984b94ec994893057c0042695b185fbfc2449",
+      "sha256": "6125cc192f0794c489544063d26984b94ec994893057c0042695b185fbfc2449",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/diyfp.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/diyfp.h",
+      "upstream_sha256": "1e6db0146303f9bfe5491206c836168b7cd02c8e0cbe36fcdcb8f8c8be9e20d0",
+      "sha256": "1e6db0146303f9bfe5491206c836168b7cd02c8e0cbe36fcdcb8f8c8be9e20d0",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/dtoa.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/dtoa.h",
+      "upstream_sha256": "5163fd73db7baef87775d6291a8621896716f9bca7ac3abc216f5244923399e1",
+      "sha256": "5163fd73db7baef87775d6291a8621896716f9bca7ac3abc216f5244923399e1",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/ieee754.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/ieee754.h",
+      "upstream_sha256": "bef58c98f4afebb4a0698100cd9382fa4f11ad70d5a30c9caf261834be9bd517",
+      "sha256": "bef58c98f4afebb4a0698100cd9382fa4f11ad70d5a30c9caf261834be9bd517",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/itoa.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/itoa.h",
+      "upstream_sha256": "a75c5124883c2b1fcd9cd22fe26018dd1f87562861375e38d12dfa2d4564c153",
+      "sha256": "a75c5124883c2b1fcd9cd22fe26018dd1f87562861375e38d12dfa2d4564c153",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/meta.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/meta.h",
+      "upstream_sha256": "a4d54e394c8a0a60b78847561d8d1870ff4f6d9937d3244868e75d385d6cc76e",
+      "sha256": "a4d54e394c8a0a60b78847561d8d1870ff4f6d9937d3244868e75d385d6cc76e",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/pow10.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/pow10.h",
+      "upstream_sha256": "519cb36fe6d814bb547d296790d3be05de93f2c20436fd106c29da47faa19140",
+      "sha256": "519cb36fe6d814bb547d296790d3be05de93f2c20436fd106c29da47faa19140",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/regex.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/regex.h",
+      "upstream_sha256": "f6060164f0211eb4b26f60323d2c90aaa188c5c4557b10c66f6e5f3eceee34bf",
+      "sha256": "f6060164f0211eb4b26f60323d2c90aaa188c5c4557b10c66f6e5f3eceee34bf",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/stack.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/stack.h",
+      "upstream_sha256": "2fb94522d0d92c0e3f73a37d6a6ff5d3b15af4f47c8712dd8d1ce9c10c0c6497",
+      "sha256": "2fb94522d0d92c0e3f73a37d6a6ff5d3b15af4f47c8712dd8d1ce9c10c0c6497",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/strfunc.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/strfunc.h",
+      "upstream_sha256": "868e6f116d24d64f7c32f6d1c757dd9f13789987c2f490306b95d1930c292f7b",
+      "sha256": "868e6f116d24d64f7c32f6d1c757dd9f13789987c2f490306b95d1930c292f7b",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/strtod.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/strtod.h",
+      "upstream_sha256": "de2fab5037ef80a11ee2d705f3d9dbd2595d5dffc10a776a7e00d5a7b3a67238",
+      "sha256": "de2fab5037ef80a11ee2d705f3d9dbd2595d5dffc10a776a7e00d5a7b3a67238",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/swap.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/internal/swap.h",
+      "upstream_sha256": "8820d72c714950ece7f2ceea046b93a246701bd87a45e4ba87f2f484f5b7c4f8",
+      "sha256": "8820d72c714950ece7f2ceea046b93a246701bd87a45e4ba87f2f484f5b7c4f8",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/istreamwrapper.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/istreamwrapper.h",
+      "upstream_sha256": "75c60a5a0921adcc50cd41f21475a278769f7ad600dddaa62fdcf634b855eed1",
+      "sha256": "75c60a5a0921adcc50cd41f21475a278769f7ad600dddaa62fdcf634b855eed1",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/memorybuffer.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/memorybuffer.h",
+      "upstream_sha256": "bf9f69b1cc71e1691c0a0a35b88678f915b30dca3d2a1e59459cfa8d4a90344f",
+      "sha256": "bf9f69b1cc71e1691c0a0a35b88678f915b30dca3d2a1e59459cfa8d4a90344f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/memorystream.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/memorystream.h",
+      "upstream_sha256": "4e749970cab7a05b3b0b08865bece11dcb320afa2c8340ca5d8c300cf708ebce",
+      "sha256": "4e749970cab7a05b3b0b08865bece11dcb320afa2c8340ca5d8c300cf708ebce",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/msinttypes/LICENSE",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/msinttypes/LICENSE",
+      "upstream_sha256": "bf3c9bf6a176c890c7387c71f9ae5bcaf9d33324b9d4a5f8524a6f8bf3063097",
+      "sha256": "bf3c9bf6a176c890c7387c71f9ae5bcaf9d33324b9d4a5f8524a6f8bf3063097",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/msinttypes/inttypes.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/msinttypes/inttypes.h",
+      "upstream_sha256": "78ee41fd99bcbe59ca93f6a870a83c0a90f4b179af571f6e684f2600491bbae7",
+      "sha256": "78ee41fd99bcbe59ca93f6a870a83c0a90f4b179af571f6e684f2600491bbae7",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/msinttypes/stdint.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/msinttypes/stdint.h",
+      "upstream_sha256": "bf2d1bc4885bc1e0720ec9af8f399477c7e105ae1e70e2863c31a8123cae1c17",
+      "sha256": "bf2d1bc4885bc1e0720ec9af8f399477c7e105ae1e70e2863c31a8123cae1c17",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/ostreamwrapper.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/ostreamwrapper.h",
+      "upstream_sha256": "63007f4cd68260f2b70438a1b9840f1ef250570537d0db457e67b9c5d96c97e3",
+      "sha256": "63007f4cd68260f2b70438a1b9840f1ef250570537d0db457e67b9c5d96c97e3",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/pointer.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/pointer.h",
+      "upstream_sha256": "158b95272ae25a49d51e23a473090ba14f87e27fabe629e624e98e6df588a93f",
+      "sha256": "158b95272ae25a49d51e23a473090ba14f87e27fabe629e624e98e6df588a93f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/prettywriter.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/prettywriter.h",
+      "upstream_sha256": "4a61f6bd5d0c4f8ee2bf8c31d978c4e648e665be66ad353312c0dbbaa1710599",
+      "sha256": "4a61f6bd5d0c4f8ee2bf8c31d978c4e648e665be66ad353312c0dbbaa1710599",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/rapidjson.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/rapidjson.h",
+      "upstream_sha256": "fd86e889a8e31e0236fee9bb34fcf41a51b2e9dcfdb83aabb32e1d43667f26f4",
+      "sha256": "fd86e889a8e31e0236fee9bb34fcf41a51b2e9dcfdb83aabb32e1d43667f26f4",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/reader.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/reader.h",
+      "upstream_sha256": "6132690caf458c9090464cd73dbc722a29b4c71376d5cdbe2e08c57bc4cc1a76",
+      "sha256": "6132690caf458c9090464cd73dbc722a29b4c71376d5cdbe2e08c57bc4cc1a76",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/schema.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/schema.h",
+      "upstream_sha256": "b41191ead411ccfe7eb92ab4b66eaf977a04fa84754bc587d33a1186040f1c5e",
+      "sha256": "b41191ead411ccfe7eb92ab4b66eaf977a04fa84754bc587d33a1186040f1c5e",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/stream.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/stream.h",
+      "upstream_sha256": "6d1db24b952df2c93bf1c435df21450c1c59f42741dafed50141a95eda8dbe77",
+      "sha256": "6d1db24b952df2c93bf1c435df21450c1c59f42741dafed50141a95eda8dbe77",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/stringbuffer.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/stringbuffer.h",
+      "upstream_sha256": "ae4940dcdd29aedbe3447bc81f41b588be9881d348826f643bb78ad9e0e72fbd",
+      "sha256": "ae4940dcdd29aedbe3447bc81f41b588be9881d348826f643bb78ad9e0e72fbd",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidjson/writer.h",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidjson/writer.h",
+      "upstream_sha256": "535a55d135725981228b72c63e3afcd5f792a07d7b3eb7940298473d763c0019",
+      "sha256": "535a55d135725981228b72c63e3afcd5f792a07d7b3eb7940298473d763c0019",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidxml/license.txt",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidxml/license.txt",
+      "upstream_sha256": "6094a09542ee0835df4c212203ae0a19c93b47a24d78ccf4951b0282268570ae",
+      "sha256": "6094a09542ee0835df4c212203ae0a19c93b47a24d78ccf4951b0282268570ae",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidxml/manual.html",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidxml/manual.html",
+      "upstream_sha256": "1dfd95d14b10e249f3da7c3453bc1afce96e38f98c5ca6b2fc4c748fa0e76d4a",
+      "sha256": "1dfd95d14b10e249f3da7c3453bc1afce96e38f98c5ca6b2fc4c748fa0e76d4a",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidxml/rapidxml.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidxml/rapidxml.hpp",
+      "upstream_sha256": "20611c23efc929e0794fcd54437b24cdce5902cb172c472262c911db3ae495e2",
+      "sha256": "20611c23efc929e0794fcd54437b24cdce5902cb172c472262c911db3ae495e2",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidxml/rapidxml_iterators.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidxml/rapidxml_iterators.hpp",
+      "upstream_sha256": "74bef669d62a59c0141fe768c8f0394eb8c37b420b2a9cd7b043ca1bbf26ddd4",
+      "sha256": "74bef669d62a59c0141fe768c8f0394eb8c37b420b2a9cd7b043ca1bbf26ddd4",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidxml/rapidxml_print.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidxml/rapidxml_print.hpp",
+      "upstream_sha256": "e7d1d27cf94ff243ec120f881f76ceae4c8998d3036410acbadb6adef1328eee",
+      "sha256": "e7d1d27cf94ff243ec120f881f76ceae4c8998d3036410acbadb6adef1328eee",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/external/rapidxml/rapidxml_utils.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/external/rapidxml/rapidxml_utils.hpp",
+      "upstream_sha256": "eec25cd76a5a39e98467e5441d9e7bd84a373c7420f0b5149374743fbf7a634c",
+      "sha256": "eec25cd76a5a39e98467e5441d9e7bd84a373c7420f0b5149374743fbf7a634c",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/macros.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/macros.hpp",
+      "upstream_sha256": "675f9f17f55b2af6245410317dc3add11a6f84bd935e549d4c2419b7a11b9d30",
+      "sha256": "675f9f17f55b2af6245410317dc3add11a6f84bd935e549d4c2419b7a11b9d30",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/specialize.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/specialize.hpp",
+      "upstream_sha256": "768135f2bb12eee8053f02cc1aa8d18e7b611764257dc28a56e1781c193dc96f",
+      "sha256": "768135f2bb12eee8053f02cc1aa8d18e7b611764257dc28a56e1781c193dc96f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/array.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/array.hpp",
+      "upstream_sha256": "cc739bbc199a7bce951d9ef862b772976bcd9c2ae2cb99ea436d12cb2f9030b0",
+      "sha256": "cc739bbc199a7bce951d9ef862b772976bcd9c2ae2cb99ea436d12cb2f9030b0",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/atomic.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/atomic.hpp",
+      "upstream_sha256": "1f60d6304767f6783f265d49634a866c6334123e9ab7777f282ecee49d56044e",
+      "sha256": "1f60d6304767f6783f265d49634a866c6334123e9ab7777f282ecee49d56044e",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/base_class.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/base_class.hpp",
+      "upstream_sha256": "c292e890fd712a14d9e8a917c715b7a6b654dbe23b272ae1fbffa4f36574109b",
+      "sha256": "c292e890fd712a14d9e8a917c715b7a6b654dbe23b272ae1fbffa4f36574109b",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/bitset.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/bitset.hpp",
+      "upstream_sha256": "79e4a87d7a8301ca1166a5027db7079c8510499cb73cc182038d04f475bdde36",
+      "sha256": "79e4a87d7a8301ca1166a5027db7079c8510499cb73cc182038d04f475bdde36",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/boost_variant.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/boost_variant.hpp",
+      "upstream_sha256": "d224529813dbc141cee2ee8164a811eae1b5864df657ec1152df9b61ef5cfe21",
+      "sha256": "d224529813dbc141cee2ee8164a811eae1b5864df657ec1152df9b61ef5cfe21",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/chrono.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/chrono.hpp",
+      "upstream_sha256": "496099bf0db6591e94feee6efd507fbee9df1a590a18e034ee137b4da1a97fc8",
+      "sha256": "496099bf0db6591e94feee6efd507fbee9df1a590a18e034ee137b4da1a97fc8",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/common.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/common.hpp",
+      "upstream_sha256": "092612375d40b8e1bf7995b360b7e7660f276605958fe819abed82a6ca654db8",
+      "sha256": "092612375d40b8e1bf7995b360b7e7660f276605958fe819abed82a6ca654db8",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/complex.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/complex.hpp",
+      "upstream_sha256": "d562f9728f17dc682067185b4222e41b87c3309c436169444d191649369c58cf",
+      "sha256": "d562f9728f17dc682067185b4222e41b87c3309c436169444d191649369c58cf",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/concepts/pair_associative_container.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/concepts/pair_associative_container.hpp",
+      "upstream_sha256": "b7b625f739dbf2068c76d264fa52daa1922cf1423d50f2e867f1e1510ff217fa",
+      "sha256": "b7b625f739dbf2068c76d264fa52daa1922cf1423d50f2e867f1e1510ff217fa",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/deque.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/deque.hpp",
+      "upstream_sha256": "c08285dcb404c881f1c94ee475e62f7f25da8590c659b6b155c3f3f568aace05",
+      "sha256": "c08285dcb404c881f1c94ee475e62f7f25da8590c659b6b155c3f3f568aace05",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/eigen.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/eigen.hpp",
+      "upstream_sha256": "7664ff4439c10e18df7d4fd5d790c383e6875926ad6c773e4b04ab298c3a4c3f",
+      "sha256": "7664ff4439c10e18df7d4fd5d790c383e6875926ad6c773e4b04ab298c3a4c3f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/forward_list.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/forward_list.hpp",
+      "upstream_sha256": "977a07fb199e2ac28979a903d648962dfd2b5a853e304919156c6ce3346e171f",
+      "sha256": "977a07fb199e2ac28979a903d648962dfd2b5a853e304919156c6ce3346e171f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/functional.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/functional.hpp",
+      "upstream_sha256": "f1d748ded8612b93d2d0ac7fc6fb249ec8e8062c42a59c2587a753edf0adaefc",
+      "sha256": "f1d748ded8612b93d2d0ac7fc6fb249ec8e8062c42a59c2587a753edf0adaefc",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/list.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/list.hpp",
+      "upstream_sha256": "62f5d62bbe5c93548b845b6972da9fd02cf087a66fddbddfee4c26d6a91a721f",
+      "sha256": "62f5d62bbe5c93548b845b6972da9fd02cf087a66fddbddfee4c26d6a91a721f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/map.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/map.hpp",
+      "upstream_sha256": "85a7183f897f0c1697223e95a47eacf287a7cecb5ff15a1f6edddb909ec85b2b",
+      "sha256": "85a7183f897f0c1697223e95a47eacf287a7cecb5ff15a1f6edddb909ec85b2b",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/memory.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/memory.hpp",
+      "upstream_sha256": "8c66bfbafd7866897748515ca96f3926d8a1b4f0a3aaf04eafdcc94d6e7cb7e6",
+      "sha256": "8c66bfbafd7866897748515ca96f3926d8a1b4f0a3aaf04eafdcc94d6e7cb7e6",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/optional.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/optional.hpp",
+      "upstream_sha256": "cc3842be869eae114bf921ef47f5365326d337ad40c6a950f2d6fa6f846ae164",
+      "sha256": "cc3842be869eae114bf921ef47f5365326d337ad40c6a950f2d6fa6f846ae164",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/polymorphic.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/polymorphic.hpp",
+      "upstream_sha256": "caa1f76bad93fd0782cd5a6de57c6b562d767dccef815be0f1582d8003fbeeb1",
+      "sha256": "caa1f76bad93fd0782cd5a6de57c6b562d767dccef815be0f1582d8003fbeeb1",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/queue.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/queue.hpp",
+      "upstream_sha256": "8e418478b4fa64411474df32f73780d9cecc1d73c6f461a1aa95e48a953e7b5d",
+      "sha256": "8e418478b4fa64411474df32f73780d9cecc1d73c6f461a1aa95e48a953e7b5d",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/set.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/set.hpp",
+      "upstream_sha256": "10e03c04ce8da2a7d915a9e42e698c01d844766b836ba5ff1d5203d505b5549a",
+      "sha256": "10e03c04ce8da2a7d915a9e42e698c01d844766b836ba5ff1d5203d505b5549a",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/stack.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/stack.hpp",
+      "upstream_sha256": "c8e62e2474a8834780be757017a3d104307f7aca2ed46fcc2f4523ea6f6a43a5",
+      "sha256": "c8e62e2474a8834780be757017a3d104307f7aca2ed46fcc2f4523ea6f6a43a5",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/string.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/string.hpp",
+      "upstream_sha256": "473ff82531599b7df54c368a884ec1b388262cdb59b68e3325bfd19a64a72e7f",
+      "sha256": "473ff82531599b7df54c368a884ec1b388262cdb59b68e3325bfd19a64a72e7f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/tuple.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/tuple.hpp",
+      "upstream_sha256": "d1e0741be9e9f911dffb1a17f01113502373b0bbdb00f35ffcc053452c510e85",
+      "sha256": "d1e0741be9e9f911dffb1a17f01113502373b0bbdb00f35ffcc053452c510e85",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/unordered_map.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/unordered_map.hpp",
+      "upstream_sha256": "682bbddfdd7b7ebfc6c57f70eac0a3179cb897762b0c9f182c8b0fd6362339ce",
+      "sha256": "682bbddfdd7b7ebfc6c57f70eac0a3179cb897762b0c9f182c8b0fd6362339ce",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/unordered_set.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/unordered_set.hpp",
+      "upstream_sha256": "af92b5abab55d6d075e6aa5ef5b628f4107c7b320e53be3942c33396dd6917df",
+      "sha256": "af92b5abab55d6d075e6aa5ef5b628f4107c7b320e53be3942c33396dd6917df",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/utility.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/utility.hpp",
+      "upstream_sha256": "c6075328aa79795a7412a131c51b960fe131cf688dab123586e1fed26b48e0d1",
+      "sha256": "c6075328aa79795a7412a131c51b960fe131cf688dab123586e1fed26b48e0d1",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/valarray.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/valarray.hpp",
+      "upstream_sha256": "3787ac86bc058de0f038d5c92ab1d96073bbf53bcdcba96b937cac3ffa4d823b",
+      "sha256": "3787ac86bc058de0f038d5c92ab1d96073bbf53bcdcba96b937cac3ffa4d823b",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/variant.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/variant.hpp",
+      "upstream_sha256": "281be6bbaf44ae3c9792849b5ff909747b04b03a917bb08f09314da92604a9a2",
+      "sha256": "281be6bbaf44ae3c9792849b5ff909747b04b03a917bb08f09314da92604a9a2",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/types/vector.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/types/vector.hpp",
+      "upstream_sha256": "2d4de56deff7c5f4c17e5a95239fdca389e95a53f524b5da82e366181239601d",
+      "sha256": "2d4de56deff7c5f4c17e5a95239fdca389e95a53f524b5da82e366181239601d",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/cereal/version.hpp",
+      "source_path": "src/SUPER/super_planner/include/cereal/version.hpp",
+      "upstream_sha256": "5a6959e7c2a3e54589826af1db079ad72258e5a77cd353658b7d232f7fa5b9f7",
+      "sha256": "5a6959e7c2a3e54589826af1db079ad72258e5a77cd353658b7d232f7fa5b9f7",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/data_structure/backup_traj.h",
+      "source_path": "src/SUPER/super_planner/include/data_structure/backup_traj.h",
+      "upstream_sha256": "f0e1f8f891524381512b01c59b32811d8e742b47ed85841e8c3ac9db19acdf27",
+      "sha256": "f0e1f8f891524381512b01c59b32811d8e742b47ed85841e8c3ac9db19acdf27",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/data_structure/base/ellipsoid.h",
+      "source_path": "src/SUPER/super_planner/include/data_structure/base/ellipsoid.h",
+      "upstream_sha256": "953d88ba225641e0a500ac601adeb4c38320f9ada028d6ecc47599aea652fe04",
+      "sha256": "953d88ba225641e0a500ac601adeb4c38320f9ada028d6ecc47599aea652fe04",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/data_structure/base/piece.h",
+      "source_path": "src/SUPER/super_planner/include/data_structure/base/piece.h",
+      "upstream_sha256": "9415b51478ffdd6b2056b35e0f7c6378be3b346e3913dede5e7d7a590e211932",
+      "sha256": "9415b51478ffdd6b2056b35e0f7c6378be3b346e3913dede5e7d7a590e211932",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/data_structure/base/polytope.h",
+      "source_path": "src/SUPER/super_planner/include/data_structure/base/polytope.h",
+      "upstream_sha256": "845551afe30b11fe0aa7dd527ad2d24fc869eee7938d3fd15e90851aee64472f",
+      "sha256": "845551afe30b11fe0aa7dd527ad2d24fc869eee7938d3fd15e90851aee64472f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/data_structure/base/trajectory.h",
+      "source_path": "src/SUPER/super_planner/include/data_structure/base/trajectory.h",
+      "upstream_sha256": "50d4362ea9e504274e9c7b6c132cdb06b412bdba9830039b47d45588d326e7dc",
+      "sha256": "50d4362ea9e504274e9c7b6c132cdb06b412bdba9830039b47d45588d326e7dc",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/data_structure/cmd_traj.h",
+      "source_path": "src/SUPER/super_planner/include/data_structure/cmd_traj.h",
+      "upstream_sha256": "1a27feeaae8df36819bec14e4f87516dfd11972c8fa5b889a195be8a878ec189",
+      "sha256": "1a27feeaae8df36819bec14e4f87516dfd11972c8fa5b889a195be8a878ec189",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/data_structure/exp_traj.h",
+      "source_path": "src/SUPER/super_planner/include/data_structure/exp_traj.h",
+      "upstream_sha256": "200999700bc821793c1a664c14275485eaa2a99464b86b3c365535b6fa09eec2",
+      "sha256": "200999700bc821793c1a664c14275485eaa2a99464b86b3c365535b6fa09eec2",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fmt/args.h",
+      "source_path": "src/SUPER/super_planner/include/fmt/args.h",
+      "upstream_sha256": "f98b552f9d9b994126b7ee17c417736edccb7008532711757141ff5d0229a8b5",
+      "sha256": "f98b552f9d9b994126b7ee17c417736edccb7008532711757141ff5d0229a8b5",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fmt/chrono.h",
+      "source_path": "src/SUPER/super_planner/include/fmt/chrono.h",
+      "upstream_sha256": "bf91e8300b2b5d6386d6e9d3eb446a3248ed88afc09b935bbdb4a120d1d3bf01",
+      "sha256": "bf91e8300b2b5d6386d6e9d3eb446a3248ed88afc09b935bbdb4a120d1d3bf01",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fmt/color.h",
+      "source_path": "src/SUPER/super_planner/include/fmt/color.h",
+      "upstream_sha256": "6add41088918c5e2054b0b54c0b5df36c260129fadcd8dc2e21a8d0c0b63a568",
+      "sha256": "6add41088918c5e2054b0b54c0b5df36c260129fadcd8dc2e21a8d0c0b63a568",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fmt/compile.h",
+      "source_path": "src/SUPER/super_planner/include/fmt/compile.h",
+      "upstream_sha256": "7f684ac58d7369aa3754cb90570bf0ff15ce60cc37908347dbe40244126dc4c0",
+      "sha256": "7f684ac58d7369aa3754cb90570bf0ff15ce60cc37908347dbe40244126dc4c0",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fmt/core.h",
+      "source_path": "src/SUPER/super_planner/include/fmt/core.h",
+      "upstream_sha256": "9499dc187c78f4f88c55f878afd375662912439b0cff69c8299a6054350432f7",
+      "sha256": "9499dc187c78f4f88c55f878afd375662912439b0cff69c8299a6054350432f7",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fmt/format-inl.h",
+      "source_path": "src/SUPER/super_planner/include/fmt/format-inl.h",
+      "upstream_sha256": "ba707e9533a864c47261edaac1d32ede71dee91eb793fc05ab0eab0f4210dfc4",
+      "sha256": "ba707e9533a864c47261edaac1d32ede71dee91eb793fc05ab0eab0f4210dfc4",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fmt/format.h",
+      "source_path": "src/SUPER/super_planner/include/fmt/format.h",
+      "upstream_sha256": "26f89b3cf04f7fec32ec7c26455dda19761c4a1cb00868462a513b95d8c5892a",
+      "sha256": "26f89b3cf04f7fec32ec7c26455dda19761c4a1cb00868462a513b95d8c5892a",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fmt/os.h",
+      "source_path": "src/SUPER/super_planner/include/fmt/os.h",
+      "upstream_sha256": "7c54dcaa87927ddd256ac4afef1e279a1bb514a393665315c473a2745fa452dd",
+      "sha256": "7c54dcaa87927ddd256ac4afef1e279a1bb514a393665315c473a2745fa452dd",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fmt/ostream.h",
+      "source_path": "src/SUPER/super_planner/include/fmt/ostream.h",
+      "upstream_sha256": "a8666d8f0711fa6fd97773e7719517f1f45f4bfaedcb0c7f37e1e2f94ef450a1",
+      "sha256": "a8666d8f0711fa6fd97773e7719517f1f45f4bfaedcb0c7f37e1e2f94ef450a1",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fmt/printf.h",
+      "source_path": "src/SUPER/super_planner/include/fmt/printf.h",
+      "upstream_sha256": "cd925173b9dc61bd2e7b8413d7fb28349188f56ca4d9ebfd2cd6d5041232d3a6",
+      "sha256": "cd925173b9dc61bd2e7b8413d7fb28349188f56ca4d9ebfd2cd6d5041232d3a6",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fmt/ranges.h",
+      "source_path": "src/SUPER/super_planner/include/fmt/ranges.h",
+      "upstream_sha256": "779137ff50fed087ab2d39a48ca6e91022b1bb55aa2b316df7a37fa7a2b6945b",
+      "sha256": "779137ff50fed087ab2d39a48ca6e91022b1bb55aa2b316df7a37fa7a2b6945b",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fmt/std.h",
+      "source_path": "src/SUPER/super_planner/include/fmt/std.h",
+      "upstream_sha256": "89218d93e3addbe148f610702b2ce96baad9728ad25b91c61c2b2aaaf22aec9e",
+      "sha256": "89218d93e3addbe148f610702b2ce96baad9728ad25b91c61c2b2aaaf22aec9e",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fmt/xchar.h",
+      "source_path": "src/SUPER/super_planner/include/fmt/xchar.h",
+      "upstream_sha256": "7fc509910bfa8250e8828a542e030e393b8a024bcf09538b3bba030fdc030958",
+      "sha256": "7fc509910bfa8250e8828a542e030e393b8a024bcf09538b3bba030fdc030958",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fsm/config.hpp",
+      "source_path": "src/SUPER/super_planner/include/fsm/config.hpp",
+      "upstream_sha256": "9e5cbcafa0037edc3d77c69b49ff49e2d1619bd8fba4ce59d170e9d3b2468696",
+      "sha256": "8c98820cf87b5661e6cc2d99afb98efe4ea4c1e42c5dac99a740460686a9669d",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fsm/fsm.h",
+      "source_path": "src/SUPER/super_planner/include/fsm/fsm.h",
+      "upstream_sha256": "71a64e38693114e6b3397005ba2da195c0337af9dc31fd44cf7ab5b113073492",
+      "sha256": "38aa4cb2a990ab534c6e7284a9994e484067b3d1734a5a6ca987d3f6d0db7f2b",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/include/fsm/terminal_hold.hpp",
+      "source_path": "src/SUPER/super_planner/include/fsm/terminal_hold.hpp",
+      "upstream_sha256": "89c5d661a713f63a1aebdf65bce9995fbd6d3483d482e09319cc3a8419c067b8",
+      "sha256": "99bcdf38c9bce43f96f571cfbc5fd058ca2ae4fe465df17e22a364f121a43e8f",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/include/path_search/astar.h",
+      "source_path": "src/SUPER/super_planner/include/path_search/astar.h",
+      "upstream_sha256": "6b968d556214bd89c6f0d0a7b5173fa4687bec7a8079a15ab720b456116c14a9",
+      "sha256": "6b968d556214bd89c6f0d0a7b5173fa4687bec7a8079a15ab720b456116c14a9",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/path_search/config.hpp",
+      "source_path": "src/SUPER/super_planner/include/path_search/config.hpp",
+      "upstream_sha256": "7d510b3f28ed76b6ffedf09446a8053a4ab1b44d754dd1b1b113d7c9aff754c6",
+      "sha256": "7d510b3f28ed76b6ffedf09446a8053a4ab1b44d754dd1b1b113d7c9aff754c6",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/ros_interface/ros2/fsm_ros2.hpp",
+      "source_path": "src/SUPER/super_planner/include/ros_interface/ros2/fsm_ros2.hpp",
+      "upstream_sha256": "ffedb8f66bd590d9012b25163703bd9310f68b8a98eb2ea0a99f0229a1fc8f31",
+      "sha256": "49ba6fbda996153604dca733d627d6fe7d192e846e7c1fbb4e5e336acdc98a82",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/include/ros_interface/ros2/ros2_adapter.hpp",
+      "source_path": "src/SUPER/super_planner/include/ros_interface/ros2/ros2_adapter.hpp",
+      "upstream_sha256": "82e305e84e11ff30b0fb10c9cfffb2346a1fb81ef13a4fbc51400b9cdc77e541",
+      "sha256": "82e305e84e11ff30b0fb10c9cfffb2346a1fb81ef13a4fbc51400b9cdc77e541",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/ros_interface/ros2/ros2_interface.hpp",
+      "source_path": "src/SUPER/super_planner/include/ros_interface/ros2/ros2_interface.hpp",
+      "upstream_sha256": "8b2c17f866d76898c7366bd8f1220924be22bf850cdbb2581ce5a9f5a22e4a8d",
+      "sha256": "8b2c17f866d76898c7366bd8f1220924be22bf850cdbb2581ce5a9f5a22e4a8d",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/ros_interface/ros_interface.hpp",
+      "source_path": "src/SUPER/super_planner/include/ros_interface/ros_interface.hpp",
+      "upstream_sha256": "1c3d5415ed91c9a73e2e6a2bb2ecc6ff23bc5be4c39ab21e824f466172b2da2f",
+      "sha256": "1c3d5415ed91c9a73e2e6a2bb2ecc6ff23bc5be4c39ab21e824f466172b2da2f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/super_core/ciri.h",
+      "source_path": "src/SUPER/super_planner/include/super_core/ciri.h",
+      "upstream_sha256": "bbab1956ff0b113e172cfeebdf0aa0cee7e261ac72176a2992dbdebe0a0369c9",
+      "sha256": "bbab1956ff0b113e172cfeebdf0aa0cee7e261ac72176a2992dbdebe0a0369c9",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/super_core/config.hpp",
+      "source_path": "src/SUPER/super_planner/include/super_core/config.hpp",
+      "upstream_sha256": "4c2f2eed3ccc259977cb8d96b8cf2dc65e5d44f6de2ee67dbeb04e61b12b4a7f",
+      "sha256": "12fac9a68e42f283442f7fbff059e4941dc2d91d62ed9b9b3ddbcac2b99f3fde",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/include/super_core/corridor_generator.h",
+      "source_path": "src/SUPER/super_planner/include/super_core/corridor_generator.h",
+      "upstream_sha256": "87fbc7ccc3dea067de405ce6317e5abf747dacb548d40d80a0d9c2788f60be4e",
+      "sha256": "87fbc7ccc3dea067de405ce6317e5abf747dacb548d40d80a0d9c2788f60be4e",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/super_core/fov_checker.h",
+      "source_path": "src/SUPER/super_planner/include/super_core/fov_checker.h",
+      "upstream_sha256": "8ae72ce885899ecab534bd28b63bc8658fdd889a38726c56a9a10ee216071d4d",
+      "sha256": "8ae72ce885899ecab534bd28b63bc8658fdd889a38726c56a9a10ee216071d4d",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/super_core/log_utils.hpp",
+      "source_path": "src/SUPER/super_planner/include/super_core/log_utils.hpp",
+      "upstream_sha256": "37b0bddff9af7dd4b8688f85463e8b0d3f6ed7f64ae95f70878e19e450a29489",
+      "sha256": "37b0bddff9af7dd4b8688f85463e8b0d3f6ed7f64ae95f70878e19e450a29489",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/super_core/super_planner.h",
+      "source_path": "src/SUPER/super_planner/include/super_core/super_planner.h",
+      "upstream_sha256": "f63fbf8519b2a15db7727b810d4e40a125fa968df052ead2ad17c892bfd3e8e3",
+      "sha256": "41fda980ca0aca1f3ad55b4ef9ba8dac64bb2b14b0a79bf1803132e816362634",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/include/super_core/super_ret_code.hpp",
+      "source_path": "src/SUPER/super_planner/include/super_core/super_ret_code.hpp",
+      "upstream_sha256": "94804e9cc4d856c23ffcd2f5e9892eec0658e57f0bac8be03a0697bc4841cde2",
+      "sha256": "2e2fd2c71848be645c69f0fcde5e698685a292114e1afdac099db89270fb4724",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/include/traj_opt/backup_traj_optimizer_s4.h",
+      "source_path": "src/SUPER/super_planner/include/traj_opt/backup_traj_optimizer_s4.h",
+      "upstream_sha256": "7109559f07b09238e880c56624fd1c3ff1ffea0a75e0c7a1ec913eaf1f153fef",
+      "sha256": "a227aea53d36ef761f26f02b6b476331ab714a5f76b9537b858cf4aa8bd01d46",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/include/traj_opt/config.hpp",
+      "source_path": "src/SUPER/super_planner/include/traj_opt/config.hpp",
+      "upstream_sha256": "f1b0bdc55a8ee00d1c1b511a7f6734db9def6afad5fc99c7996f00e009fab4e1",
+      "sha256": "3baad32f1f956d57fc0015c347107f95c6008434f1fa63c9a6b25ff7e3480028",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/include/traj_opt/exp_traj_optimizer_s4.h",
+      "source_path": "src/SUPER/super_planner/include/traj_opt/exp_traj_optimizer_s4.h",
+      "upstream_sha256": "b4aabfde9302315fd8d0945d47a544169653420786518c52bf84b5ca1e433463",
+      "sha256": "d3214f9dd7ff45a9c068804871583a48f7494c490e464a6f8a4f98eb2330eea1",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/include/traj_opt/minco.h",
+      "source_path": "src/SUPER/super_planner/include/traj_opt/minco.h",
+      "upstream_sha256": "7fd6913d9df42beca67f446b14b3bb06f3e4aedf53d32c1f73bbedab349036b9",
+      "sha256": "7fd6913d9df42beca67f446b14b3bb06f3e4aedf53d32c1f73bbedab349036b9",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/traj_opt/yaw_traj_opt.h",
+      "source_path": "src/SUPER/super_planner/include/traj_opt/yaw_traj_opt.h",
+      "upstream_sha256": "9ca64c2d04b2c955ea2c799516f9ae48415aae7cd13bbdb442712fa01ccded05",
+      "sha256": "9ca64c2d04b2c955ea2c799516f9ae48415aae7cd13bbdb442712fa01ccded05",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/geometry/geometry_utils.h",
+      "source_path": "src/SUPER/super_planner/include/utils/geometry/geometry_utils.h",
+      "upstream_sha256": "cfa537769c5e4727e79d79432c28e1b520b2f04eb87987925be7f466192ea499",
+      "sha256": "cfa537769c5e4727e79d79432c28e1b520b2f04eb87987925be7f466192ea499",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/geometry/quadrotor_flatness.hpp",
+      "source_path": "src/SUPER/super_planner/include/utils/geometry/quadrotor_flatness.hpp",
+      "upstream_sha256": "d4eca0be4d832a7e8e9f26f4dd5fab57dbaa2a60f282d2fc69c0f4081908e2a9",
+      "sha256": "d4eca0be4d832a7e8e9f26f4dd5fab57dbaa2a60f282d2fc69c0f4081908e2a9",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/geometry/quickhull.h",
+      "source_path": "src/SUPER/super_planner/include/utils/geometry/quickhull.h",
+      "upstream_sha256": "ea409853f394a6a79cc6ca0b151093c80e18b6f7c46a51e9b812b5b8e3476d9b",
+      "sha256": "ea409853f394a6a79cc6ca0b151093c80e18b6f7c46a51e9b812b5b8e3476d9b",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/header/backward.hpp",
+      "source_path": "src/SUPER/super_planner/include/utils/header/backward.hpp",
+      "upstream_sha256": "7633095c4b8378adce9e45693b6904b9063a3611836abf16eeb17e71ad174b82",
+      "sha256": "7633095c4b8378adce9e45693b6904b9063a3611836abf16eeb17e71ad174b82",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/header/color_msg_utils.hpp",
+      "source_path": "src/SUPER/super_planner/include/utils/header/color_msg_utils.hpp",
+      "upstream_sha256": "5d42aa146cf174cd85ab84ba25f88faf288e959022738fb6dc159c7bd7aa6125",
+      "sha256": "5d42aa146cf174cd85ab84ba25f88faf288e959022738fb6dc159c7bd7aa6125",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/header/color_text.hpp",
+      "source_path": "src/SUPER/super_planner/include/utils/header/color_text.hpp",
+      "upstream_sha256": "99121a6f9a9bb634d6c3ab281f501222d561f32b5b125c41c1f77d2149f80980",
+      "sha256": "99121a6f9a9bb634d6c3ab281f501222d561f32b5b125c41c1f77d2149f80980",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/header/eigen_alias.hpp",
+      "source_path": "src/SUPER/super_planner/include/utils/header/eigen_alias.hpp",
+      "upstream_sha256": "77ce40270e68054e3ddd09a2c25c2bb9c232c1f5693e2928b25dcde2bbc45a9e",
+      "sha256": "77ce40270e68054e3ddd09a2c25c2bb9c232c1f5693e2928b25dcde2bbc45a9e",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/header/fmt_eigen.hpp",
+      "source_path": "src/SUPER/super_planner/include/utils/header/fmt_eigen.hpp",
+      "upstream_sha256": "e23961c3acab3950645dea4060b50a542cce62ae83b7127641d30e991e59df40",
+      "sha256": "e23961c3acab3950645dea4060b50a542cce62ae83b7127641d30e991e59df40",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/header/matplotlibcpp.hpp",
+      "source_path": "src/SUPER/super_planner/include/utils/header/matplotlibcpp.hpp",
+      "upstream_sha256": "8a68ce477a9c46fc2994f7c03dee2a3b8526977dfa4f17eb1aa2011edb88c06e",
+      "sha256": "8a68ce477a9c46fc2994f7c03dee2a3b8526977dfa4f17eb1aa2011edb88c06e",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/header/scope_timer.hpp",
+      "source_path": "src/SUPER/super_planner/include/utils/header/scope_timer.hpp",
+      "upstream_sha256": "af3c3fb1681ec28dfc338f6be967be85bdedbe98eefd955b5f75ac1f311f52e5",
+      "sha256": "af3c3fb1681ec28dfc338f6be967be85bdedbe98eefd955b5f75ac1f311f52e5",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/header/tinycolormap.hpp",
+      "source_path": "src/SUPER/super_planner/include/utils/header/tinycolormap.hpp",
+      "upstream_sha256": "b466745c94d3bae2de2932360151ae626c923911062a13e6e38dff3b820c8780",
+      "sha256": "b466745c94d3bae2de2932360151ae626c923911062a13e6e38dff3b820c8780",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/header/type_utils.hpp",
+      "source_path": "src/SUPER/super_planner/include/utils/header/type_utils.hpp",
+      "upstream_sha256": "9b5c421937ef8cf06af4d22dc2faab9a24ff4bbb5ac4b8be171397c6da4910ac",
+      "sha256": "9b5c421937ef8cf06af4d22dc2faab9a24ff4bbb5ac4b8be171397c6da4910ac",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/header/yaml_loader.hpp",
+      "source_path": "src/SUPER/super_planner/include/utils/header/yaml_loader.hpp",
+      "upstream_sha256": "d62a63f30a5c510e0470dec219f08cd1232a94ef7a97bf1a9ebcb687de016e2a",
+      "sha256": "d62a63f30a5c510e0470dec219f08cd1232a94ef7a97bf1a9ebcb687de016e2a",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/optimization/banded_system.h",
+      "source_path": "src/SUPER/super_planner/include/utils/optimization/banded_system.h",
+      "upstream_sha256": "63eeea5d12820753b1e223e81ad124be1443732895d364e2333b091125b38d30",
+      "sha256": "63eeea5d12820753b1e223e81ad124be1443732895d364e2333b091125b38d30",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/optimization/lbfgs.h",
+      "source_path": "src/SUPER/super_planner/include/utils/optimization/lbfgs.h",
+      "upstream_sha256": "14ee85131e63fd04694b2e31aefe39bfb064bc96af2c3475f4a5703f59f53651",
+      "sha256": "134713495d4fd05e26454e2ccefaeffd3b751333062e1503fafc9bd695a289d3",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/optimization/minco.h",
+      "source_path": "src/SUPER/super_planner/include/utils/optimization/minco.h",
+      "upstream_sha256": "cdda34961e883de65eff01e11836e21928d9d81ac4e3437467533ee0d686d587",
+      "sha256": "cdda34961e883de65eff01e11836e21928d9d81ac4e3437467533ee0d686d587",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/optimization/mvie.h",
+      "source_path": "src/SUPER/super_planner/include/utils/optimization/mvie.h",
+      "upstream_sha256": "7fba78d8b55516b277ebd447431af85c66ebbcd0ee9f7400ea6cbcf52b96be9f",
+      "sha256": "7fba78d8b55516b277ebd447431af85c66ebbcd0ee9f7400ea6cbcf52b96be9f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/optimization/optimization_utils.h",
+      "source_path": "src/SUPER/super_planner/include/utils/optimization/optimization_utils.h",
+      "upstream_sha256": "06d6748c644d87cc701226e9718bfacceda1b256ada93adade5c461ab0acef67",
+      "sha256": "06d6748c644d87cc701226e9718bfacceda1b256ada93adade5c461ab0acef67",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/optimization/polynomial_interpolation.h",
+      "source_path": "src/SUPER/super_planner/include/utils/optimization/polynomial_interpolation.h",
+      "upstream_sha256": "ef33756953284ffacbbe590c62821383f6e33991e67803f49a21db45f156d4a0",
+      "sha256": "ef33756953284ffacbbe590c62821383f6e33991e67803f49a21db45f156d4a0",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/optimization/root_finder.h",
+      "source_path": "src/SUPER/super_planner/include/utils/optimization/root_finder.h",
+      "upstream_sha256": "0ed2316f4954dbd179757f1fb64e2f09e58a550e0d27c5cfa70287958b0e472c",
+      "sha256": "0ed2316f4954dbd179757f1fb64e2f09e58a550e0d27c5cfa70287958b0e472c",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/optimization/sdlp.h",
+      "source_path": "src/SUPER/super_planner/include/utils/optimization/sdlp.h",
+      "upstream_sha256": "86846e094e4834f5ebdaed8bed6826cb6d3c5969a5016b6dfb66ef4ed350d739",
+      "sha256": "86846e094e4834f5ebdaed8bed6826cb6d3c5969a5016b6dfb66ef4ed350d739",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/optimization/sdqp.hpp",
+      "source_path": "src/SUPER/super_planner/include/utils/optimization/sdqp.hpp",
+      "upstream_sha256": "2a4121b16a461d4160c90066ada95a2b934bdd1cf3bec17eed94946a5e30d025",
+      "sha256": "2a4121b16a461d4160c90066ada95a2b934bdd1cf3bec17eed94946a5e30d025",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/include/utils/optimization/waypoint_trajectory_optimizer.h",
+      "source_path": "src/SUPER/super_planner/include/utils/optimization/waypoint_trajectory_optimizer.h",
+      "upstream_sha256": "a670da696a8823974fdf4f2b9558d31a527d0dd02598a4c6c15328f263b7b9c1",
+      "sha256": "a670da696a8823974fdf4f2b9558d31a527d0dd02598a4c6c15328f263b7b9c1",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/log/.gitkeep",
+      "source_path": "src/SUPER/super_planner/log/.gitkeep",
+      "upstream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/log/cmd_logs/.gitkeep",
+      "source_path": "src/SUPER/super_planner/log/cmd_logs/.gitkeep",
+      "upstream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/log/replan_logs/.gitkeep",
+      "source_path": "src/SUPER/super_planner/log/replan_logs/.gitkeep",
+      "upstream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/package.xml",
+      "source_path": "src/SUPER/super_planner/package.xml",
+      "upstream_sha256": "550d0114de476e6a8ef8a6abacd44abbe0591ce206afd76d1c2526f2caf748f6",
+      "sha256": "550d0114de476e6a8ef8a6abacd44abbe0591ce206afd76d1c2526f2caf748f6",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/super_core/astar.cpp",
+      "source_path": "src/SUPER/super_planner/src/super_core/astar.cpp",
+      "upstream_sha256": "7e69c7ff12cc342276b0a06b253a3a7500e28be057931af9477d121d17121b55",
+      "sha256": "7e69c7ff12cc342276b0a06b253a3a7500e28be057931af9477d121d17121b55",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/super_core/ciri.cpp",
+      "source_path": "src/SUPER/super_planner/src/super_core/ciri.cpp",
+      "upstream_sha256": "8e62ffcc3480a96dabbc77386776c9ba25411c2777170da3f9ce2ac9205688bd",
+      "sha256": "8e62ffcc3480a96dabbc77386776c9ba25411c2777170da3f9ce2ac9205688bd",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/super_core/corridor_generator.cpp",
+      "source_path": "src/SUPER/super_planner/src/super_core/corridor_generator.cpp",
+      "upstream_sha256": "054c486ff22ec6a57fdb5d7e544428f2dba16be8dd18b25cc860749209a0e04c",
+      "sha256": "054c486ff22ec6a57fdb5d7e544428f2dba16be8dd18b25cc860749209a0e04c",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/super_core/fsm.cpp",
+      "source_path": "src/SUPER/super_planner/src/super_core/fsm.cpp",
+      "upstream_sha256": "f60d0b3c55094a562dfbc79c5ec9655b830e369a1ceec0b785c6703b96e3cac1",
+      "sha256": "32590b81e8d0159e8d141dd27f0348c7737b7ea98d333491a8cc3592487eab9e",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/src/super_core/super_planner.cpp",
+      "source_path": "src/SUPER/super_planner/src/super_core/super_planner.cpp",
+      "upstream_sha256": "6dc26ba553ef8cb7dd15f707854aeef1d0135198980eca8e4557000c5fc8ee28",
+      "sha256": "b4df9661bbb5b0af3caf70666df7cd2085b8903afd78c16f0e064d6fed1298dc",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/src/traj_opt/backup_traj_optimizer_s4.cpp",
+      "source_path": "src/SUPER/super_planner/src/traj_opt/backup_traj_optimizer_s4.cpp",
+      "upstream_sha256": "61cc9eaf29c104fe83a9a57a72950c84c6bdfc7c07e06266fd1ec28550228b1d",
+      "sha256": "b5404ef1fd1817ea294f71e883adad5c4845d088435314e6e912c223bcf890c6",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/src/traj_opt/exp_traj_optimizer_s4.cpp",
+      "source_path": "src/SUPER/super_planner/src/traj_opt/exp_traj_optimizer_s4.cpp",
+      "upstream_sha256": "1baf48508ef4a3720ec3dd231fcf5ed46d2bf8e8935cf4058aa397536e4bd600",
+      "sha256": "76691b46e54ae64eb4d0a8f5311e8959c2b732679eafe27cbb17cd7a942ba161",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/src/traj_opt/yaw_traj_opt.cpp",
+      "source_path": "src/SUPER/super_planner/src/traj_opt/yaw_traj_opt.cpp",
+      "upstream_sha256": "527422d05f1ab33886cf274b6d64b4f25844ece18d5fd0c5bd7804baaa626fc1",
+      "sha256": "527422d05f1ab33886cf274b6d64b4f25844ece18d5fd0c5bd7804baaa626fc1",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/banded_system.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/banded_system.cpp",
+      "upstream_sha256": "89965e22761bb0408b60461bba41bf52ecd57529e48d10d93747e79fd8bee7ce",
+      "sha256": "89965e22761bb0408b60461bba41bf52ecd57529e48d10d93747e79fd8bee7ce",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/ellipsoid.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/ellipsoid.cpp",
+      "upstream_sha256": "18d166a2e9be754a39fb9c6557fe3999ebbb96dad40440de39f0198fd7de3cc6",
+      "sha256": "18d166a2e9be754a39fb9c6557fe3999ebbb96dad40440de39f0198fd7de3cc6",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/geometry_utils.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/geometry_utils.cpp",
+      "upstream_sha256": "7c8a8379c3a94a9771fdc52ba2195d6806ae2a5edca28e8cb28c204f5e2fa470",
+      "sha256": "7c8a8379c3a94a9771fdc52ba2195d6806ae2a5edca28e8cb28c204f5e2fa470",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/lbfgs.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/lbfgs.cpp",
+      "upstream_sha256": "799ce226c48d0e8785a293cc3e11bffd6f0844fa90edc9465312c616eb0a2f0e",
+      "sha256": "9d58e2858a982fb55dc328b9cb780afaa6954b3daee16f162cab942f61ede3de",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/minco.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/minco.cpp",
+      "upstream_sha256": "06a65e4f55052ce2dabc7064fa256ebaadde9015e269fdf22a86cbe3e4b28d84",
+      "sha256": "06a65e4f55052ce2dabc7064fa256ebaadde9015e269fdf22a86cbe3e4b28d84",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/mvie.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/mvie.cpp",
+      "upstream_sha256": "5b48fcb8d68fc0700e0c3b0e648a62a2032ffcd09add40414f7e04c3016b4fd3",
+      "sha256": "5b48fcb8d68fc0700e0c3b0e648a62a2032ffcd09add40414f7e04c3016b4fd3",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/optimization_utils.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/optimization_utils.cpp",
+      "upstream_sha256": "769fe9742f04833a262b353bc437bd4bdc8499dd79e1f539f9ea61b7d6194a15",
+      "sha256": "769fe9742f04833a262b353bc437bd4bdc8499dd79e1f539f9ea61b7d6194a15",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/piece.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/piece.cpp",
+      "upstream_sha256": "38439d0f31e94d3b675ed7f9fd2bc4f21cf4a04d935f853a42193b0c01ae8ee6",
+      "sha256": "38439d0f31e94d3b675ed7f9fd2bc4f21cf4a04d935f853a42193b0c01ae8ee6",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/polynomial_interpolation.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/polynomial_interpolation.cpp",
+      "upstream_sha256": "50e60e92756c42607957306a4d27f5cb4d744f5485a6230ce5d8f73a431a6939",
+      "sha256": "50e60e92756c42607957306a4d27f5cb4d744f5485a6230ce5d8f73a431a6939",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/polytope.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/polytope.cpp",
+      "upstream_sha256": "17e748e992bfca1dfefee3da2d1ea70afe0ed6c2e1d37f4a39a79c88a9f38f6f",
+      "sha256": "17e748e992bfca1dfefee3da2d1ea70afe0ed6c2e1d37f4a39a79c88a9f38f6f",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/quickhull.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/quickhull.cpp",
+      "upstream_sha256": "79d8180af1b940f58f1d279e5d171bb7cdbdef8055a785b171a782896efce05d",
+      "sha256": "79d8180af1b940f58f1d279e5d171bb7cdbdef8055a785b171a782896efce05d",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/root_finder.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/root_finder.cpp",
+      "upstream_sha256": "94264e272000a15bf07ad4bf03807ded099e258c974de6914f93f2c3b8de3bc9",
+      "sha256": "94264e272000a15bf07ad4bf03807ded099e258c974de6914f93f2c3b8de3bc9",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/sdlp.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/sdlp.cpp",
+      "upstream_sha256": "42721d980fc1cec3a40279350d8dd577804d416059f2f086c1373cb6fc976d7c",
+      "sha256": "42721d980fc1cec3a40279350d8dd577804d416059f2f086c1373cb6fc976d7c",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/trajectory.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/trajectory.cpp",
+      "upstream_sha256": "1f9b2e9a3d6364726e2657003a82ecc54b317c1d6797a7bacdb093bdfc1c593c",
+      "sha256": "1f9b2e9a3d6364726e2657003a82ecc54b317c1d6797a7bacdb093bdfc1c593c",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/src/utils/waypoint_trajectory_optimizer.cpp",
+      "source_path": "src/SUPER/super_planner/src/utils/waypoint_trajectory_optimizer.cpp",
+      "upstream_sha256": "4dd9eed5667d3937316e020e1a408c8bc1437619120e812139ae58f2cf165a2b",
+      "sha256": "4dd9eed5667d3937316e020e1a408c8bc1437619120e812139ae58f2cf165a2b",
+      "modified": false
+    },
+    {
+      "path": "src/SUPER/super_planner/test/terminal_hold.cpp",
+      "source_path": "src/SUPER/super_planner/test/terminal_hold.cpp",
+      "upstream_sha256": "cceebc6710f23027c46dac2ee8699710b9c90d3883716d4751667d074a961d3f",
+      "sha256": "8bfa1f511b002bd1079a4a1eb5a787e2934d55f61bd8c24064889b473510759a",
+      "modified": true
+    },
+    {
+      "path": "src/SUPER/super_planner/test/yaw_guidance.cpp",
+      "source_path": "src/SUPER/super_planner/test/yaw_guidance.cpp",
+      "upstream_sha256": "8c600a5dc8b43f172d3dfbc2bdc83522f444b5d1a3d9c0a9e564289cfc510b11",
+      "sha256": "8c600a5dc8b43f172d3dfbc2bdc83522f444b5d1a3d9c0a9e564289cfc510b11",
+      "modified": false
+    },
+    {
+      "path": "src/ommpc_core/CMakeLists.txt",
+      "source_path": "src/ommpc_core/CMakeLists.txt",
+      "upstream_sha256": "cac0c381b695a9d838bb9e0b1cf64638b448534737674d43c1f860dea867e38b",
+      "sha256": "0715b24b8bfde9c50df2dfd0231bdcfab1e3c85dc71f6a82c73a4a966514d7d8",
+      "modified": true
+    },
+    {
+      "path": "src/ommpc_core/UPSTREAM.md",
+      "source_path": "src/ommpc_core/UPSTREAM.md",
+      "upstream_sha256": "472d905f4bd3f76398374a62c994550e92e4d20494fd99284ce31d0470d586b9",
+      "sha256": "472d905f4bd3f76398374a62c994550e92e4d20494fd99284ce31d0470d586b9",
+      "modified": false
+    },
+    {
+      "path": "src/ommpc_core/include/ommpc_core/controller_core.hpp",
+      "source_path": "src/ommpc_core/include/ommpc_core/controller_core.hpp",
+      "upstream_sha256": "63ff99f97f3310188ef0d692f95c6c90055abcca3f080701b3615d1c3144fe69",
+      "sha256": "63ff99f97f3310188ef0d692f95c6c90055abcca3f080701b3615d1c3144fe69",
+      "modified": false
+    },
+    {
+      "path": "src/ommpc_core/include/ommpc_core/mpc_wrapper.hpp",
+      "source_path": "src/ommpc_core/include/ommpc_core/mpc_wrapper.hpp",
+      "upstream_sha256": "78e619faa6006025bbd8b3d68bdbc7a975e02596813e31c899f728eacaf78091",
+      "sha256": "78e619faa6006025bbd8b3d68bdbc7a975e02596813e31c899f728eacaf78091",
+      "modified": false
+    },
+    {
+      "path": "src/ommpc_core/include/ommpc_core/polynomial_trajectory.h",
+      "source_path": "src/ommpc_core/include/ommpc_core/polynomial_trajectory.h",
+      "upstream_sha256": "c1451aa8dbaa735aa929291b432c883fb79a0e5122c3fc9668876311889e4458",
+      "sha256": "c1451aa8dbaa735aa929291b432c883fb79a0e5122c3fc9668876311889e4458",
+      "modified": false
+    },
+    {
+      "path": "src/ommpc_core/include/ommpc_core/so3_math.h",
+      "source_path": "src/ommpc_core/include/ommpc_core/so3_math.h",
+      "upstream_sha256": "3e5e87baef7410aafe4bb2f36e1f084f2dd18516aa4063200268b47e34979976",
+      "sha256": "3e5e87baef7410aafe4bb2f36e1f084f2dd18516aa4063200268b47e34979976",
+      "modified": false
+    },
+    {
+      "path": "src/ommpc_core/include/ommpc_core/types.hpp",
+      "source_path": "src/ommpc_core/include/ommpc_core/types.hpp",
+      "upstream_sha256": "86e43dd909aa3f291f59422668419d658a0978524f50c8efea651eb2c807fcd6",
+      "sha256": "86e43dd909aa3f291f59422668419d658a0978524f50c8efea651eb2c807fcd6",
+      "modified": false
+    },
+    {
+      "path": "src/ommpc_core/package.xml",
+      "source_path": "src/ommpc_core/package.xml",
+      "upstream_sha256": "27d210644bb1cd4f6c149995078d059371e5d516125fabc15bf49a8ea1c4b540",
+      "sha256": "27d210644bb1cd4f6c149995078d059371e5d516125fabc15bf49a8ea1c4b540",
+      "modified": false
+    },
+    {
+      "path": "src/ommpc_core/src/controller_core.cpp",
+      "source_path": "src/ommpc_core/src/controller_core.cpp",
+      "upstream_sha256": "6188b1d3d648b2ff2b64d66f5053a5da14027434e55bed98d529d32fc86319a6",
+      "sha256": "6188b1d3d648b2ff2b64d66f5053a5da14027434e55bed98d529d32fc86319a6",
+      "modified": false
+    },
+    {
+      "path": "src/zav_super/config/common.yaml",
+      "source_path": "src/argo_super/config/common.yaml",
+      "upstream_sha256": "1df54caae0cae24d82f530dd15c2f361adda55ca8fe9ae1be828f120525e8ab3",
+      "sha256": "be4cb7b935a4c9ecf681ecf7bab27c090d1ba821bdc507425e3b12d54c5c5b12",
+      "modified": true
+    },
+    {
+      "path": "src/zav_super/config/argo_v1.json",
+      "source_path": "simulator/config/vehicles/argo_v1.json",
+      "upstream_sha256": "ce2479aa0ee6aa8f81f32ef8a011a47e6ce40e095f72691729e695620e58a938",
+      "sha256": "ce2479aa0ee6aa8f81f32ef8a011a47e6ce40e095f72691729e695620e58a938",
+      "modified": false
+    },
+    {
+      "path": "src/zav_super/include/zav_super/trajectory.hpp",
+      "source_path": "src/argo_super/include/argo_super/trajectory.hpp",
+      "upstream_sha256": "8893913525e93a6b48c31d83d7392a1ac1342ef63be550b51c9b34f8df26aa47",
+      "sha256": "dfb1989de469602fa9688ea5f657e7a41bad06205b8035767f4df1f5a57411a5",
+      "modified": true
+    }
+  ],
+  "local_additions": [
+    {
+      "path": "src/SUPER/super_planner/include/utils/optimization/time_budget.hpp",
+      "sha256": "8939fde27bfd56e4d0a55ca1d5a5e618af0d6d600bae38c61b57d3befd1df58d",
+      "purpose": "Bounded optimization and stale initial-plan rejection (2026-11-24)"
+    },
+    {
+      "path": "src/SUPER/super_planner/include/super_core/initial_plan_policy.hpp",
+      "sha256": "24df369de99ed7fc89bdda347c5a0c8fabdcaa02fdfebfef895616bdc34603c0",
+      "purpose": "Bounded optimization and stale initial-plan rejection (2026-11-24)"
+    },
+    {
+      "path": "src/SUPER/super_planner/include/traj_opt/backup_initial_guess.hpp",
+      "sha256": "d4f35b9bad137aa953506abfddc1efc5a54c10396c51ce1e9e8f72602f63735a",
+      "purpose": "Bounded optimization and stale initial-plan rejection (2026-11-24)"
+    },
+    {
+      "path": "src/SUPER/super_planner/test/optimization_budget.cpp",
+      "sha256": "cf940f6025ca6fc40e072e1ec3cf4828f3eda600e8c5ddc1766aee2df8fc1551",
+      "purpose": "Bounded optimization and stale initial-plan rejection (2026-11-24)"
+    }
+  ]
+}

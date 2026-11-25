@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>robot_bundle_sender_camlidar</name>
+  <version>0.1.0</version>
+  <description>Robot-side camera+LiDAR bundle sender: synchronised image, point cloud and odometry -> per-bundle package (per-frame points, H.264 video segment, per-frame pose) sent over gRPC to server_bundle_receiver. No semantic inference on the robot.</description>
+  <maintainer email="jeetaeho1234@gmail.com">user</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>message_filters</depend>
+  <exec_depend>ffmpeg</exec_depend>
+  <build_depend>eigen</build_depend>
+  <build_depend>zlib</build_depend>
+  <depend>protobuf-dev</depend>
+  <depend>grpc</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

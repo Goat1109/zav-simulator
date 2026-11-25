@@ -97,6 +97,8 @@ public:
   double latest_ekf_time;
   nav_msgs::msg::Odometry imu_prop_odom;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr pubImuPropOdom;
+  rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr pubPx4Odom;
+  bool px4_odom_en = false;
   double imu_time_offset = 0.0;
 
   bool gravity_align_en = false, gravity_align_finished = false;
@@ -135,6 +137,7 @@ public:
   PointCloudXYZI::Ptr feats_down_body;
   PointCloudXYZI::Ptr feats_down_world;
   PointCloudXYZI::Ptr pcl_w_wait_pub;
+  PointCloudXYZI::Ptr pcl_b_wait_pub;
   PointCloudXYZI::Ptr pcl_wait_pub;
   PointCloudXYZRGB::Ptr pcl_wait_save;
   PointCloudXYZI::Ptr pcl_wait_save_intensity;
@@ -166,6 +169,7 @@ public:
   rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr sub_imu;
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_img;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pubLaserCloudFullRes;
+  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pubLaserCloudBody;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pubNormal;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pubSubVisualMap;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pubLaserCloudEffect;
@@ -176,6 +180,7 @@ public:
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pubLaserCloudDynRmed;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pubLaserCloudDynDbg;
   image_transport::Publisher pubImage;
+  image_transport::Publisher pubImageOdometry;
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr mavros_pose_publisher;
   rclcpp::TimerBase::SharedPtr imu_prop_timer;
 

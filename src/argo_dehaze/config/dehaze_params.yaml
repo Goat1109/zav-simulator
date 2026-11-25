@@ -1,0 +1,15 @@
+/**:
+  ros__parameters:
+    in_image_topic: "/camera/image_raw"
+    out_image_topic: "/camera/image_dehazed"
+    patch_size: 15
+    omega_min: 0.50
+    omega_max: 0.95
+    t0_base: 0.08
+    guided_radius: 16
+    guided_eps: 0.001
+    guided_subsample: 4
+    target_luminance: 125.0
+    enable_adaptive_tone: true
+    enable_clahe: true
+    clahe_clip_limit: 1.5

@@ -246,22 +246,12 @@ else(ROS_EDITION STREQUAL "ROS2")
   )
 
   ## make sure the livox_lidar_sdk_shared library is installed
-  find_library(LIVOX_LIDAR_SDK_LIBRARY NAMES livox_lidar_sdk_shared HINTS /usr/local/lib)
+  find_library(LIVOX_LIDAR_SDK_LIBRARY liblivox_lidar_sdk_shared.so /usr/local/lib REQUIRED)
 
   ##
   find_path(LIVOX_LIDAR_SDK_INCLUDE_DIR
     NAMES "livox_lidar_api.h" "livox_lidar_def.h"
-    )
-
-  set(_livox_driver_default OFF)
-  if(LIVOX_LIDAR_SDK_LIBRARY AND LIVOX_LIDAR_SDK_INCLUDE_DIR)
-    set(_livox_driver_default ON)
-  endif()
-  option(LIVOX_BUILD_DRIVER "Build the hardware driver (requires Livox SDK2)" ${_livox_driver_default})
-  if(LIVOX_BUILD_DRIVER)
-    if(NOT LIVOX_LIDAR_SDK_LIBRARY OR NOT LIVOX_LIDAR_SDK_INCLUDE_DIR)
-      message(FATAL_ERROR "LIVOX_BUILD_DRIVER=ON requires Livox SDK2 headers and library")
-    endif()
+    REQUIRED)
 
   ## PCL library
   link_directories(${PCL_LIBRARY_DIRS})
@@ -292,7 +282,7 @@ else(ROS_EDITION STREQUAL "ROS2")
   target_include_directories(${PROJECT_NAME} PRIVATE ${livox_sdk_INCLUDE_DIRS})
 
   # get include directories of custom msg headers
-  if(COMMAND rosidl_get_typesupport_target)
+  if(DISTRO_ROS STREQUAL "humble" OR DISTRO_ROS STREQUAL "jazzy")
     rosidl_get_typesupport_target(cpp_typesupport_target
     ${LIVOX_INTERFACES} "rosidl_typesupport_cpp")
     target_link_libraries(${PROJECT_NAME} "${cpp_typesupport_target}")
@@ -326,9 +316,6 @@ else(ROS_EDITION STREQUAL "ROS2")
     PLUGIN "livox_ros::DriverNode"
     EXECUTABLE ${PROJECT_NAME}_node
   )
-  else()
-    message(STATUS "Livox SDK2 unavailable/driver disabled: building CustomMsg/CustomPoint interfaces only")
-  endif()
 
   if(BUILD_TESTING)
     find_package(ament_lint_auto REQUIRED)

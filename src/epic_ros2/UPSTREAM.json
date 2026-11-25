@@ -1,0 +1,19 @@
+{
+  "repository": "https://github.com/ZenithFuturesLab/zav-simulator",
+  "branch": "ZAVSIM_Fix",
+  "commit": "36bf6ef5a5a13bb7e002d0f82a5c46953afb2cfa",
+  "source_path": "src/epic_ros2",
+  "config_sha256": {
+    "frontier-first-floor-sim.yaml": "e801688952258c01530716ef0a725a236ff78e05e3be09d672d81543441a2953",
+    "frontier_bounds.yaml": "5d5ec97249bd42fb0bbbced11321084e9bf7703769ad82de595b1df222056894",
+    "gym-epic-full-local.yaml": "471af7a02a5de02ad32940cbfb2bbbee5d2f863797d014d062e4ff173efcaf78"
+  },
+  "hardware_changes": [
+    "hardware.launch.py replaces simulator launch and command adapters",
+    "external manual reset can leave LAND for a fresh RC7 session",
+    "remove unavailable simulator-only package dependencies",
+    "retain warehouse cruise only as a test fixture",
+    "startup freshness regression launches the native exploration binary without simulator launch dependencies",
+    "hardware launch uses the ground-anchored profile-frame adapter for robot-relative bounds"
+  ]
+}

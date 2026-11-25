@@ -10,7 +10,7 @@
       Robotics: Science and Systems Conference (RSS). Berkeley, CA, July 2014.
   </description>
   <maintainer email="dev@livoxtech.com">claydergc</maintainer>
-  <license>GPL-2.0-only</license>
+  <license>BSD</license>
   <author email="zhangji@cmu.edu">Ji Zhang</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
@@ -28,16 +28,15 @@
   <depend>tf2</depend>  <!-- ROS 2 uses tf2 instead of tf -->
   <depend>tf2_ros</depend>  <!-- ROS 2 uses tf2 instead of tf -->
   <depend>visualization_msgs</depend>
-  <depend>libopencv-dev</depend>
+  <depend>OpenCV</depend>
   <depend>eigen3_cmake_module</depend>
-  <depend>eigen</depend>
+  <depend>Eigen3</depend>
   <depend>sophus</depend>
   <depend>cv_bridge</depend>
   <depend>image_transport</depend>
   <depend>livox_ros_driver2</depend>
 
   <test_depend>ament_lint_auto</test_depend>
-  <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
   <export>

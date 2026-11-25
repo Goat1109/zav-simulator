@@ -1,0 +1,55 @@
+# Dragon Q6A / ROS 2 Humble / NXT PX4 v2 / Mid360s.
+# No simulator paths, clocks, relay or offboard controller are used.
+publish_enabled: false   # launch publish:=true only after bench checks below
+firmware_abi_verified: false  # run scripts/prepare_px4.py on the actual FC source first
+expected_firmware: [1, 14, 3] # supplied px4_msgs is release/1.14; actual FC version still needs confirmation
+calibration_verified: true  # user confirms same body/Mid360s mount as simulator
+
+odom_topic: /zav/lio/odometry
+odom_parent: camera_init
+odom_child: mid360_imu
+px4_prefix: /fmu
+status_prefix: /zav_real
+rate_hz: 50.0
+max_odom_age_s: 0.25
+max_feedback_age_s: 1.0
+max_timesync_age_s: 2.0
+max_timesync_rtt_us: 20000
+max_px4_clock_skew_s: 0.5
+
+# T_BI: IMU origin in body-FLU; R_BI maps IMU vectors into body-FLU.
+# User-specified body-FLU mounts, position xyz [m], rotation ZYX [deg]:
+# LiDAR: [0.01215,0,0.11503], [0,22,0]
+# Camera mechanical frame: [0.03215,0,0.03503], [0,0,0]
+# Mid360s IMU: [0.03888,0.02329,0.15182], [0,22,0]
+# Camera optical extrinsics remain in the existing FAST-LIVO calibration.
+body_from_imu_q_wxyz: [0.981627183447664, 0.0, 0.1908089953765448, 0.0]
+imu_position_body_flu_m: [0.03888, 0.02329, 0.15182]
+# Bridge removes the lever arm: configure EKF2_EV_POS_X/Y/Z=0 to avoid removing it twice.
+position_variance_m2: [0.04, 0.04, 0.04]
+orientation_variance_rad2: [0.03, 0.03, 0.03]
+velocity_variance_m2_s2: [0.04, 0.04, 0.04]
+
+motion:
+  position_slack: 0.5
+  velocity_slack: 0.3
+  max_acceleration: 20.0
+  angle_slack_deg: 20.0
+  max_angular_rate: 4.0
+  prediction_horizon: 0.25
+baro_activation_timeout_s: 3.0
+respect_rc_takeover: true  # explicit pilot mode change to Altitude/Stabilized/Manual stops LAND retries
+source_system: 255
+source_component: 191
+
+# Two independent links. NEVER open the same UART with both protocols.
+agent:
+  transport: serial
+  device: /dev/serial/by-id/REPLACE_WITH_DDS_USB_TTL
+  baud: 921600
+  udp_port: 8888
+  domain_id: 23
+mavlink:
+  connection: /dev/serial/by-id/REPLACE_WITH_FC_MAVLINK_USB
+  baud: 115200
+  # Future GPIO change: edit agent.device/baud only, after verifying pinmux and voltage.

@@ -1,2 +1,2 @@
-build/
-# Runtime outputs are ignored by the workspace root .gitignore.
+Log/*
+build/*

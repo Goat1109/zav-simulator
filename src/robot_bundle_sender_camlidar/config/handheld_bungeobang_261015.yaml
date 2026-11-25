@@ -1,0 +1,70 @@
+# robot_bundle_sender_camlidar parameters, converted from mapping_data_sender/config/handheld_bungeobang_261015.yaml (2026-10-21).
+# Same topics, calibration and per-frame point filter; images go into one H.264 segment per bundle instead of JPEGs.
+/**:
+  ros__parameters:
+    # Input: synchronised like mapping_data_sender (ApproximateTime, image stamp is the frame stamp)
+    image_topic: '/camera/image_raw' # '/handheld/rgb_img'
+    pointcloud_topic: '/lio/cloud_body' # '/handheld/point_cloud'
+    pose_topic: '/lio/robo/odom' # '/handheld/pose'
+    queue_size: 10
+    slop: 0.1
+    send_every_n_frames: 2
+
+    # Session
+    robot_id: 'handheld_bungeoubang_261015'
+    session: ''                             # folder name on the server; empty = robot_id
+
+    # Calibration of the images as captured; the server undistorts after decoding (same OpenCV calls as mapping_data_sender)
+    camera_fx: 380.495
+    camera_fy: 380.36
+    camera_cx: 316.29
+    camera_cy: 235.84
+    camera_distortion: [0.09429068724194359, 0.028697744491473935, 0.030730673839559602, -0.015535758103309179]
+    distortion_model: 'fisheye'  # plumb_bob(k1,k2,p1,p2) | fisheye(k1,k2,k3,k4)
+    image_width: 640
+    image_height: 512
+    # T_lidar_cam: [-0.0130250257, -0.9998437270, 0.0119528336, 0.0048908443,
+    #                            0.3717518635, -0.0159391323, -0.9281952898, -0.0917978187,
+    #                            0.9282407558, -0.0076462794, 0.3719013763, -0.0041648290,
+    #                            0.0,    0.0,   0.0,   1.0]
+    T_base_cam: [-0.0130250257, 0.3717518635, 0.9282407558, 0.0380556776,
+                  -0.999843727, -0.0159391323, -0.0076462794, 0.003395057,
+                  0.0119528336, -0.9281952898, 0.3719013763, -0.0837158567,
+                  0.0, 0.0, 0.0, 1.0]
+    T_base_lidar: [1.0, 0.0, 0.0, 0.0,
+                  0.0, 1.0, 0.0, 0.0,
+                  0.0, 0.0, 1.0, 0.0,
+                  0.0, 0.0, 0.0, 1.0]
+
+    # Per-frame points (temporal geometry): kept per frame, LiDAR frame, int16
+    frame_voxel_size: 0.1                 # one point per voxel per frame (mapping_data_sender voxel_size)
+    point_scale_m: 0.01                     # int16 step (INT16_CM)
+    min_range_m: 0.0
+    max_range_m: 0.0                        # 0 = no limit
+    compress_points: true                   # zlib
+    point_codec: 'draco'                     # zlib | draco (per frame, 1 cm grid, lossless on it; 1.6x (Mid-360) ~ 2.3x (128-beam) smaller)
+    draco_speed: 9                          # Draco speed 0..10; 9 = best size/speed trade-off (10 is barely better than zlib)
+    codec_threads: 1                        # Draco worker threads (frames encoded in parallel off the ROS callback)
+
+    # Bundle = transmission unit: one package every bundle_distance metres of travel.
+    # Keep it equal to the server's submap_distance so one bundle becomes one submap.
+    bundle_distance: 40.0
+    flush_on_shutdown: true                 # send the last partial bundle when the node stops
+    min_flush_distance: 0.0
+
+    # Video: one H.264 segment per bundle, encoded while the frames arrive (ffmpeg child process)
+    ffmpeg_path: 'ffmpeg'
+    video_codec: 'libx264'                  # or a hardware encoder ffmpeg offers on the board (e.g. h264_v4l2m2m)
+    video_bitrate: '1M'
+    video_preset: 'veryfast'
+    video_gop: 20                           # key frame every 2 s at 10 Hz
+    video_threads: 1
+    video_nominal_fps: 10.0                 # container only; real stamps travel per frame
+    video_tmp_dir: '/tmp'
+
+    # Transfer (server_bundle_receiver)
+    grpc_server: '100.111.222.99:50053'
+    send_queue_size: 8
+    retry_interval_s: 2.0
+    rpc_timeout_s: 60.0
+    backup_dir: ''                          # also write every bundle here as <session>_<index>.pb (--ingest)

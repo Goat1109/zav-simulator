@@ -1,0 +1,60 @@
+# Dragon Q6A / ROS 2 Humble / NXT PX4 v2 / Mid360s.
+# No simulator paths or clocks. Offboard test output is opt-in via rc_flight offboard:=true.
+publish_enabled: false   # launch publish:=true only after bench checks below
+transport: mavlink
+firmware_verified: true  # PX4 1.17.0 v3 boot/status checked; FC EV guard remains disabled pending bench verification
+expected_firmware: [1, 17, 0] # HKUST_NXT_DUAL v1.17.0 EV guard v3
+calibration_verified: true  # user confirms same body/Mid360s mount as simulator
+
+odom_topic: /zav/lio/odometry
+odom_parent: camera_init
+odom_child: mid360_imu
+status_prefix: /zav_real
+rate_hz: 50.0
+max_odom_age_s: 0.25
+max_feedback_age_s: 1.0
+max_timesync_age_s: 2.0
+
+# T_BI: IMU origin in body-FLU; R_BI maps IMU vectors into body-FLU.
+# User-specified body-FLU mounts, position xyz [m], rotation ZYX [deg]:
+# LiDAR: [0.01215,0,0.11503], [0,22,0]
+# Camera mechanical frame: [0.03215,0,0.03503], [0,0,0]
+# Mid360s IMU: [0.03888,0.02329,0.15182], [0,22,0]
+# Camera optical extrinsics remain in the existing FAST-LIVO calibration.
+body_from_imu_q_wxyz: [0.981627183447664, 0.0, 0.1908089953765448, 0.0]
+imu_position_body_flu_m: [0.03888, 0.02329, 0.15182]
+# Bridge removes the lever arm: configure EKF2_EV_POS_X/Y/Z=0 to avoid removing it twice.
+position_variance_m2: [0.04, 0.04, 0.04]
+orientation_variance_rad2: [0.03, 0.03, 0.03]
+velocity_variance_m2_s2: [0.04, 0.04, 0.04]
+
+motion:
+  position_slack: 0.5
+  velocity_slack: 0.3
+  max_acceleration: 20.0
+  angle_slack_deg: 20.0
+  max_angular_rate: 4.0
+  prediction_horizon: 0.25
+baro_activation_timeout_s: 3.0
+respect_rc_takeover: true  # RC mode-channel change + manual/altitude/stabilized heartbeat stops LAND retries
+source_system: 255
+source_component: 191
+
+# One physical link: Radxa USB -> USB-TTL -> FC TELEM2. No DDS/Agent/MAVROS.
+ros_domain_id: 119
+
+mavlink:
+  connection: /dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A50285BI-if00-port0
+  baud: 921600
+  # Keep PX4's 500 valid samples. Speed up only the initial message exchange.
+  timesync_initial_rate_hz: 100
+  timesync_steady_rate_hz: 10
+  # Applied and read back on the actual FTDI tty at each bridge startup.
+  ftdi_latency_timer_ms: 1
+  heartbeat_timeout_s: 3.0
+  target_system: 1
+  target_component: 1
+  rc_mode_switch: swB  # Physical transmitter label; not an RC channel number.
+  rc_mode_channel: 0  # 0=read RC_MAP_FLTMODE from FC; or set verified channel 1..18. Unknown mapping blocks live EV.
+  rc_switch_delta_us: 150
+  # Future GPIO UART: change connection and baud after verifying pinmux/voltage.

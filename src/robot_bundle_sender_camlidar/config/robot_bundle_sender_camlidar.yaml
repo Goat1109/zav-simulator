@@ -1,0 +1,58 @@
+/**:
+  ros__parameters:
+    # Input: synchronised like mapping_data_sender (ApproximateTime, image stamp is the frame stamp)
+    image_topic: '/camera/image_raw'        # bgr8 / rgb8 / mono8
+    pointcloud_topic: '/cloud_registered_local'
+    pose_topic: '/aft_mapped_to_init'       # nav_msgs/Odometry, world <- base
+    queue_size: 10
+    slop: 0.1
+    send_every_n_frames: 1                  # keep every n-th synchronised frame
+
+    # Session
+    robot_id: 'robot'
+    session: ''                             # folder name on the server; empty = robot_id
+
+    # Calibration of the images as captured; the server undistorts after decoding (same OpenCV calls as mapping_data_sender)
+    camera_fx: 0.0
+    camera_fy: 0.0
+    camera_cx: 0.0
+    camera_cy: 0.0
+    camera_distortion: [0.0, 0.0, 0.0, 0.0] # fisheye k1..k4 or plumb_bob k1,k2,p1,p2; all zero = no undistortion
+    distortion_model: 'plumb_bob'           # plumb_bob | fisheye
+    image_width: 0
+    image_height: 0
+    T_base_cam: [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]    # row-major 4x4
+    T_base_lidar: [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+
+    # Per-frame points (temporal geometry): kept per frame, LiDAR frame, int16
+    frame_voxel_size: 0.1                   # one point per voxel per frame, like mapping_data_sender voxel_size (0 = all)
+    point_scale_m: 0.01                     # int16 step (1 cm, range +-327 m)
+    min_range_m: 0.0
+    max_range_m: 0.0                        # 0 = no limit
+    compress_points: true                   # false = send the int16 points uncompressed
+    point_codec: 'zlib'                     # zlib | draco (per frame, 1 cm grid, lossless on it; 1.6x (Mid-360) ~ 2.3x (128-beam) smaller)
+    draco_speed: 9                          # Draco speed 0..10; 9 = best size/speed trade-off (10 is barely better than zlib)
+    codec_threads: 2                        # Draco worker threads (frames encoded in parallel off the ROS callback)
+
+    # Bundle = transmission unit: one package every bundle_distance metres of travel.
+    # Keep it equal to the server's submap_distance so one bundle becomes one submap.
+    bundle_distance: 40.0
+    flush_on_shutdown: true                 # send the last partial bundle when the node stops
+    min_flush_distance: 0.0
+
+    # Video: one H.264 segment per bundle, encoded while the frames arrive (ffmpeg child process)
+    ffmpeg_path: 'ffmpeg'
+    video_codec: 'libx264'                  # or a hardware encoder ffmpeg offers on the board (e.g. h264_v4l2m2m)
+    video_bitrate: '1M'
+    video_preset: 'veryfast'
+    video_gop: 20                           # key frame every 2 s at 10 Hz
+    video_threads: 1
+    video_nominal_fps: 10.0                 # container only; real stamps travel per frame
+    video_tmp_dir: '/tmp'
+
+    # Transfer (server_bundle_receiver, camlidar port)
+    grpc_server: '127.0.0.1:50053'
+    send_queue_size: 8
+    retry_interval_s: 2.0
+    rpc_timeout_s: 60.0
+    backup_dir: ''                          # also write every package here as <session>_<index>.pb (--ingest-camlidar)

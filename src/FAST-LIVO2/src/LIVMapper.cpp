@@ -33,6 +33,7 @@ LIVMapper::LIVMapper(rclcpp::Node::SharedPtr &nh)
   feats_down_body.reset(new PointCloudXYZI());
   feats_down_world.reset(new PointCloudXYZI());
   pcl_w_wait_pub.reset(new PointCloudXYZI());
+  pcl_b_wait_pub.reset(new PointCloudXYZI());
   pcl_wait_pub.reset(new PointCloudXYZI());
   pcl_wait_save.reset(new PointCloudXYZRGB());
   pcl_wait_save_intensity.reset(new PointCloudXYZI());
@@ -225,7 +226,12 @@ void LIVMapper::initializeSubscribersAndPublishers(rclcpp::Node::SharedPtr &nh, 
   imu_qos.best_effort();
 
   rclcpp::QoS img_qos(5);
-  img_qos.best_effort();
+  // Large raw images can lose complete frames with best-effort transport.
+  // Keep compatibility with best-effort cameras unless explicitly requested.
+  if (nh->declare_parameter<bool>("common.img_reliable", false))
+    img_qos.reliable();
+  else
+    img_qos.best_effort();
 
   if (p_pre->lidar_type == AVIA)
   {
@@ -239,6 +245,7 @@ void LIVMapper::initializeSubscribersAndPublishers(rclcpp::Node::SharedPtr &nh, 
   sub_img = nh->create_subscription<sensor_msgs::msg::Image>(img_topic, img_qos, std::bind(&LIVMapper::img_cbk, this, std::placeholders::_1));
 
   pubLaserCloudFullRes = nh->create_publisher<sensor_msgs::msg::PointCloud2>("/cloud_registered", 100);
+  pubLaserCloudBody = nh->create_publisher<sensor_msgs::msg::PointCloud2>("/cloud_registered_body", 100);
   pubNormal = nh->create_publisher<visualization_msgs::msg::MarkerArray>("visualization_marker", 100);
   pubSubVisualMap = nh->create_publisher<sensor_msgs::msg::PointCloud2>("/cloud_visual_sub_map_before", 100);
   pubLaserCloudEffect = nh->create_publisher<sensor_msgs::msg::PointCloud2>("/cloud_effected", 100);
@@ -252,7 +259,12 @@ void LIVMapper::initializeSubscribersAndPublishers(rclcpp::Node::SharedPtr &nh, 
   pubLaserCloudDynDbg = nh->create_publisher<sensor_msgs::msg::PointCloud2>("/dyn_obj_dbg_hist", 100);
   mavros_pose_publisher = nh->create_publisher<geometry_msgs::msg::PoseStamped>("/mavros/vision_pose/pose", 10);
   pubImage = it.advertise("/rgb_img", 1);
+  pubImageOdometry = it.advertise("/image_odometry", 1);
   pubImuPropOdom = nh->create_publisher<nav_msgs::msg::Odometry>("/LIVO2/imu_propagate", 10000);
+  // Opt-in contract for the real FC bridge; preserve existing world-velocity topics.
+  px4_odom_en = nh->declare_parameter<bool>("uav.px4_odom_en", false);
+  if (px4_odom_en)
+    pubPx4Odom = nh->create_publisher<nav_msgs::msg::Odometry>("/zav/lio/odometry", 20);
   imu_prop_timer = nh->create_wall_timer(std::chrono::milliseconds(4), std::bind(&LIVMapper::imu_prop_callback, this));
   voxelmap_manager->voxel_map_pub_ = nh->create_publisher<visualization_msgs::msg::MarkerArray>("/planes", 10000);
 }
@@ -494,6 +506,7 @@ void LIVMapper::handleLIO()
     RGBpointBodyToWorld(&laserCloudFullRes->points[i], &laserCloudWorld->points[i]);
   }
   *pcl_w_wait_pub = *laserCloudWorld;
+  *pcl_b_wait_pub = *laserCloudFullRes;
 
   if (!img_en)
     publish_frame_world(pubLaserCloudFullRes, vio_manager);
@@ -674,10 +687,9 @@ void LIVMapper::imu_prop_callback()
     V3D posi, vel_i;
     Eigen::Quaterniond q;
     posi = imu_propagate.pos_end;
-    vel_i = imu_propagate.rot_end.transpose() * imu_propagate.vel_end;
+    vel_i = imu_propagate.vel_end;
     q = Eigen::Quaterniond(imu_propagate.rot_end);
-    imu_prop_odom.header.frame_id = "camera_init";
-    imu_prop_odom.child_frame_id = "aft_mapped";
+    imu_prop_odom.header.frame_id = "world";
     imu_prop_odom.header.stamp = newest_imu.header.stamp;
     imu_prop_odom.pose.pose.position.x = posi.x();
     imu_prop_odom.pose.pose.position.y = posi.y();
@@ -689,10 +701,25 @@ void LIVMapper::imu_prop_callback()
     imu_prop_odom.twist.twist.linear.x = vel_i.x();
     imu_prop_odom.twist.twist.linear.y = vel_i.y();
     imu_prop_odom.twist.twist.linear.z = vel_i.z();
-    for (int axis = 0; axis < 3; ++axis)
-      imu_prop_odom.twist.covariance[axis * 7] = 0.04;
-    imu_prop_odom.twist.twist.angular = newest_imu.angular_velocity;
     pubImuPropOdom->publish(imu_prop_odom);
+    if (px4_odom_en && rclcpp::Time(newest_imu.header.stamp).seconds() >= latest_ekf_time)
+    {
+      // nav_msgs/Odometry: pose is W<-IMU; twist is in the child IMU frame.
+      // Use the measurement stamp, never wall/publication time.
+      auto px4_odom = imu_prop_odom;
+      px4_odom.header.frame_id = "camera_init";
+      px4_odom.child_frame_id = "mid360_imu";
+      const V3D v_child = imu_propagate.rot_end.transpose() * vel_i;
+      px4_odom.twist.twist.linear.x = v_child.x();
+      px4_odom.twist.twist.linear.y = v_child.y();
+      px4_odom.twist.twist.linear.z = v_child.z();
+      px4_odom.twist.twist.angular.x = newest_imu.angular_velocity.x - imu_propagate.bias_g.x();
+      px4_odom.twist.twist.angular.y = newest_imu.angular_velocity.y - imu_propagate.bias_g.y();
+      px4_odom.twist.twist.angular.z = newest_imu.angular_velocity.z - imu_propagate.bias_g.z();
+      // Covariance is intentionally not fabricated. The bridge uses documented,
+      // configurable variance floors; this is not a calibrated quality score.
+      pubPx4Odom->publish(px4_odom);
+    }
   }
   mtx_buffer_imu_prop.unlock();
 }
@@ -1245,11 +1272,24 @@ void LIVMapper::publish_img_rgb(const image_transport::Publisher &pubImage, VIOM
 {
   cv::Mat img_rgb = vio_manager->img_cp;
   cv_bridge::CvImage out_msg;
-  out_msg.header.stamp = nh_->now();
+  if (LidarMeasures.last_lio_update_time > 0.0)
+    out_msg.header.stamp = rclcpp::Time(static_cast<uint64_t>(LidarMeasures.last_lio_update_time * 1e9));
+  else
+    out_msg.header.stamp = nh_->now();
   // out_msg.header.frame_id = "camera_init";
   out_msg.encoding = sensor_msgs::image_encodings::BGR8;
   out_msg.image = img_rgb;
   pubImage.publish(out_msg.toImageMsg());
+
+  if (pubImageOdometry.getTopic() != "")
+  {
+    cv_bridge::CvImage odom_img_msg;
+    odom_img_msg.header.stamp = out_msg.header.stamp;
+    odom_img_msg.header.frame_id = "aft_mapped";
+    odom_img_msg.encoding = sensor_msgs::image_encodings::BGR8;
+    odom_img_msg.image = vio_manager->img_rgb;
+    pubImageOdometry.publish(odom_img_msg.toImageMsg());
+  }
 }
 
 void LIVMapper::publish_frame_world(const rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr &pubLaserCloudFullRes, VIOManagerPtr vio_manager)
@@ -1316,9 +1356,21 @@ void LIVMapper::publish_frame_world(const rclcpp::Publisher<sensor_msgs::msg::Po
   {
     pcl::toROSMsg(*pcl_w_wait_pub, laserCloudmsg);
   }
-  laserCloudmsg.header.stamp = nh_->now(); //.fromSec(last_timestamp_lidar);
+  if (LidarMeasures.last_lio_update_time > 0.0)
+    laserCloudmsg.header.stamp = rclcpp::Time(static_cast<uint64_t>(LidarMeasures.last_lio_update_time * 1e9));
+  else
+    laserCloudmsg.header.stamp = nh_->now();
   laserCloudmsg.header.frame_id = "camera_init";
   pubLaserCloudFullRes->publish(laserCloudmsg);
+
+  if (pubLaserCloudBody && !pcl_b_wait_pub->empty())
+  {
+    sensor_msgs::msg::PointCloud2 laserCloudBodyMsg;
+    pcl::toROSMsg(*pcl_b_wait_pub, laserCloudBodyMsg);
+    laserCloudBodyMsg.header.stamp = laserCloudmsg.header.stamp;
+    laserCloudBodyMsg.header.frame_id = "aft_mapped";
+    pubLaserCloudBody->publish(laserCloudBodyMsg);
+  }
 
   /**************** save map ****************/
   /* 1. make sure you have enough memories
@@ -1367,6 +1419,7 @@ void LIVMapper::publish_frame_world(const rclcpp::Publisher<sensor_msgs::msg::Po
   if (laserCloudWorldRGB->size() > 0)
     PointCloudXYZI().swap(*pcl_wait_pub);
   PointCloudXYZI().swap(*pcl_w_wait_pub);
+  PointCloudXYZI().swap(*pcl_b_wait_pub);
 }
 
 void LIVMapper::publish_visual_sub_map(const rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr &pubSubVisualMap)
@@ -1420,18 +1473,11 @@ void LIVMapper::publish_odometry(const rclcpp::Publisher<nav_msgs::msg::Odometry
 {
   odomAftMapped.header.frame_id = "camera_init";
   odomAftMapped.child_frame_id = "aft_mapped";
-  // Preserve the state measurement time; publication can lag the scan.
-  odomAftMapped.header.stamp = rclcpp::Time(
-      static_cast<int64_t>(LidarMeasures.last_lio_update_time * 1e9));
+  if (LidarMeasures.last_lio_update_time > 0.0)
+    odomAftMapped.header.stamp = rclcpp::Time(static_cast<uint64_t>(LidarMeasures.last_lio_update_time * 1e9));
+  else
+    odomAftMapped.header.stamp = nh_->now();
   set_posestamp(odomAftMapped.pose.pose);
-  // nav_msgs/Odometry twist is expressed in child (IMU) coordinates.
-  const V3D body_velocity = _state.rot_end.transpose() * _state.vel_end;
-  odomAftMapped.twist.twist.linear.x = body_velocity.x();
-  odomAftMapped.twist.twist.linear.y = body_velocity.y();
-  odomAftMapped.twist.twist.linear.z = body_velocity.z();
-  // Positive covariance also identifies the implemented velocity contract.
-  for (int axis = 0; axis < 3; ++axis)
-    odomAftMapped.twist.covariance[axis * 7] = 0.04;
 
   static tf2_ros::TransformBroadcaster br(*nh_);
   tf2::Transform transform;
@@ -1449,13 +1495,20 @@ void LIVMapper::publish_odometry(const rclcpp::Publisher<nav_msgs::msg::Odometry
   tf2::toMsg(transform, t.transform);
   br.sendTransform(t);
 
+  geometry_msgs::msg::TransformStamped t_body;
+  t_body.header.stamp = odomAftMapped.header.stamp;
+  t_body.header.frame_id = "aft_mapped";
+  t_body.child_frame_id = "body";
+  t_body.transform.rotation.w = 1.0;
+  br.sendTransform(t_body);
+
   // br.sendTransform(tf2::toMsg(transform, odomAftMapped.header.stamp, "camera_init", "aft_mapped"));
   pubOdomAftMapped->publish(odomAftMapped);
 }
 
 void LIVMapper::publish_mavros(const rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr &mavros_pose_publisher)
 {
-  msg_body_pose.header.stamp = nh_->now();
+  msg_body_pose.header.stamp = odomAftMapped.header.stamp;
   msg_body_pose.header.frame_id = "camera_init";
   set_posestamp(msg_body_pose.pose);
   mavros_pose_publisher->publish(msg_body_pose);
@@ -1464,7 +1517,7 @@ void LIVMapper::publish_mavros(const rclcpp::Publisher<geometry_msgs::msg::PoseS
 void LIVMapper::publish_path(const rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr pubPath)
 {
   set_posestamp(msg_body_pose.pose);
-  msg_body_pose.header.stamp = nh_->now();
+  msg_body_pose.header.stamp = odomAftMapped.header.stamp;
   msg_body_pose.header.frame_id = "camera_init";
   path.poses.push_back(msg_body_pose);
   pubPath->publish(path);

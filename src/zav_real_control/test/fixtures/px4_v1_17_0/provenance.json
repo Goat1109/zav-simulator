@@ -1,0 +1,26 @@
+{
+  "src/modules/mavlink/streams/ESTIMATOR_STATUS.hpp": {
+    "url": "https://raw.githubusercontent.com/PX4/PX4-Autopilot/v1.17.0/src/modules/mavlink/streams/ESTIMATOR_STATUS.hpp",
+    "sha256": "a1309c95708896fed0b68bd4593c817c04319eb7203e0d84459e857a3a77e860"
+  },
+  "src/modules/mavlink/mavlink_timesync.cpp": {
+    "url": "https://raw.githubusercontent.com/PX4/PX4-Autopilot/v1.17.0/src/modules/mavlink/mavlink_timesync.cpp",
+    "sha256": "83263feaa9e8d5cf8770cc9e55b5bc8ac76bbb9408ef99949326dd24a41bd217"
+  },
+  "src/lib/timesync/Timesync.hpp": {
+    "url": "https://raw.githubusercontent.com/PX4/PX4-Autopilot/v1.17.0/src/lib/timesync/Timesync.hpp",
+    "sha256": "3f4ca7941d101b0bdc7ce7ebb8f0d352cd974442cb648db83ac1aa346ecc6e6b"
+  },
+  "msg/EstimatorAidSource1d.msg": {
+    "url": "https://raw.githubusercontent.com/PX4/PX4-Autopilot/v1.17.0/msg/EstimatorAidSource1d.msg",
+    "sha256": "de37c10bf282c9d844d984e8a9a73536dd9e9e3c7b46e7bb9ef0fcf18c9149ee"
+  },
+  "msg/EstimatorStatusFlags.msg": {
+    "url": "https://raw.githubusercontent.com/PX4/PX4-Autopilot/v1.17.0/msg/EstimatorStatusFlags.msg",
+    "sha256": "dbe714087ebd463317f51bf53a392d5a41f9f5d3524a1e080eda2649980f642b"
+  },
+  "src/modules/ekf2/EKF2.cpp": {
+    "url": "https://raw.githubusercontent.com/PX4/PX4-Autopilot/v1.17.0/src/modules/ekf2/EKF2.cpp",
+    "sha256": "1984b373bb7712dcdf1dba6bc8efb1511e3aeebcf7da3a08bd2738fac790df06"
+  }
+}

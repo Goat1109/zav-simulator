@@ -1,7 +1,7 @@
 /laserMapping:
   ros__parameters:
     common:
-      img_en: 0
+      img_en: 1
       img_topic: /camera/image_raw
       imu_topic: /livox/imu
       lid_topic: /livox/lidar
@@ -61,14 +61,14 @@
       min_eigen_value: 0.0025
       voxel_size: 0.5
     local_map:
-      half_map_size: 300
+      half_map_size: 500
       map_sliding_en: false
-      sliding_thresh: 15.0
+      sliding_thresh: 20.0
     pcd_save:
       colmap_output_en: false
-      filter_size_pcd: 0.05
+      filter_size_pcd: 0.1
       interval: -1
-      pcd_save_en: true
+      pcd_save_en: false
     preprocess:
       blind: 0.5
       filter_size_surf: 0.1

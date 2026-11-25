@@ -1,4 +1,4 @@
-.vscode/
-build/
-__pycache__/
-# ROS 2 package.xml is part of this simulator snapshot.
+.vscode
+build
+package.xml
+__pycache__

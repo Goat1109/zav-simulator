@@ -1,0 +1,106 @@
+diff --git a/src/modules/ekf2/EKF2.cpp b/src/modules/ekf2/EKF2.cpp
+index f93f590..4bfa78e 100644
+--- a/src/modules/ekf2/EKF2.cpp
++++ b/src/modules/ekf2/EKF2.cpp
+@@ -235,6 +235,12 @@ void EKF2::AdvertiseTopics()
+ 	_estimator_sensor_bias_pub.advertise();
+ 	_estimator_status_pub.advertise();
+ 	_estimator_status_flags_pub.advertise();
++#if defined(CONFIG_EKF2_BAROMETER)
++    // ZAV_SINGLE_LINK_BARO_INSTANCE: reserve in constructor order even with BARO_CTRL=0.
++    // Deferred advertisement can assign aid-source topics to a different EKF index.
++    _estimator_aid_src_baro_hgt_pub.advertise();
++#endif // CONFIG_EKF2_BAROMETER
++
+ 
+ 	if (_multi_mode) {
+ 		// only force advertise these in multi mode to ensure consistent uORB instance numbering
+diff --git a/src/modules/mavlink/mavlink_timesync.cpp b/src/modules/mavlink/mavlink_timesync.cpp
+index c9df0a4..83c88ac 100644
+--- a/src/modules/mavlink/mavlink_timesync.cpp
++++ b/src/modules/mavlink/mavlink_timesync.cpp
+@@ -73,6 +73,11 @@ MavlinkTimesync::handle_message(const mavlink_message_t *msg)
+ 			} else if (tsync.tc1 > 0) {		// Message originating from this system, compute time offset from it
+ 
+ 				_timesync.update(now, tsync.tc1, tsync.ts1);
++            // ZAV_SINGLE_LINK_SYNC: report the FC filter's actual convergence, not an SBC guess.
++            const char name[10] = "zav_sync";
++            mavlink_msg_named_value_float_send(_mavlink.get_channel(), now / 1000,
++                name, _timesync.sync_converged() ? 1.f : 0.f);
++
+ 			}
+ 
+ 			break;
+diff --git a/src/modules/mavlink/streams/ESTIMATOR_STATUS.hpp b/src/modules/mavlink/streams/ESTIMATOR_STATUS.hpp
+index 0a27a90..b119383 100644
+--- a/src/modules/mavlink/streams/ESTIMATOR_STATUS.hpp
++++ b/src/modules/mavlink/streams/ESTIMATOR_STATUS.hpp
+@@ -36,6 +36,9 @@
+ 
+ #include <uORB/topics/estimator_selector_status.h>
+ #include <uORB/topics/estimator_status.h>
++#include <uORB/topics/estimator_status_flags.h>
++#include <uORB/topics/estimator_aid_source1d.h>
++#include <drivers/drv_hrt.h>
+ 
+ class MavlinkStreamEstimatorStatus : public MavlinkStream
+ {
+@@ -50,7 +53,7 @@ public:
+ 
+ 	unsigned get_size() override
+ 	{
+-		return _estimator_status_sub.advertised() ? MAVLINK_MSG_ID_ESTIMATOR_STATUS_LEN + MAVLINK_NUM_NON_PAYLOAD_BYTES : 0;
++		return _estimator_status_sub.advertised() ? MAVLINK_MSG_ID_ESTIMATOR_STATUS_LEN + MAVLINK_NUM_NON_PAYLOAD_BYTES + MAVLINK_MSG_ID_NAMED_VALUE_FLOAT_LEN + MAVLINK_NUM_NON_PAYLOAD_BYTES : 0;
+ 	}
+ 
+ private:
+@@ -58,6 +61,8 @@ private:
+ 
+ 	uORB::Subscription _estimator_selector_status_sub{ORB_ID(estimator_selector_status)};
+ 	uORB::Subscription _estimator_status_sub{ORB_ID(estimator_status)};
++	uORB::Subscription _zav_baro_sub{ORB_ID(estimator_aid_src_baro_hgt)};
++	uORB::Subscription _zav_flags_sub{ORB_ID(estimator_status_flags)};
+ 
+ 	bool send() override
+ 	{
+@@ -72,6 +77,40 @@ private:
+ 			}
+ 		}
+ 
++        // ZAV_SINGLE_LINK_BARO: primary EKF baro diagnostics for PX4 v1.17.0.
++        const auto zav_primary = _estimator_status_sub.get_instance();
++        estimator_selector_status_s zav_selector{};
++        bool zav_instance_ok = !_estimator_selector_status_sub.advertised()
++            || (_estimator_selector_status_sub.copy(&zav_selector)
++                && zav_selector.primary_instance == zav_primary);
++        if (_zav_baro_sub.get_instance() != zav_primary) {
++            zav_instance_ok = _zav_baro_sub.ChangeInstance(zav_primary) && zav_instance_ok;
++        }
++        if (_zav_flags_sub.get_instance() != zav_primary) {
++            zav_instance_ok = _zav_flags_sub.ChangeInstance(zav_primary) && zav_instance_ok;
++        }
++        estimator_aid_source1d_s zav_baro{};
++        estimator_status_flags_s zav_flags{};
++        if (zav_instance_ok && _zav_baro_sub.update(&zav_baro)
++            && _zav_flags_sub.copy(&zav_flags)
++            && zav_baro.estimator_instance == zav_primary
++            && zav_baro.timestamp_sample > 0
++            && hrt_elapsed_time(&zav_baro.timestamp_sample) < 500000
++            // Status flags publish at 1 Hz, and immediately on status changes.
++            && zav_flags.timestamp > 0
++            && hrt_elapsed_time(&zav_flags.timestamp) < 2000000) {
++            const bool good = zav_flags.cs_baro_hgt && zav_baro.fused
++                && zav_baro.time_last_fuse > 0
++                && hrt_elapsed_time(&zav_baro.time_last_fuse) < 500000
++                && !zav_baro.innovation_rejected && PX4_ISFINITE(zav_baro.test_ratio)
++                && zav_baro.test_ratio >= 0.f && zav_baro.test_ratio <= 1.f;
++            const int bits = (zav_flags.cs_baro_hgt ? 1 : 0) | (good ? 2 : 0)
++                | (zav_baro.innovation_rejected ? 4 : 0);
++            const char name[10] = "zav_baro";
++            mavlink_msg_named_value_float_send(_mavlink->get_channel(),
++                hrt_absolute_time() / 1000, name, static_cast<float>(bits));
++        }
++
+ 		estimator_status_s est;
+ 
+ 		if (_estimator_status_sub.update(&est)) {

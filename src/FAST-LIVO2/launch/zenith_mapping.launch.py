@@ -21,6 +21,14 @@ def generate_launch_description():
     )
     ld.add_action(camera_launch_arg)
 
+    use_pcd_save = LaunchConfiguration('pcd_save')
+    pcd_save_launch_arg = DeclareLaunchArgument(
+        'pcd_save',
+        default_value='False',
+        description='Enable saving full PCD map at exit (True to save, False to skip)'
+    )
+    ld.add_action(pcd_save_launch_arg)
+
     fast_livo_share = get_package_share_directory('fast_livo')
     livo_params_file = os.path.join(fast_livo_share, 'config', 'zenith.yaml')
     camera_params_file = os.path.join(fast_livo_share, 'config', 'zenith_camera_pinhole.yaml')
@@ -31,6 +39,11 @@ def generate_launch_description():
         value_type=int
     )
 
+    pcd_save_en_param = ParameterValue(
+        PythonExpression(['True if "', use_pcd_save, '" in ["True", "true", "1"] else False']),
+        value_type=bool
+    )
+
     livo = Node(
         package='fast_livo',
         executable='fastlivo_mapping',
@@ -38,7 +51,8 @@ def generate_launch_description():
         parameters=[
             livo_params_file,
             camera_params_file,
-            {'common.img_en': img_en_param}
+            {'common.img_en': img_en_param},
+            {'pcd_save.pcd_save_en': pcd_save_en_param}
         ],
         output="screen"
     )

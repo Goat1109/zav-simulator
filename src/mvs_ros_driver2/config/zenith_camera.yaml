@@ -1,0 +1,35 @@
+%YAML:1.0
+
+#--------------------------------------------------------------------------------------------
+# Zenith Drone - Hikrobot MV-CU013-A0UC Camera Configuration
+#--------------------------------------------------------------------------------------------
+
+# Serial number (leave blank or comment if single camera)
+# SerialNumber: "DA7036691"
+
+# Topic Name published to ROS 2
+TopicName: "/camera/image_raw"
+
+# Hardware Trigger: 0 for Free-run (Continuous USB 10Hz), 1 for Hardware Pin Trigger
+TriggerEnable: 0
+
+# Frame Rate (Hz) for Free-run mode (10.0 Hz matches Livox LiDAR & FAST-LIVO2 paper)
+FrameRate: 10.0
+
+# Exposure Settings
+# ExposureAutoMode: 0 = Off, 1 = Once, 2 = Continuous
+ExposureAutoMode: 2
+ExposureTime: 15000 # us (used when ExposureAutoMode is 0)
+AutoExposureTimeLower: 500
+AutoExposureTimeUpper: 20000
+
+# Image & Gain Settings
+Binning: 2          # 2x2 Hardware Binning on camera sensor (transmits native 640x512 over USB, 75% bandwidth reduction)
+image_scale: 1.0    # 1.0 (Hardware binning directly outputs 640x512, no software downsampling needed)
+GainAuto: 2        # 0 = Off, 1 = Once, 2 = Continuous
+Gain: 6.0         # Used only when GainAuto is 0 (manual gain in dB)
+Gamma: 0.7         # Used only when GammaSelector is 1 (User)
+GammaSelector: 1   # MVS SDK values: 1 = User, 2 = fixed sRGB curve
+
+# Pixel Format: 0: RGB8, 1: BayerRG8, 2: BayerRG12Packed, 3: BayerGB12Packed, 4: BayerGB8
+PixelFormat: 4

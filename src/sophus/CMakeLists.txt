@@ -9,11 +9,6 @@ endif()
 # find dependencies
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
-# rosdep uses the key "eigen"; the CMake package and target are Eigen3.
-find_package(Eigen3 REQUIRED)
-include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
-ament_export_include_directories(${EIGEN3_INCLUDE_DIRS})
-ament_export_dependencies(Eigen3)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -37,7 +32,7 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   ${SOURCES}
 )
 
-target_link_libraries(${PROJECT_NAME} Eigen3::Eigen)
+link_libraries(${PROJECT_NAME} ${LIBS})
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights

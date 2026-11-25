@@ -1,0 +1,19 @@
+/**:
+  ros__parameters:
+    execute: false
+    status_prefix: /zav_real
+    distance_m: 5.0
+    radius_m: 2.5
+    speed_m_s: 3.0
+    acceleration_m_s2: 3.0
+    yaw_rate_deg_s: 60.0
+    entry_hold_s: 3.0
+    dwell_s: 2.0
+    acceptance_m: 0.2
+    stopped_speed_m_s: 0.15
+    yaw_acceptance_deg: 5.0
+    settle_s: 1.0
+    max_tracking_error_m: 1.0
+    segment_timeout_s: 90.0
+    max_reference_lead_m: 0.5
+    max_reference_yaw_lead_deg: 20.0

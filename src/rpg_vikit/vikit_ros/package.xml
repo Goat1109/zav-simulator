@@ -13,9 +13,9 @@
   <depend>tf2</depend>  <!-- ROS 2 uses tf2 instead of tf -->
   <depend>tf2_ros</depend>  <!-- ROS 2 uses tf2 instead of tf -->
   <depend>visualization_msgs</depend>
-  <depend>libopencv-dev</depend>
+  <depend>OpenCV</depend>
   <depend>eigen3_cmake_module</depend>
-  <depend>eigen</depend>
+  <depend>Eigen3</depend>
   <depend>sophus</depend>
 
   <test_depend>ament_lint_auto</test_depend>

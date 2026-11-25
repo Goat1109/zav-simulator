@@ -1,0 +1,12 @@
+# ONE link: Radxa USB -> USB-to-TTL -> FC TELEM2. Review in QGC; not an import file.
+# Baseline PX4 v1.14.3. Confirm TELEM2 mapping / actual MAVLink instance on NXT PX4 v2.
+# Only apply MAV_1_* if instance 1 is the intended TELEM2 companion link.
+UXRCE_DDS_CFG 0
+MAV_1_CONFIG 102
+MAV_1_MODE 2
+SER_TEL2_BAUD 921600
+MAV_1_RATE 40000
+MAV_PROTO_VER 2
+# Reboot FC after port/protocol changes. Preserve ST-RX8S RC and TELEM1 ground radio configuration.
+# MAVLink 2 is required for ODOMETRY (id 331); check compatibility of other MAVLink peripherals.
+# Do NOT run MicroXRCEAgent or MAVROS on this same USB-TTL port.

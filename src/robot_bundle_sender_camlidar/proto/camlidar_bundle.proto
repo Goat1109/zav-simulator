@@ -1,0 +1,107 @@
+// Shared schema of robot_bundle_sender_camlidar (robot) and server_bundle_receiver (server).
+// One message per closed bundle: the per-frame LiDAR points of the bundle (temporal geometry), one video segment holding
+// the camera frame of every one of those frames (same order), and per-frame metadata (stamp, pose, point count).
+// The server unpacks it into the per-frame session layout (images/, pcl/, poses.jsonl, committed.jsonl) so the existing
+// semantic_submapper runs unchanged. The robot does no semantic computation.
+syntax = "proto3";
+
+package robot_bundle_sender_camlidar.proto;
+
+message Pose {
+  double x = 1;
+  double y = 2;
+  double z = 3;
+  double qx = 4;
+  double qy = 5;
+  double qz = 6;
+  double qw = 7;
+}
+
+// Calibration, repeated in every message so the server can (re)write session.json from any bundle.
+message SessionInfo {
+  string robot_id = 1;
+  repeated double t_base_cam = 2;     // 16 values, row-major 4x4 (base <- camera)
+  repeated double t_base_lidar = 3;   // 16 values, row-major 4x4 (base <- lidar)
+  double fx = 4;                      // intrinsics of the images as captured (before any undistortion)
+  double fy = 5;
+  double cx = 6;
+  double cy = 7;
+  repeated double distortion = 8;     // k1..k4 (fisheye) or k1,k2,p1,p2 (plumb_bob); all zero = no undistortion
+  string distortion_model = 9;        // 'plumb_bob' | 'fisheye'
+  uint32 image_width = 10;
+  uint32 image_height = 11;
+}
+
+message Frame {
+  int64 stamp_ns = 1;                 // image stamp (= pose and point cloud stamp after synchronisation)
+  Pose pose = 2;                      // world <- base at this stamp
+  uint32 num_points = 3;              // points of this frame in points_i16 (frames are stored back to back)
+}
+
+message CamLidarBundle {
+  enum Compression {
+    NONE = 0;
+    ZLIB = 1;
+    DRACO = 2;                        // points in points_draco, one Draco point cloud per frame
+  }
+  string session = 1;                 // directory name on the server (default: robot_id)
+  uint32 bundle_index = 2;
+  SessionInfo session_info = 3;
+  repeated Frame frames = 4;
+  double distance_traveled_m = 5;
+  bool last_in_session = 6;           // the robot is shutting down: the server may close the session
+
+  // Temporal geometry: every frame's points in the LiDAR frame as captured, quantised to point_scale_m, x/y/z int16
+  // little-endian, frame after frame (frame i has frames[i].num_points points).
+  double point_scale_m = 10;
+  Compression compression = 11;
+  uint64 raw_size_bytes = 12;
+  bytes points_i16 = 13;              // NONE / ZLIB
+  // DRACO: one Draco point cloud per frame (same order as frames, empty for a frame without points). Positions are the
+  // int16 values above (units of point_scale_m) on an explicit one-unit grid, so decode + round gives them back exactly;
+  // the point order inside a frame may differ. raw_size_bytes still counts the int16 bytes.
+  repeated bytes points_draco = 14;
+  string point_codec_info = 15;       // e.g. 'draco speed 9', 'zlib level 1' (for logs)
+
+  // Camera: one encoded video frame per entry of frames, in the same order.
+  string video_codec = 20;            // 'h264'
+  string video_container = 21;        // 'mp4' (fragmented)
+  bytes video = 22;
+}
+
+// Sent once when the robot node starts (and retried until it succeeds) so both sides log the connection before the first
+// bundle, which only goes out after bundle_distance of travel. Nothing is written on the server.
+message Hello {
+  string session = 1;
+  string robot_id = 2;
+  double bundle_distance_m = 3;
+  uint32 image_width = 4;
+  uint32 image_height = 5;
+  int64 robot_time_ns = 6;            // robot wall clock at sending (for a rough clock-offset check)
+}
+
+// Live odometry stream (StreamOdom): every odometry message of the robot as it arrives, independent of the bundles (which
+// carry the authoritative per-frame poses ~bundle_distance later). The server appends it to <session>/odom_live.jsonl.
+message OdomSample {
+  int64 stamp_ns = 1;                 // odometry message stamp
+  Pose pose = 2;                      // world <- base, as received
+  uint64 seq = 3;                     // robot-side counter of sent samples (gaps = samples dropped on the robot or lost)
+  int64 robot_send_ns = 4;            // robot wall clock when sent (latency, if the clocks are synchronised)
+}
+
+message OdomBatch {                   // one stream message; normally one sample, more if they piled up
+  string session = 1;
+  string robot_id = 2;
+  repeated OdomSample samples = 3;
+}
+
+message Ack {
+  bool ok = 1;
+  string message = 2;
+}
+
+service CamLidarBundleService {
+  rpc SendBundle(CamLidarBundle) returns (Ack);
+  rpc SayHello(Hello) returns (Ack);
+  rpc StreamOdom(stream OdomBatch) returns (Ack);
+}
