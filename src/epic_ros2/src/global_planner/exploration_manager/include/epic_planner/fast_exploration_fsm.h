@@ -1,4 +1,5 @@
 #include <epic_planner/input_freshness.h>
+#include <epic_ros2/planner_status.hpp>
 #include <rosgraph_msgs/msg/clock.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 /***
@@ -20,6 +21,7 @@
 #include <mutex>
 #include <nav_msgs/msg/odometry.hpp>
 #include <nav_msgs/msg/path.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 #include <optional>
 #include <pointcloud_topo/graph_visualizer.hpp>
 #include <epic_ros2/msg/takeoff_land.hpp>
@@ -69,6 +71,9 @@ private:
   land_pub_;
   double total_time_;
   bool external_local_planner_ = false;
+  bool hardware_height_guard_=false,hardware_height_ready_=false;
+  double hardware_height_stamp_=-1.,hardware_height_translation_=0.;
+  rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr hardware_height_sub_;
   epic_ros::Publisher external_path_pub_, external_complete_pub_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr decision_pub_;
   void visualizeDecision(bool issued);
@@ -85,7 +90,9 @@ private:
   bool external_motion_started_=false;
   bool external_exploration_complete_=false;
   rclcpp::CallbackGroup::SharedPtr external_deadline_group_;
-  rclcpp::TimerBase::SharedPtr external_deadline_timer_;
+  rclcpp::TimerBase::SharedPtr external_deadline_timer_, external_status_timer_;
+  epic_ros::PlannerStatus external_status_;
+  void publishExternalStatus();
   std::mutex external_plan_mutex_;
   std::optional<double> external_plan_wait_since_;
   bool external_plan_expired_ = false;
@@ -98,7 +105,16 @@ private:
   bool externalPlanTimedOut(bool begin_wait = false);
   bool expireExternalPlanWaitLocked(double now);
   void resetExternalPlanWait();
-  void startExternalReturn(const char *reason);
+  void startExternalReturn(const char *reason,bool survey_complete=true);
+  bool return_after_complete_=false;
+  // Optional two-arm survey of a declared, straight corridor envelope.
+  int corridor_box_=-1;
+  enum class CorridorPhase { Approach, Right, Left, Done };
+  CorridorPhase corridor_phase_=CorridorPhase::Approach;
+  float corridor_right_sign_=0.f;
+  double corridor_height_=0.;
+  std::optional<Eigen::Vector3f> corridor_leg_;
+  void updateCorridorSurvey();
   void updateExternalReturn();
   bool publishExternalGuide(const vector<Eigen::Vector3f> &route);
   void finishExternalExploration(const char *reason);

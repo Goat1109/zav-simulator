@@ -1,3 +1,4 @@
+#include <epic_ros2/planning_budget.hpp>
 /***
  * @Author: ning-zelin && zl.ning@qq.com
  * @Date: 2024-02-25 15:00:51
@@ -44,7 +45,7 @@ bool runLkhWorker(const std::filesystem::path &parameters) {
   if (posix_spawn(&pid, worker.c_str(), nullptr, nullptr, argv, environ) != 0) return false;
 
   using namespace std::chrono_literals;
-  const auto deadline = std::chrono::steady_clock::now() + 2s;
+  const auto deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(epic_ros::PlanningBudget::remaining(2.));
   int status = 0;
   for (;;) {
     const auto result = waitpid(pid, &status, WNOHANG);
@@ -657,6 +658,7 @@ double FastExplorationManager::getPathCost(TopoNode::Ptr &n1,
                                            double *initial_turn_cost,
                                            vector<Eigen::Vector3f> *tour_path) {
   if(initial_turn_cost)*initial_turn_cost=0.;
+  if(epic_ros::PlanningBudget::expired()) return 2e3+1.;
   auto estimateCost = [&](TopoNode::Ptr &n1, Eigen::Vector3d v1, float &yaw1,
                           TopoNode::Ptr &n2, float &yaw2, int res,
                           vector<Eigen::Vector3f> &path) -> double {
@@ -699,7 +701,7 @@ double FastExplorationManager::getPathCost(TopoNode::Ptr &n1,
     // return len_cost + dir_cost;
   };
   vector<Eigen::Vector3f> path;
-  int res = planner_manager_->fast_searcher_->topoSearch(n1, n2, 1e-2, path);
+  int res = planner_manager_->fast_searcher_->topoSearch(n1, n2, epic_ros::PlanningBudget::remaining(1e-2), path);
   if (frontier_manager_ptr_->surface_continuity_ && (!guideSupported(path) ||
       (n1==planner_manager_->topo_graph_->odom_node_ &&
        frontier_manager_ptr_->revisitsLowerPass(n1->center_,path)))) return 2e3+1.;
@@ -718,7 +720,7 @@ double FastExplorationManager::getPathCostWithoutTopo(TopoNode::Ptr &n1,
                                                       float &yaw2) {
   vector<Eigen::Vector3f> path;
   int res = planner_manager_->parallel_path_finder_->search(
-      n1->center_, n2->center_, path, 1.0, false);
+      n1->center_, n2->center_, path, epic_ros::PlanningBudget::remaining(1.), false);
   if (res != ParallelBubbleAstar::REACH_END)
     return 2e3;
   double cost;
@@ -727,6 +729,7 @@ double FastExplorationManager::getPathCostWithoutTopo(TopoNode::Ptr &n1,
 }
 
 int FastExplorationManager::frontierStatus(const Eigen::Vector3f &body,bool exhausted_recovery) {
+  if (epic_ros::PlanningBudget::expired()) return FRONTIER_PENDING;
   if (std::getenv("EPIC_TRACE_WALL_CHOICE") && frontier_manager_ptr_->surface_continuity_) {
     ROS_WARN_THROTTLE(1., "No executable guide at %.2f %.2f %.2f: body clearance %.3fm, observed air %d",
         body.x(),body.y(),body.z(),planner_manager_->lidar_map_interface_->getDisToOcc(body),
@@ -1841,6 +1844,65 @@ bool FastExplorationManager::enteredSweep(const Eigen::Vector3f &body,const Eige
 
 int FastExplorationManager::planGlobalPath(const Eigen::Vector3d &pos,
                                            const Eigen::Vector3d &vel) {
+  epic_ros::PlanningBudget::Scope planning_budget(.75);
+  auto &front=*frontier_manager_ptr_;
+  const bool retry=right_hand_priority_ && front.surface_continuity_ &&
+      !front.connected_wall_traversal_ && published_first_leg_;
+  front.retry_native_candidates_=retry && pending_search_pass_%3==1;
+  // On a stalled search give the historical connector its own turn before
+  // costly local sampling. previousOpening rechecks visibility and clearance.
+  if (retry && pending_search_pass_%3==2) {
+    epic_ros::PlanningBudget::Scope connector_budget(.2);
+    vector<Vector3f> connector;
+    if (front.previousOpening(pos.cast<float>(),connector)) {
+      opening_guide_=std::move(connector);
+      if (advanceOpeningGuide(pos.cast<float>())) {
+        selected_observation_.reset();
+        restored_observation_.reset();
+        active_sweep_entry_.reset();
+        pending_search_pass_=0;
+        return SUCCEED;
+      }
+      opening_guide_.clear();
+    }
+    ROS_WARN_THROTTLE(1.,"No certified branch connector this pass; advancing candidate search");
+  }
+  const int result=planGlobalPathPass(pos,vel);
+  pending_search_pass_=result==FRONTIER_PENDING ? pending_search_pass_+1 : 0;
+  return result;
+}
+
+int FastExplorationManager::planGlobalPathPass(const Vector3d &pos,const Vector3d &vel) {
+  // One deadline for candidate generation, reconnection, cost matrix and LKH.
+  // The next timer tick retries unfinished work on the latest map/body pose.
+  vector<TopoNode::Ptr> viewpoints;
+  bool temporary_nodes_inserted=false;
+  const auto pending=[&]() {
+    if(temporary_nodes_inserted) planner_manager_->topo_graph_->removeNodes(viewpoints);
+    ed_->global_tour_.clear(); ed_->global_tour_yaws_.clear();
+    active_contour_approach_.clear(); active_contour_preview_.clear(); active_sweep_entry_.reset();
+    ROS_WARN_THROTTLE(1.,"Global planning yielded at shared deadline; frontier search remains pending");
+    return FRONTIER_PENDING;
+  };
+  if (epic_ros::PlanningBudget::expired()) return pending();
+  auto& wall_front=*frontier_manager_ptr_;
+  if(right_hand_priority_ && wall_front.surface_continuity_ && wall_front.connected_wall_traversal_) {
+    const Vector3f body=pos.cast<float>();
+    wall_front.observations_.clear();
+    if(auto view=wall_front.connectedWallViewpoint(body)) {
+      selected_observation_=wall_front.observations_.at(view.get());
+      active_contour_approach_=selected_observation_->contour_approach_;
+      active_contour_preview_.clear();active_sweep_entry_.reset();
+      ed_->global_tour_={body,view->center_};
+      ed_->global_tour_yaws_={planner_manager_->local_data_.curr_yaw_,view->yaw_};
+      ed_->next_goal_node_->center_=view->center_;ed_->next_goal_node_->yaw_=view->yaw_;
+      selection_reason_="Connected wall / measured directed coverage";
+      frontier_empty_since_=-1.;return SUCCEED;
+    }
+    // A saved, unflown branch must never become an empty-frontier success.
+    if(wall_front.wallTraversalPending() || wall_front.viewpoint_generation_incomplete_ || epic_ros::PlanningBudget::expired())return pending();
+    return frontierStatus(body,!wall_front.hasInspectionFrontiers());
+  }
   bool bm_without_topo = false;
   auto estimiateVdirCost = [&](const TopoNode::Ptr &n1,
                                const Eigen::Vector3d &v1,
@@ -1859,7 +1921,6 @@ int FastExplorationManager::planGlobalPath(const Eigen::Vector3d &pos,
            (fabs(diff) / planner_manager_->gcopter_config_->yaw_max_vel);
   };
   epic_ros::Time start = epic_ros::Time::now();
-  vector<TopoNode::Ptr> viewpoints;
   // Visitation/handoff uses the latest measured body pose. The graph odom
   // anchor follows scan updates and can lag behind a fast moving vehicle.
   // Keep that graph anchor intact for certified native routing.
@@ -1879,6 +1940,7 @@ int FastExplorationManager::planGlobalPath(const Eigen::Vector3d &pos,
   }
   // A measured viewpoint approach can provide the first edge of an isolated odometry node.
   frontier_manager_ptr_->generateTSPViewpoints(current_body_position,viewpoints);
+  if(frontier_manager_ptr_->viewpoint_generation_incomplete_ && viewpoints.empty()) return pending();
   const size_t sampled_views=viewpoints.size();
   const bool exterior_pending=frontier_manager_ptr_->exteriorPassPending();
   if (!exhausted_recovery_route_.empty()) {
@@ -1956,7 +2018,7 @@ int FastExplorationManager::planGlobalPath(const Eigen::Vector3d &pos,
   if (!exterior_pending)
     frontier_manager_ptr_->connectForwardAperture(current_body_position,viewpoints);
   const bool recovering=(frontier_manager_ptr_->surface_continuity_ && frontier_manager_ptr_->prolongedRetrace());
-  if (recovering) {
+  if (recovering && !frontier_manager_ptr_->viewpoint_generation_incomplete_) {
     const float safe=planner_manager_->topo_graph_->bubble_min_radius_;
     bool fresh_prefix=false;
     for (const auto &vp:viewpoints) {
@@ -2009,7 +2071,9 @@ int FastExplorationManager::planGlobalPath(const Eigen::Vector3d &pos,
       if (!measured && frontier_manager_ptr_->surveyedFromAround(current_body_position,node->center_)) return true;
       return recovering && !(measured && obs->second->exterior_pass_) && frontier_manager_ptr_->nearFlightPath(node->center_,1.25f*clearance,4.f*clearance);
   }),viewpoints.end());
+  if (epic_ros::PlanningBudget::expired()) return pending();
   if (viewpoints.empty()) {
+    if (frontier_manager_ptr_->viewpoint_generation_incomplete_) return pending();
     if (exterior_pending) return FRONTIER_PENDING;
     ed_->global_tour_.clear();
     return recoverOrWait(current_body_position,vel.cast<float>());
@@ -2017,6 +2081,7 @@ int FastExplorationManager::planGlobalPath(const Eigen::Vector3d &pos,
 
   epic_ros::Time t1 = epic_ros::Time::now();
   planner_manager_->topo_graph_->insertNodes(viewpoints, false);
+  temporary_nodes_inserted=true;
   for (const auto &vp:viewpoints) {
     auto it=frontier_manager_ptr_->observations_.find(vp.get());
     if (it==frontier_manager_ptr_->observations_.end() || it->second->contour_approach_.empty()) continue;
@@ -2061,11 +2126,13 @@ int FastExplorationManager::planGlobalPath(const Eigen::Vector3d &pos,
   }
 
   epic_ros::Time t_start_cvp_1 = epic_ros::Time::now();
+  const auto cost_deadline=epic_ros::PlanningBudget::deadline();
   omp_set_num_threads(epic_ros::planningWorkerCount(4));
   // clang-format off
   #pragma omp parallel for
   // clang-format on
   for (int i = 0; i < viewpoints.size(); ++i) {
+    epic_ros::PlanningBudget::Scope worker_budget(cost_deadline);
     if (last_goal_reachable) {
       distance_lastgoal2vp[i] =
           getPathCost(ed_->next_goal_node_, Eigen::Vector3d::Zero(),
@@ -2085,6 +2152,7 @@ int FastExplorationManager::planGlobalPath(const Eigen::Vector3d &pos,
   }
   // These approaches already start at the current measured body. A cached
   // topology path to the same observation may be stale or take a different turn.
+  if (epic_ros::PlanningBudget::expired()) return pending();
   for (size_t i=0;i<viewpoints.size();++i) {
     const auto it=frontier_manager_ptr_->observations_.find(viewpoints[i].get());
     if (it==frontier_manager_ptr_->observations_.end()) continue;
@@ -2104,6 +2172,7 @@ int FastExplorationManager::planGlobalPath(const Eigen::Vector3d &pos,
     #pragma omp parallel for
     // clang-format on
     for (int i = 0; i < viewpoints.size(); ++i) {
+      epic_ros::PlanningBudget::Scope worker_budget(cost_deadline);
       if (last_goal_reachable) {
         distance_lastgoal2vp[i] = getPathCostWithoutTopo(
             ed_->next_goal_node_, Eigen::Vector3d::Zero(), viewpoints[i]->yaw_,
@@ -2387,6 +2456,7 @@ int FastExplorationManager::planGlobalPath(const Eigen::Vector3d &pos,
   #pragma omp parallel for
   // clang-format on
   for (int i = 1; i < dim; i++) {
+    epic_ros::PlanningBudget::Scope worker_budget(cost_deadline);
     for (int j = i + 1; j < dim; j++) {
       double cost=getPathCost(viewpoint_reachable[i-1],Eigen::Vector3d::Zero(),
           viewpoint_reachable[i-1]->yaw_,viewpoint_reachable[j-1],viewpoint_reachable[j-1]->yaw_,
@@ -2400,6 +2470,7 @@ int FastExplorationManager::planGlobalPath(const Eigen::Vector3d &pos,
       mat(i,j)=mat(j,i)=cost;
     }
   }
+  if (epic_ros::PlanningBudget::expired()) return pending();
   for (int i=1;i<dim;++i) mat(i,0)=2e3-viewpoint_reachable_distance2[i-1]*.2;
   // In rolling flight the first edge must be the executable body-to-view
   // route. A shortcut through another candidate misprices that first choice.
@@ -2757,6 +2828,7 @@ int FastExplorationManager::planGlobalPath(const Eigen::Vector3d &pos,
   const auto selected_viewpoint=viewpoint_reachable[indices[1]-1];
   selection_reason_=restored_observation_ && (selected_viewpoint->center_-*restored_observation_).norm()<.01f ?
       "ATSP | restored from memory" : first_edge_reason[indices[1]];
+  if(epic_ros::PlanningBudget::expired()) return pending();
   if (keeps_issued_pass(selected_viewpoint)) return SUCCEED;
   if (frontier_manager_ptr_->surface_continuity_) {
     selected_observation_=observations.at(selected_viewpoint.get());

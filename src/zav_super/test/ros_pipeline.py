@@ -40,7 +40,7 @@ def run(obstacle):
         controller = dict(config['argo_ommpc_px4']['ros__parameters'])
         for key in ('use_px4_landing', 'allow_terminal_hold'):
             controller.pop(key, None)
-        controller.update(execute=True, distance_m=7.0, use_sim_time=False)
+        controller.update(tracking_backend="ommpc", execute=True, distance_m=7.0, use_sim_time=False)
         (temp/'controller.yaml').write_text(yaml.safe_dump({'/**': {'ros__parameters': controller}}))
         processes, handles = [], []
         node = Node('offline_super_plant')

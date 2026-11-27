@@ -45,7 +45,7 @@ add_library(epic_core STATIC
   ${G}/pointcloud_topo/src/topo_skeleton_graph.cpp ${G}/pointcloud_topo/src/historical_odom_graph.cpp
   ${G}/pointcloud_topo/src/bubble_split.cpp ${G}/pointcloud_topo/src/parallel_bubble_astar.cpp
   ${G}/frontier_manager/src/frontier_manager.cpp ${G}/frontier_manager/src/global_planning.cpp
-  ${G}/frontier_manager/src/perimeter_survey.cpp
+  ${G}/frontier_manager/src/perimeter_survey.cpp ${G}/frontier_manager/src/connected_wall_survey.cpp
   ${G}/frontier_manager/src/raycast.cpp ${G}/frontier_manager/src/frontier_viszer.cpp
   ${L}/path_searching/src/bubble_astar.cpp ${L}/Utils/poly_traj/src/polynomial_traj.cpp
   ${L}/Utils/traj_utils/src/planning_visualization.cpp
@@ -70,6 +70,32 @@ install(DIRECTORY launch config docs DESTINATION share/${PROJECT_NAME})
 install(FILES LICENSE README.md UPSTREAM.json DESTINATION share/${PROJECT_NAME})
 if(BUILD_TESTING)
   enable_testing()
+  add_executable(wall_traversal_test test/wall_traversal_test.cpp)
+  target_include_directories(wall_traversal_test PRIVATE include)
+  target_link_libraries(wall_traversal_test Eigen3::Eigen)
+  target_compile_options(wall_traversal_test PRIVATE -UNDEBUG)
+  add_test(NAME wall_traversal_test COMMAND wall_traversal_test)
+  add_executable(planning_budget_test test/planning_budget_test.cpp)
+  target_include_directories(planning_budget_test PRIVATE include)
+  target_compile_options(planning_budget_test PRIVATE -UNDEBUG)
+  add_test(NAME planning_budget_test COMMAND planning_budget_test)
+  add_executable(level_guide_test test/level_guide_test.cpp)
+  target_link_libraries(level_guide_test epic_core)
+  target_compile_options(level_guide_test PRIVATE -UNDEBUG -O0)
+  add_test(NAME level_guide_test COMMAND level_guide_test --ros-args
+    --params-file ${CMAKE_CURRENT_SOURCE_DIR}/config/frontier-first-floor-sim.yaml)
+  set_tests_properties(level_guide_test PROPERTIES
+    ENVIRONMENT "ROS_DOMAIN_ID=97;ROS_LOCALHOST_ONLY=1;CYCLONEDDS_URI=")
+  add_executable(guide_continuity_test test/guide_continuity_test.cpp)
+  target_include_directories(guide_continuity_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/global_planner/exploration_manager/include)
+  target_link_libraries(guide_continuity_test Eigen3::Eigen)
+  target_compile_options(guide_continuity_test PRIVATE -UNDEBUG -O0)
+  add_test(NAME guide_continuity_test COMMAND guide_continuity_test)
+  add_executable(planner_status_test test/planner_status_test.cpp)
+  target_include_directories(planner_status_test PRIVATE include)
+  ament_target_dependencies(planner_status_test rclcpp visualization_msgs)
+  target_compile_options(planner_status_test PRIVATE -UNDEBUG)
+  add_test(NAME planner_status_test COMMAND planner_status_test)
   add_executable(gcopter_quadrature_test test/gcopter_quadrature_test.cpp)
   target_include_directories(gcopter_quadrature_test PRIVATE ${L}/minco_planner/include)
   target_link_libraries(gcopter_quadrature_test Eigen3::Eigen)

@@ -1,4 +1,5 @@
 #include <fsm/terminal_hold.hpp>
+#include <fsm/execution_odometry.hpp>
 #include <traj_opt/yaw_traj_opt.h>
 #include <stdexcept>
 #include <limits>
@@ -25,6 +26,25 @@ int main() {
             Eigen::Vector3d(speed,0.,0.),target,age,occupied,3.,.1,.1);
     };
     using A=fsm::TerminalAction;
+    // Gym reproduction: the planning executor's last pose was 164ms old
+    // while the independent execution reader continued receiving live odom.
+    fsm::ExecutionOdometry execution;
+    if (!execution.update(position,Eigen::Vector3d::Zero(),10.15,10.16))
+        throw std::runtime_error("Fresh execution measurement was rejected");
+    const auto live=execution.snapshot();
+    if (action(stopped,1.1,0.,0.,.164418)!=A::Unsafe ||
+        fsm::terminalSettlingAction(stopped,1.1,live.position,live.velocity,goal,
+            10.17-live.stamp,false,3.,.1,.1)!=A::Arrived)
+        throw std::runtime_error("Arrival did not use the independent fresh measurement");
+    if (execution.update(position,Eigen::Vector3d::Zero(),10.,10.17) ||
+        execution.update(position,Eigen::Vector3d::Zero(),10.2,10.17) ||
+        execution.update(position,Eigen::Vector3d::Zero(),10.14,10.17) ||
+        execution.update(position,Eigen::Vector3d::Constant(std::numeric_limits<double>::quiet_NaN()),10.16,10.17) ||
+        execution.snapshot().stamp!=10.15)
+        throw std::runtime_error("Invalid/queued measurement replaced the live snapshot");
+    if (fsm::terminalSettlingAction(stopped,1.1,live.position,live.velocity,goal,
+            10.251-live.stamp,false,3.,.1,.1)!=A::Unsafe)
+        throw std::runtime_error("Execution snapshot bypassed the 100ms safety timeout");
     // Regression: 15cm residual and braking velocity must preserve the old
     // reference instead of restarting a short trajectory at every expiration.
     if (action(stopped,1.01,.15,.2)!=A::Wait ||

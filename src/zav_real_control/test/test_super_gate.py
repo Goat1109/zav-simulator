@@ -18,6 +18,8 @@ class Core:
         self.calls=[]
         self.connection=SimpleNamespace(mav=SimpleNamespace(
             param_request_read_send=lambda *a:self.calls.append(('param_request_read_send',a)),
+            set_position_target_local_ned_send=lambda *a:self.calls.append(('set_position_target_local_ned_send',a)),
+            command_long_send=lambda *a:self.calls.append(('command_long_send',a)),
             set_attitude_target_send=lambda *a:self.calls.append(('set_attitude_target_send',a))))
         self.parameters=SimpleNamespace(target=(1,1))
         self.handoff=SimpleNamespace(started=None);self.motion=SimpleNamespace(latched=False)
@@ -36,11 +38,11 @@ def params(g,t):
     for n,v in values.items():g.receive(msg('PARAM_VALUE',param_id=n,param_type=6 if type(v) is int else 9,param_value=encode(v) if type(v) is int else v),t)
 
 
-def cycle(g,c,t,mode=(3,0),rc=1000,air=2,command=True,readback=True,thrust=.30):
+def cycle(g,c,t,mode=(3,0),rc=1000,air=2,command=True,readback=True,thrust=.30,z=-2.):
     c.mode=mode;c.est_rx=t
     g.receive(msg('RC_CHANNELS',chan8_raw=rc),t)
     boot=1000+int(t*1000)
-    g.receive(msg('LOCAL_POSITION_NED',x=0.,y=0.,z=-2.,vx=0.,vy=0.,vz=0.,time_boot_ms=boot),t)
+    g.receive(msg('LOCAL_POSITION_NED',x=0.,y=0.,z=z,vx=0.,vy=0.,vz=0.,time_boot_ms=boot),t)
     g.receive(msg('ATTITUDE',yaw=0.,roll=0.,pitch=0.),t)
     g.receive(msg('EXTENDED_SYS_STATE',landed_state=air),t)
     if thrust is not None:g.receive(msg('ATTITUDE_TARGET',thrust=thrust,time_boot_ms=boot),t)
@@ -69,6 +71,78 @@ def test_body_rates_mask_frame_thrust_and_no_position_stream():
     decoded=mav.MAVLink(None).parse_buffer(packet)[0]
     assert decoded.type_mask==128 and decoded.thrust==pytest.approx(.30)
     assert all(n in ('set_attitude_target_send','param_request_read_send') for n,_ in c.calls)
+
+
+@pytest.mark.parametrize('failure',['invalid','lost','rate','schedule'])
+def test_offboard_fault_replaces_last_rates_and_confirms_position(failure):
+    g,c=prepared();cycle(g,c,3.02,mode=(6,0),rc=2000)
+    before=len(c.calls)
+    t=3.20 if failure in ('lost','schedule') else 3.04
+    if failure!='lost':
+        p=payload(t)
+        if failure=='invalid':p['valid']=False;p['phase']='REPLACEMENT_PLAN_TIMEOUT'
+        if failure=='rate':p['rates_flu'][0]=2.
+        g.accept(p,t,p['stamp_ns'])
+    g.tick(c,t)
+    assert g.terminal and g.recovery['stage']=='POSITION_REQUEST'
+    outputs=c.calls[before:]
+    assert not any(n=='set_attitude_target_send' for n,_ in outputs)
+    hold=next(a for n,a in outputs if n=='set_position_target_local_ned_send')
+    assert hold[3]==mav.MAV_FRAME_LOCAL_NED
+    assert hold[5:8]==pytest.approx((0.,0.,-2.))
+    assert hold[4] & 7 == 0  # Position axes ACTIVE, rates cannot remain the active control mode.
+    assert hold[4] & mav.POSITION_TARGET_TYPEMASK_YAW_RATE_IGNORE
+    packet=mav.MAVLink_set_position_target_local_ned_message(*hold).pack(mav.MAVLink(None))
+    assert mav.MAVLink(None).parse_buffer(packet)[0].z==pytest.approx(-2.)
+    request=next(a for n,a in outputs if n=='command_long_send')
+    assert request[2]==mav.MAV_CMD_DO_SET_MODE and request[5:7]==(3,0)
+    for i in range(1,21):cycle(g,c,t+i*.02,mode=(6,0),rc=2000)
+    assert not any(n=='set_attitude_target_send' for n,_ in c.calls[before:])
+    count=len(c.calls);cycle(g,c,t+.42,mode=(3,0),rc=1000)
+    assert g.recovery['stage']=='CONFIRMED' and len(c.calls)==count
+    cycle(g,c,t+.44,mode=(6,0),rc=2000)
+    assert len(c.calls)==count  # A latched fault cannot automatically re-enter control.
+
+
+@pytest.mark.parametrize('failure',['EV','handoff','motion','estimator','stale_pose'])
+def test_fault_recovery_preserves_ev_loss_owner(failure):
+    g,c=prepared();cycle(g,c,3.02,mode=(6,0),rc=2000)
+    p=payload(3.04);p['valid']=False;g.accept(p,3.04,p['stamp_ns'])
+    if failure=='EV':c.ready=False
+    if failure=='handoff':c.handoff.started=3.03
+    if failure=='motion':c.motion.latched=True
+    if failure=='estimator':c.estimator_flags=0
+    if failure=='stale_pose':g.local_rx=2.
+    before=len(c.calls);g.tick(c,3.04)
+    assert g.terminal and g.recovery['stage']=='EV_HANDOFF'
+    assert not any(n in ('set_attitude_target_send','set_position_target_local_ned_send','command_long_send') for n,_ in c.calls[before:])
+
+
+def test_denied_position_requests_land_without_stopping_stabilization():
+    g,c=prepared();cycle(g,c,3.02,mode=(6,0),rc=2000)
+    p=payload(3.04);p['valid']=False;g.accept(p,3.04,p['stamp_ns']);g.tick(c,3.04)
+    for i in range(1,132):cycle(g,c,3.04+i*.02,mode=(6,0),rc=2000)
+    assert g.recovery['stage']=='LAND_REQUEST'
+    requests=[a for n,a in c.calls if n=='command_long_send']
+    assert requests[-1][5:7]==(4,6)
+    assert all(a[2]==mav.MAV_CMD_DO_SET_MODE for a in requests)
+    before=len(c.calls);cycle(g,c,5.70,mode=(4,6),rc=2000)
+    assert g.recovery['stage']=='CONFIRMED' and len(c.calls)==before
+
+
+def test_position_reset_and_pilot_exit_cannot_restart_fault_recovery():
+    g,c=prepared();cycle(g,c,3.02,mode=(6,0),rc=2000)
+    before=len(c.calls)
+    g.receive(msg('LOCAL_POSITION_NED',x=10.,y=0.,z=-2.,vx=0.,vy=0.,vz=0.,time_boot_ms=4040),3.04)
+    g.tick(c,3.04)
+    assert g.terminal and g.recovery['stage']=='EV_HANDOFF'
+    assert len(c.calls)==before
+    g,c=prepared();cycle(g,c,3.02,mode=(6,0),rc=2000)
+    p=payload(3.04);p['valid']=False;g.accept(p,3.04,p['stamp_ns']);g.tick(c,3.04)
+    before=len(c.calls);cycle(g,c,3.06,mode=(2,0),rc=1000)
+    assert g.recovery['stage']=='PILOT_MODE' and len(c.calls)==before
+    cycle(g,c,3.08,mode=(6,0),rc=2000)
+    assert len(c.calls)==before
 
 
 @pytest.mark.parametrize('case',['disabled','monitor','ground','no_readback','unhealthy','handoff','high_at_start','bad_flags'])
@@ -219,3 +293,177 @@ def test_epic_mission_uses_existing_rate_gate_schema():
     assert gate.command['mission']['kind']=='epic'
     packet=payload(2.);packet['mission']={'kind':'unknown'}
     with pytest.raises(ValueError):gate.accept(packet,2.,packet['stamp_ns'])
+
+
+def test_fresh_tracking_output_sends_once_and_keeps_stream_alive():
+    gate, core = prepared()
+    cycle(gate, core, 3.02, mode=(6,0), rc=2000)
+    gate.fresh_tracking_output = True
+    first = payload(3.031)
+    first["phase"] = "TRACKING"
+    gate.accept(first, 3.031, first["stamp_ns"])
+    gate.tick(core, 3.031)
+    assert gate.last_send == 3.031
+    second = payload(3.034)
+    second["phase"] = "REPLANNING"
+    gate.accept(second, 3.034, second["stamp_ns"])
+    gate.tick(core, 3.034)
+    assert gate.last_send == 3.031
+    gate.tick(core, 3.042)
+    assert gate.last_send == 3.042
+    gate.tick(core, 3.067)
+    assert gate.last_send == 3.042
+    gate.tick(core, 3.083)
+    assert gate.last_send == 3.083
+
+
+def test_adaptive_thrust_updates_actual_wire_value_at_100hz():
+    gate, core = prepared()
+    from zav_real_control.thrust_model import ThrustModel
+    gate.thrust_model = ThrustModel()
+    gate.fresh_tracking_output = True
+    cycle(gate, core, 3.02, mode=(6,0), rc=2000)
+    start_sent = gate.sent
+    for i in range(1, 201):
+        now = 3.02 + i*.001
+        if i % 10 == 0:
+            p = payload(now)
+            p['phase'] = 'TRACKING'
+            gate.accept(p, now, p['stamp_ns'])
+            core.est_rx = now
+            gate.receive(msg('TIMESYNC',tc1=0,ts1=round((now-2)*1e9)),now)
+            # 2 ms transport; craft produces 25 m/s² per normalized unit.
+            model = gate.thrust_model
+            history = [u for t,u in model.commands if .035 <= now-.002-t <= .045]
+            if history:
+                gate.receive(msg('HIGHRES_IMU', time_usec=round((now-2-.002)*1e6),
+                                 fields_updated=4,zacc=-25*history[0]),now)
+        gate.tick(core,now)
+    state = gate.snapshot(now)
+    assert gate.sent-start_sent == 20
+    assert state['thrust_fit_updates'] >= 10
+    assert state['thrust_to_acceleration'] == pytest.approx(25,rel=1e-4)
+    assert [a[-1] for n,a in core.calls if n=='set_attitude_target_send'][-1] == pytest.approx(9.81/25,rel=1e-4)
+    core.mode = (3,0)
+    gate.tick(core,now+.001)
+    assert gate.thrust_model.coefficient is None and not gate.thrust_model.commands
+
+
+def test_thrust_estimator_rejects_stale_wrong_axis_and_repeated_sample():
+    from zav_real_control.thrust_model import ThrustModel
+    model = ThrustModel()
+    model.coefficient = 32.
+    model.sync(2_000_000_000,7.)
+    model.commands.append((7.,.30))
+    for sample,mask,az in [(2_040_000,0,-9.),(2_030_000,4,-9.),(2_041_000,4,9.)]:
+        model.sample(msg('HIGHRES_IMU',time_usec=sample,fields_updated=mask,zacc=az),7.042)
+    assert model.updates == 0
+    m = msg('HIGHRES_IMU',time_usec=2_042_000,fields_updated=4,zacc=-9.)
+    model.sample(m,7.043)
+    model.commands.append((7.001,.30))
+    model.sample(m,7.044)
+    assert model.updates == 1
+    model.sample(msg('HIGHRES_IMU',time_usec=2_044_000,fields_updated=4,zacc=-9.),7.15)
+    assert model.updates == 1
+
+
+def test_px4_calibrated_sticks_to_body_flu():
+    from types import SimpleNamespace
+    gate=SuperRateGate()
+    packet=SimpleNamespace(get_type=lambda:'MANUAL_CONTROL',x=500,y=700,z=250,r=-900)
+    gate.receive(packet,3.)
+    assert gate.pilot_axes==(3.,[.5,-.7,-.5,.9])
+    packet.z=32767
+    gate.receive(packet,4.)
+    assert gate.pilot_axes is None
+
+
+def test_stick_stream_requires_actual_offboard_fresh_rc8_and_new_fc_sample(monkeypatch):
+    from types import SimpleNamespace
+    from zav_real_control import mavlink_node
+    from builtin_interfaces.msg import Time
+    gate=SuperRateGate(enabled=True)
+    gate.in_offboard=True;gate.rc_rx=2.;gate.rc8=1950
+    clock=SimpleNamespace(now=lambda:SimpleNamespace(to_msg=lambda:Time(sec=2)))
+    sent=[]
+    core=SimpleNamespace(offboard=gate,mode=(6,0),update=lambda *args:{},rate_samples=[])
+    node=SimpleNamespace(core=core,stick_pub=SimpleNamespace(publish=sent.append),
+                         get_clock=lambda:clock,last_report=2.)
+    monkeypatch.setattr(mavlink_node.time,'monotonic',lambda:2.)
+    def packet():
+        gate.receive(SimpleNamespace(get_type=lambda:'MANUAL_CONTROL',x=1000,y=0,z=500,r=0),2.)
+    packet();mavlink_node.MavlinkBridge.tick(node);mavlink_node.MavlinkBridge.tick(node)
+    assert len(sent)==1 and list(sent[0].axes)==[1.,0.,0.,0.]
+    core.mode=(3,0);packet();mavlink_node.MavlinkBridge.tick(node)
+    core.mode=(6,0);gate.rc8=1000;packet();mavlink_node.MavlinkBridge.tick(node)
+    gate.rc8=1950;gate.rc_rx=1.;packet();mavlink_node.MavlinkBridge.tick(node)
+    assert len(sent)==1
+
+
+@pytest.mark.parametrize(('take_position_back','backend'),[(False,'ommpc'),(True,'ommpc'),(False,'px4')])
+def test_rc_ground_selector_full_gate_manual_arm_only(take_position_back,backend):
+    gate,core=SuperRateGate(True),Core()
+    core.armed=False;core.landed=True
+    gate.throttle_low=lambda now:False  # spring-centered, including after releasing the arm gesture
+    def step(index,mode,rc,stage='PRESTREAM',kind='none',air=1,z=-2.,thrust=None):
+        t=index*.02
+        params(gate,t)
+        gate.cache['MPC_THR_HOVER']=(.31,t)
+        data=payload(t);data.update(phase=stage,mission=dict(kind=kind,px4_hover_acquired=stage=='HOVER',rc_ground_seed=.31 if not core.armed else 0.))
+        if backend=='px4':
+            data.update(tracking_backend='px4',measured_yaw=0.,px4_reference=[0.,0.,2.4,0.,0.,0.,0.])
+        gate.accept(data,t,data['stamp_ns'])
+        cycle(gate,core,t,mode=mode,rc=rc,air=air,command=False,readback=False,thrust=thrust,z=z)
+    for i in range(5):step(i,(3,0),1000)
+    assert gate.rc_ground is None and gate.sent==0
+    for i in range(5,10):step(i,(3,0),2000)
+    assert gate.rc_ground.stage=='PILOT_ARM' and gate.sent==0
+    assert not any(name=='command_long_send' for name,args in core.calls)
+    core.armed=True
+    for i in range(10,72):step(i,(3,0),2000)
+    assert gate.rc_ground.stage=='MODE'
+    assert any(name=='command_long_send' and args[2]==mav.MAV_CMD_DO_SET_MODE for name,args in core.calls)
+    assert not any(n=='set_attitude_target_send' for n,_ in core.calls)
+    step(72,(6,0),2000)
+    assert gate.rc_ground.stage=='PX4_HOVER'
+    assert [args[7] for n,args in core.calls if n=='set_position_target_local_ned_send'][-1]==pytest.approx(-2.4)
+    core.landed=False
+    if backend=='px4':
+        step(73,(6,0),2000,air=2,z=-2.4)
+        assert gate.rc_ground.stage=='HANDOFF'
+        for i in range(74,84):step(i,(6,0),2000,stage='HOVER',air=2,z=-2.4)
+        assert gate.rc_ground.stage=='COMPLETE' and gate.hover_thrust is None
+        assert not any(n=='set_attitude_target_send' for n,_ in core.calls)
+        return
+    for i in range(73,210):step(i,(6,0),2000,air=2,z=-2.4,thrust=.26 if i%2 else .35)
+    assert gate.rc_ground.stage=='PX4_HOVER' and not gate.hover_handoff.frozen
+    if take_position_back:
+        count=gate.sent
+        step(210,(3,0),1000,air=2,z=-2.4)
+        assert gate.rc_ground is None and not gate.in_offboard and gate.sent==count
+        return
+    for i in range(210,305):step(i,(6,0),2000,air=2,z=-2.4,thrust=.29)
+    assert gate.rc_ground.stage=='HANDOFF'
+    assert not any(n=='set_attitude_target_send' for n,_ in core.calls)
+    step(305,(6,0),2000,stage='HOVER',air=2,z=-2.4,thrust=.29)
+    step(306,(6,0),2000,stage='HOVER',air=2,z=-2.4,thrust=.29)
+    assert gate.rc_ground.stage=='COMPLETE' and gate.hover_ready
+    assert gate.normalized_thrust==pytest.approx(.29)
+    assert not any(name=='command_long_send' and args[2]==mav.MAV_CMD_COMPONENT_ARM_DISARM for name,args in core.calls)
+
+
+def test_px4_tracking_position_prestream_and_fixed_ned_transform():
+    gate,core=SuperRateGate(True),Core()
+    def run(i,mode,rc,x,ref):
+        t=i*.02;p=payload(t)
+        p.update(tracking_backend='px4',measured_yaw=math.radians(.62),position=[x,0.,2.],px4_reference=ref)
+        gate.accept(p,t,p['stamp_ns'])
+        cycle(gate,core,t,mode=mode,rc=rc,command=False,thrust=None)
+    for i in range(70):run(i,(3,0),1000,1.,[1.,0.,2.,0.,0.,0.,0.])
+    run(70,(6,0),2000,1.,[1.,0.,2.,0.,0.,0.,0.])
+    run(72,(6,0),2000,1.4,[2.,-38.,2.4,.1,.2,.5,.1])
+    messages=[args for n,args in core.calls if n=='set_position_target_local_ned_send']
+    m=messages[-1]
+    assert m[5:11]==pytest.approx((1.,38.,-2.4,.2,-.5,-.1))
+    assert m[-2]==pytest.approx(-.1) and m[4]&0x3f==0
+    assert gate.hover_thrust is None and not any(n=='set_attitude_target_send' for n,_ in core.calls)

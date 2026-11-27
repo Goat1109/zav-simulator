@@ -29,11 +29,14 @@
 
 
 #include "fsm/fsm.h"
+#include "super_core/entry_envelope.hpp"
 #include "fsm/terminal_hold.hpp"
+#include "fsm/execution_odometry.hpp"
 #include <thread>
 #include <numeric>
 #include <sstream>
 #include <iomanip>
+#include <yaml-cpp/yaml.h>
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/create_timer.hpp>
@@ -53,7 +56,7 @@ namespace fsm {
         rclcpp::Publisher<mars_quadrotor_msgs::msg::PositionCommand>::SharedPtr cmd_pub_;
         rclcpp::Publisher<mars_quadrotor_msgs::msg::PolynomialTrajectory>::SharedPtr mpc_cmd_pub_;
         rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_pub_;
-        rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr goal_sub_;
+        rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr goal_sub_, envelope_frame_sub_;
         rclcpp::Subscription<std_msgs::msg::String>::SharedPtr argo_status_sub_;
 
         rclcpp::TimerBase::SharedPtr execution_timer_, replan_timer_, cmd_timer_;
@@ -70,8 +73,52 @@ namespace fsm {
         rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr execution_odom_;
         rclcpp::TimerBase::SharedPtr execution_heartbeat_;
         std::thread execution_thread_;
+        ExecutionOdometry terminal_odometry_;
         std::atomic<double> execution_until_{-1.}, execution_start_{0.}, execution_odom_wall_{-1.};
-        int64_t goal_request_stamp_ns_{0};
+        int64_t goal_request_stamp_ns_{0}, committed_request_stamp_ns_{0};
+        mars_quadrotor_msgs::msg::PolynomialTrajectory committed_packet_;
+        Eigen::Vector3d committed_goal_=Eigen::Vector3d::Zero();
+        bool sameCommittedPacket(const mars_quadrotor_msgs::msg::PolynomialTrajectory& m)const{
+            return committed_request_stamp_ns_>0 && m.start_wt_pos==committed_packet_.start_wt_pos &&
+                m.start_wt_yaw==committed_packet_.start_wt_yaw && m.time_pos==committed_packet_.time_pos &&
+                m.time_yaw==committed_packet_.time_yaw && m.coef_pos_x==committed_packet_.coef_pos_x &&
+                m.coef_pos_y==committed_packet_.coef_pos_y && m.coef_pos_z==committed_packet_.coef_pos_z &&
+                m.coef_yaw==committed_packet_.coef_yaw;
+        }
+        std::atomic<int64_t> cancelled_through_{0}, execution_request_{0};
+        rclcpp::Subscription<std_msgs::msg::String>::SharedPtr cancel_sub_;
+        rclcpp::Subscription<std_msgs::msg::String>::SharedPtr trajectory_feedback_sub_;
+        int64_t rejected_request_=0;
+        double rejected_start_=-1.;
+        rclcpp::Publisher<std_msgs::msg::String>::SharedPtr planner_status_;
+        void plannerEvent(const std::string& event,int64_t request=0){
+            if(!planner_status_)return;
+            std::ostringstream out;out<<std::setprecision(17)<<"{\"stamp_ns\":"<<nh_->now().nanoseconds()
+                <<",\"event\":\""<<event<<"\",\"goal_request_stamp_ns\":"<<(request?request:goal_request_stamp_ns_)
+                <<",\"cancelled_through_ns\":"<<cancelled_through_.load();
+            if(event=="GOAL_ARRIVED") out<<",\"accepted_goal\":["<<gi_.goal_p.x()<<","<<gi_.goal_p.y()<<","<<gi_.goal_p.z()<<"]";
+            out<<",\"fsm\":\""<<MACHINE_STATE_STR[int(machine_state_)]<<"\"}";
+            std_msgs::msg::String msg;msg.data=out.str();planner_status_->publish(msg);
+        }
+        rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr entry_sub_;
+        bool entry_active_=false;
+        void restoreMissionEnvelope(){
+            if(!entry_active_)return;
+            planner_ptr_->setPlanningEnvelope(envelope_);
+            planner_ptr_->setFlightHeightBounds(
+                std::max(envelope_->world_floor,envelope_->profile_floor+envelope_->inset-envelope_->translation.z()),
+                std::min(envelope_->world_ceiling,envelope_->profile_ceiling-envelope_->inset-envelope_->translation.z()));
+            entry_active_=false;
+        }
+        bool applyCancellation() {
+            if(goal_request_stamp_ns_>0 && goal_request_stamp_ns_<=cancelled_through_.load() && !stop){
+                stop=true;execution_until_=-1.;gi_.new_goal=false;
+                restoreMissionEnvelope();
+                terminal_settling_=false;terminal_arrival_at_=-1.;
+                ChangeState("controller cancelled goal",WAIT_GOAL);plannerEvent("CANCELLED");
+            }
+            return stop;
+        }
 
         void resetVisualizedPath() override {
             path.poses.clear();
@@ -93,20 +140,40 @@ namespace fsm {
             path_pub_->publish(path);
         }
 
-        void publishPolyTraj() override {
+        void publishArrival() override {
+            execution_until_=-1.;
+            plannerEvent("GOAL_ARRIVED");
+        }
+
+        bool publishPolyTraj() override {
+            if(applyCancellation())return false;
             mars_quadrotor_msgs::msg::PolynomialTrajectory cmd_traj;
             getCommittedTrajectory(cmd_traj);
+            if(committed_request_stamp_ns_==rejected_request_ &&
+               cmd_traj.start_wt_pos==rejected_start_ && sameCommittedPacket(cmd_traj))return false;
+            // NO_NEED may republish the old committed packet after a goal
+            // callback. Preserve that packet's provenance until an actual new
+            // position/yaw trajectory is committed; never relabel cached data.
+            const double end_time = cmd_traj.start_wt_pos +
+                std::accumulate(cmd_traj.time_pos.begin(),cmd_traj.time_pos.end(),0.);
+            if (!std::isfinite(end_time) || end_time<=nh_->now().seconds() ||
+                (sameCommittedPacket(cmd_traj) && committed_request_stamp_ns_!=goal_request_stamp_ns_)) return false;
+            if(!sameCommittedPacket(cmd_traj)){
+                committed_packet_=cmd_traj;committed_request_stamp_ns_=goal_request_stamp_ns_;
+                committed_goal_=gi_.goal_p;
+            }
             // Correlate the accepted map-adjusted goal with the original request.
             // Keep the wire message unchanged; backup endpoints are NOT goals.
             std::ostringstream metadata;
-            metadata << std::setprecision(17) << "{\"goal_request_stamp_ns\":" << goal_request_stamp_ns_
-                << ",\"accepted_goal\":[" << gi_.goal_p.x() << "," << gi_.goal_p.y() << "," << gi_.goal_p.z() << "]}";
+            metadata << std::setprecision(17) << "{\"goal_request_stamp_ns\":" << committed_request_stamp_ns_
+                << ",\"accepted_goal\":[" << committed_goal_.x() << "," << committed_goal_.y() << "," << committed_goal_.z() << "]}";
             cmd_traj.debug_info=metadata.str();
             terminal_settling_=false;
             terminal_arrival_at_=-1.;
-            mpc_cmd_pub_->publish(cmd_traj);
+            mpc_cmd_pub_->publish(cmd_traj);plannerEvent("TRAJECTORY_COMMITTED",committed_request_stamp_ns_);
             // Execution of an already committed trajectory must not be blocked
             // by a long optimization in the planner's single-thread executor.
+            execution_request_=committed_request_stamp_ns_;
             execution_start_=cmd_traj.start_wt_pos;
             execution_until_=cmd_traj.start_wt_pos+std::accumulate(cmd_traj.time_pos.begin(),cmd_traj.time_pos.end(),0.);
             const auto position=planner_ptr_->getCommittedPositionTrajectory();
@@ -114,6 +181,7 @@ namespace fsm {
             if (position.getPieceNum()==0 || !position.getVel(end).allFinite() ||
                 position.getVel(end).norm()>1e-3 || position.getAcc(end).norm()>1e-3 ||
                 position.getJer(end).norm()>1e-3) execution_until_=-1.;
+            return true;
         }
 
         void getOneHeartBeatMsg(mars_quadrotor_msgs::msg::PolynomialTrajectory &heartbeat, bool &traj_finish) {
@@ -308,12 +376,36 @@ namespace fsm {
             return true;
         }
 
-        void goalCallback(const geometry_msgs::msg::PoseStamped::SharedPtr msg) {
+        void goalCallback(const geometry_msgs::msg::PoseStamped::SharedPtr msg, const Eigen::Vector3d* entry_start=nullptr) {
             super_utils::Vec3f goal_p = Vec3f{msg->pose.position.x, msg->pose.position.y, msg->pose.position.z};
             super_utils::Quatf goal_q = super_utils::Quatf{msg->pose.orientation.w, msg->pose.orientation.x,
                                                            msg->pose.orientation.y, msg->pose.orientation.z};
-            if (setGoalPosiAndYaw(goal_p, goal_q))
-                goal_request_stamp_ns_=rclcpp::Time(msg->header.stamp).nanoseconds();
+            const int64_t stamp=rclcpp::Time(msg->header.stamp).nanoseconds();
+            const double age=nh_->now().seconds()-rclcpp::Time(msg->header.stamp).seconds();
+            if(stamp<=cancelled_through_.load() || stamp<=goal_request_stamp_ns_ || age<-.1 || age>1.){plannerEvent("GOAL_REJECTED_STALE",stamp);return;}
+            const bool cancelled=goal_request_stamp_ns_>0 && goal_request_stamp_ns_<=cancelled_through_.load();
+            applyCancellation();
+            if(stop && !cancelled)return;
+            if(entry_start){
+                planner_ptr_->getRobotState(robot_state_);
+                if(!envelope_->ready || !entry_start->allFinite() || !robot_state_.p.allFinite() ||
+                   (robot_state_.p-*entry_start).norm()>.35 || !envelope_->contains(goal_p) ||
+                   entry_start->z()<envelope_->world_floor || entry_start->z()>envelope_->world_ceiling){
+                    plannerEvent("ENTRY_REQUEST_REJECTED",stamp);return;
+                }
+            }
+            if (setGoalPosiAndYaw(goal_p, goal_q)){
+                restoreMissionEnvelope();
+                if(entry_start){
+                    auto corridor=std::make_shared<super_planner::PlanningEnvelope>(
+                        super_planner::entryEnvelope(*entry_start,goal_p,envelope_->world_floor,envelope_->world_ceiling));
+                    planner_ptr_->setPlanningEnvelope(corridor);
+                    planner_ptr_->setFlightHeightBounds(envelope_->world_floor,envelope_->world_ceiling);
+                    entry_active_=true;
+                }
+                if(stop){stop=false;ChangeState("new controller mission",WAIT_GOAL);}
+                goal_request_stamp_ns_=stamp;plannerEvent("GOAL_ACCEPTED");
+            }else plannerEvent("GOAL_REJECTED_MAP_OR_CLOSE",stamp);
         }
 
         void init(const rclcpp::Node::SharedPtr nh, const std::string &cfg_path) {
@@ -346,18 +438,102 @@ namespace fsm {
             // 初始化Planner
             ros_ptr_ = std::make_shared<ros_interface::Ros2Interface>(nh_);
             planner_ptr_ = std::make_shared<SuperPlanner>(cfg_path, ros_ptr_, map_ptr_);
+            if(nh_->declare_parameter<bool>("flight_height_guard_enabled",false)){
+                const double floor=nh_->declare_parameter<double>("flight_floor",-.4);
+                const double ceiling=nh_->declare_parameter<double>("flight_ceiling",9.5);
+                planner_ptr_->setFlightHeightBounds(floor,ceiling);
+            }
+            if(nh_->declare_parameter<bool>("mission_envelope_enabled",false)){
+                envelope_->enabled=true;
+                const auto lo=nh_->declare_parameter<std::vector<double>>("mission_bounds_lower",{});
+                const auto hi=nh_->declare_parameter<std::vector<double>>("mission_bounds_upper",{});
+                envelope_->profile_floor=nh_->declare_parameter<double>("mission_flight_min",-1e6);
+                envelope_->profile_ceiling=nh_->declare_parameter<double>("mission_flight_max",1e6);
+                envelope_->world_floor=nh_->get_parameter("flight_floor").as_double();
+                envelope_->world_ceiling=nh_->get_parameter("flight_ceiling").as_double();
+                if(lo.empty() || lo.size()!=hi.size() || lo.size()%3 || lo.size()>96 ||
+                   !std::isfinite(envelope_->profile_floor) || !std::isfinite(envelope_->profile_ceiling) ||
+                   envelope_->profile_ceiling-envelope_->profile_floor<=2*envelope_->inset)
+                    throw std::invalid_argument("Invalid mission envelope");
+                for(size_t i=0;i<lo.size();i+=3){
+                    Eigen::Vector3d a(lo[i],lo[i+1],lo[i+2]),b(hi[i],hi[i+1],hi[i+2]);
+                    if(!a.allFinite() || !b.allFinite() || ((b-a).array()<=2*envelope_->inset).any())
+                        throw std::invalid_argument("Invalid mission box");
+                    envelope_->lower.push_back(a);envelope_->upper.push_back(b);
+                }
+                planner_ptr_->setPlanningEnvelope(envelope_);
+                envelope_frame_sub_=nh_->create_subscription<geometry_msgs::msg::PoseStamped>(
+                    "/zav/epic/profile_transform",rclcpp::QoS(1).reliable().transient_local(),
+                    [this](geometry_msgs::msg::PoseStamped::SharedPtr m){
+                        const auto& p=m->pose.position;const auto& q=m->pose.orientation;
+                        Eigen::Quaterniond rotation(q.w,q.x,q.y,q.z);Eigen::Vector3d translation(p.x,p.y,p.z);
+                        const double age=nh_->now().seconds()-rclcpp::Time(m->header.stamp).seconds();
+                        if(m->header.frame_id!="epic_profile" || age<-.02 || age>.6 ||
+                           !translation.allFinite() || !rotation.coeffs().allFinite() ||
+                           std::abs(rotation.norm()-1.)>.01 || std::abs(q.x)+std::abs(q.y)>1e-6 ||
+                           nh_->count_publishers("/zav/epic/profile_transform")!=1)return;
+                        const auto matrix=rotation.normalized().toRotationMatrix();
+                        if(envelope_->ready){
+                            if((translation-envelope_->translation).norm()>1e-6 ||
+                               (matrix-envelope_->rotation).norm()>1e-6){
+                                envelope_->ready=false;stop=true;execution_until_=-1.;plannerEvent("MISSION_FRAME_CHANGED");
+                            }
+                            return;
+                        }
+                        envelope_->rotation=matrix;envelope_->translation=translation;
+                        const double floor=std::max(envelope_->world_floor,envelope_->profile_floor+envelope_->inset-p.z);
+                        const double ceiling=std::min(envelope_->world_ceiling,envelope_->profile_ceiling-envelope_->inset-p.z);
+                        if(floor>=ceiling)throw std::invalid_argument("Mission height band has no overlap");
+                        planner_ptr_->setFlightHeightBounds(floor,ceiling);envelope_->ready=true;
+                        plannerEvent("MISSION_ENVELOPE_READY");
+                    });
+            }
             cmd_pub_ = nh_->create_publisher<mars_quadrotor_msgs::msg::PositionCommand>(cfg_.cmd_topic, qos);
             mpc_cmd_pub_ = nh_->create_publisher<mars_quadrotor_msgs::msg::PolynomialTrajectory>(cfg_.mpc_cmd_topic,
                                                                                                  qos);
+            planner_status_=nh_->create_publisher<std_msgs::msg::String>("/zav/super/planner_status",rclcpp::QoS(1).reliable().transient_local());
+            // The planner's normal executor owns all planning mutations. A
+            // rejected polynomial was never executed: restart from measured
+            // position/velocity, not from that polynomial's fictitious state.
+            trajectory_feedback_sub_=nh_->create_subscription<std_msgs::msg::String>(
+                "/zav/super/trajectory_feedback",rclcpp::QoS(10).reliable(),
+                [this](std_msgs::msg::String::SharedPtr m){
+                    try{
+                        const auto f=YAML::Load(m->data);
+                        const int64_t request=f["goal_request_stamp_ns"].as<int64_t>();
+                        const double start=f["start_wt_pos"].as<double>();
+                        const double age=(nh_->now().nanoseconds()-f["stamp_ns"].as<int64_t>())/1.e9;
+                        if(f["event"].as<std::string>()!="REJECTED" || age<-.02 || age>.5 ||
+                           request!=goal_request_stamp_ns_ || request!=committed_request_stamp_ns_ ||
+                           request<=cancelled_through_.load() || stop ||
+                           start!=committed_packet_.start_wt_pos ||
+                           (request==rejected_request_ && start==rejected_start_))return;
+                        rejected_request_=request;rejected_start_=start;execution_until_=-1.;
+                        gi_.new_goal=true;finish_plan=false;terminal_settling_=false;
+                        ChangeState("controller rejected polynomial",GENERATE_TRAJ);
+                        plannerEvent("TRAJECTORY_REJECTED_REPLAN",request);
+                    }catch(const std::exception&){}
+                });
             execution_node_=std::make_shared<rclcpp::Node>("super_committed_execution",
                 rclcpp::NodeOptions().parameter_overrides({rclcpp::Parameter("use_sim_time",nh_->get_parameter("use_sim_time").as_bool())}));
             execution_odom_=execution_node_->create_subscription<nav_msgs::msg::Odometry>(
                 map_ptr_->getMapConfig().odom_topic,rclcpp::SensorDataQoS(),
                 [this](nav_msgs::msg::Odometry::SharedPtr m) {
                     const auto &p=m->pose.pose.position;const auto &v=m->twist.twist.linear;
-                    if (std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z)&&
-                        std::isfinite(v.x)&&std::isfinite(v.y)&&std::isfinite(v.z))
+                    if (terminal_odometry_.update(Eigen::Vector3d(p.x,p.y,p.z),
+                            Eigen::Vector3d(v.x,v.y,v.z),rclcpp::Time(m->header.stamp).seconds(),
+                            execution_node_->now().seconds()))
                         execution_odom_wall_=std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
+                });
+            cancel_sub_=execution_node_->create_subscription<std_msgs::msg::String>(
+                "/zav/super/planner_cancel",rclcpp::QoS(1).reliable().transient_local(),
+                [this](std_msgs::msg::String::SharedPtr m){
+                    try{
+                        const auto stamp=YAML::Load(m->data)["stamp_ns"].as<int64_t>();
+                        if(stamp<=0 || stamp>execution_node_->now().nanoseconds()+100000000LL)return;
+                        int64_t old=cancelled_through_.load();
+                        while(stamp>old && !cancelled_through_.compare_exchange_weak(old,stamp)){}
+                    }catch(const std::exception&){}
                 });
             execution_heartbeat_=execution_node_->create_wall_timer(std::chrono::milliseconds(20),[this]() {
                 const double wall=std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
@@ -365,7 +541,7 @@ namespace fsm {
                 // Never extend a trajectory or certify an expired moving plan.
                 // Stale feedback, emergency stop and controller timeout remain
                 // independent; the old backup may only execute to its own end.
-                if (stop || machine_state_!=FOLLOW_TRAJ || wall-execution_odom_wall_.load()>.1 || now.seconds()>=execution_until_.load()) return;
+                if (execution_request_.load()<=cancelled_through_.load() || stop || machine_state_!=FOLLOW_TRAJ || wall-execution_odom_wall_.load()>.1 || now.seconds()>=execution_until_.load()) return;
                 mars_quadrotor_msgs::msg::PolynomialTrajectory m;m.header.frame_id="world";
                 m.header.stamp=now;m.type=m.HEART_BEAT;m.start_wt_pos=execution_start_.load();mpc_cmd_pub_->publish(m);
             });
@@ -382,8 +558,17 @@ namespace fsm {
                 goal_sub_ = nh_->create_subscription<geometry_msgs::msg::PoseStamped>(
                         cfg_.click_goal_topic,
                         qos,
-                        std::bind(&FsmRos2::goalCallback, this, std::placeholders::_1),
+                        [this](geometry_msgs::msg::PoseStamped::SharedPtr m){goalCallback(m);},
                         so);
+                if(envelope_->enabled)entry_sub_=nh_->create_subscription<nav_msgs::msg::Path>(
+                    "/zav/super/entry_goal",rclcpp::QoS(1).reliable(),
+                    [this](nav_msgs::msg::Path::SharedPtr m){
+                        if(m->header.frame_id!="world" || m->poses.size()!=2)return;
+                        const auto& p=m->poses[0].pose.position;
+                        const Eigen::Vector3d start(p.x,p.y,p.z);
+                        auto goal=std::make_shared<geometry_msgs::msg::PoseStamped>(m->poses[1]);
+                        goal->header=m->header;goalCallback(goal,&start);
+                    },so);
                 cout << YELLOW << " -- [Fsm] CLICKGOAL ENABLE." << RESET << endl;
                 cmd_cnt++;
             }
@@ -397,21 +582,21 @@ namespace fsm {
                 exec_cbk_group_ = nh_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
                 execution_timer_ = rclcpp::create_timer(nh_, nh_->get_clock(), 
                         std::chrono::milliseconds(10),
-                        std::bind(&FsmRos2::mainFsmTimerCallback, this),
+                        [this](){if(!applyCancellation())mainFsmTimerCallback();},
                         exec_cbk_group_
                 );
 
                 cmd_cbk_group_ = nh_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
                 cmd_timer_ = rclcpp::create_timer(nh_, nh_->get_clock(), 
                         std::chrono::milliseconds(10),
-                        std::bind(&FsmRos2::pubCmdTimerCallback, this),
+                        [this](){if(!applyCancellation())pubCmdTimerCallback();},
                         cmd_cbk_group_
                 );
                 const int replan_ratems = static_cast<int>(1.0 / cfg_.replan_rate * 1000);
                 replan_cbk_group_ = nh_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
                 replan_timer_ = rclcpp::create_timer(nh_, nh_->get_clock(), 
                         std::chrono::milliseconds(replan_ratems),
-                        std::bind(&FsmRos2::replanTimerCallback, this),
+                        [this](){if(!applyCancellation())replanTimerCallback();},
                         exec_cbk_group_
                 );
             }
@@ -442,15 +627,15 @@ namespace fsm {
                 return;
             }
             if (machine_state_ == WAIT_GOAL && traj_finish_ && !gi_.new_goal) {
-                planner_ptr_->getRobotState(robot_state_);
+                const auto state=terminal_odometry_.snapshot();
                 const auto trajectory=planner_ptr_->getCommittedPositionTrajectory();
-                if (trajectory.getPieceNum()>0 && robot_state_.rcv && robot_state_.v.allFinite()) {
+                if (trajectory.getPieceNum()>0 && state.received) {
                     const double end=trajectory.getTotalDuration();
                     const auto endpoint=trajectory.getPos(end);
                     const bool occupied=!endpoint.allFinite() || map_ptr_->isOccupiedInflate(endpoint);
                     if (terminalHoldHeartbeatAllowed(trajectory,
-                            ros_ptr_->getSimTime()-trajectory.start_WT,robot_state_.p,
-                            ros_ptr_->getSimTime()-robot_state_.rcv_time,occupied)) {
+                            ros_ptr_->getSimTime()-trajectory.start_WT,state.position,
+                            ros_ptr_->getSimTime()-state.stamp,occupied)) {
                         mars_quadrotor_msgs::msg::PolynomialTrajectory heartbeat;
                         bool finished;
                         getOneHeartBeatMsg(heartbeat,finished);
@@ -470,15 +655,23 @@ namespace fsm {
             mpc_cmd_pub_->publish(heartbeat);
             cmd_pub_->publish(pid_cmd_);
             if (traj_finish_ && !gi_.new_goal && cfg_.terminal_settle_time_s>0.) {
-                planner_ptr_->getRobotState(robot_state_);
+                // Planning/map callbacks can occupy the normal executor for
+                // >100ms. Judge arrival from the independent measured stream,
+                // retaining the same strict 100ms message-age limit.
+                const auto state=terminal_odometry_.snapshot();
                 const auto trajectory=planner_ptr_->getCommittedPositionTrajectory();
                 const double now=ros_ptr_->getSimTime();
                 const bool occupied=trajectory.getPieceNum()==0 ||
                     map_ptr_->isOccupiedInflate(trajectory.getPos(trajectory.getTotalDuration()));
                 const auto action=terminalSettlingAction(trajectory,now-trajectory.start_WT,
-                    robot_state_.p,robot_state_.v,gi_.goal_p,now-robot_state_.rcv_time,
+                    state.position,state.velocity,gi_.goal_p,now-state.stamp,
                     occupied,cfg_.terminal_settle_time_s,cfg_.goal_position_tolerance,cfg_.goal_speed_tolerance);
-                if (action==TerminalAction::Unsafe || !robot_state_.rcv) {
+                if (action==TerminalAction::Unsafe || !state.received) {
+                    RCLCPP_ERROR(nh_->get_logger(),
+                        "Terminal settling unsafe: odometry_received=%d odometry_age=%.6fs endpoint_occupied=%d elapsed=%.6fs pieces=%d position_finite=%d velocity_finite=%d goal_finite=%d",
+                        int(state.received),now-state.stamp,int(occupied),
+                        now-trajectory.start_WT,int(trajectory.getPieceNum()),
+                        int(state.position.allFinite()),int(state.velocity.allFinite()),int(gi_.goal_p.allFinite()));
                     mars_quadrotor_msgs::msg::PolynomialTrajectory emergency;
                     emergency.header.frame_id="world";
                     ros_ptr_->getSimTime(emergency.header.stamp.sec,emergency.header.stamp.nanosec);

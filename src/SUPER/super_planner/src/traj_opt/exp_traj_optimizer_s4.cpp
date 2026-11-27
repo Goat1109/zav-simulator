@@ -22,6 +22,7 @@
 */
 
 #include <traj_opt/exp_traj_optimizer_s4.h>
+#include <data_structure/base/curve_certificate.hpp>
 #include <utils/optimization/lbfgs.h>
 #include <ros_interface/ros_interface.hpp>
 
@@ -753,6 +754,14 @@ double ExpTrajOpt::optimize(Trajectory &traj, const double &relCostTol) {
 //        opt_vars.minco.setConditions(opt_vars.headPVAJ, opt_vars.tailPVAJ, opt_vars.temporalDim);
         opt_vars.minco.setParameters(opt_vars.points, opt_vars.times);
         opt_vars.minco.getTrajectory(traj);
+        bool corridor_ok=true;int certificate_budget=10000;
+        for(int i=0;i<traj.getPieceNum() && corridor_ok;++i)
+            corridor_ok=super_utils::hullInsidePlanes(super_utils::positionControls(traj[i].getCoeffMat(),traj[i].getDuration()),
+                opt_vars.hPolytopes[opt_vars.hPolyIdx(i)],certificate_budget);
+        if(!corridor_ok || !super_utils::certifyKinematics(traj,cfg_.max_vel,cfg_.max_acc,cfg_.max_jerk)){
+            ros_ptr_->warn(" -- [ExpOpt] Continuous corridor/speed/acceleration/jerk limit violation.");
+            traj.clear();minCostFunctional=INFINITY;
+        }
     } else {
         traj.clear();
         minCostFunctional = INFINITY;
@@ -780,7 +789,7 @@ ExpTrajOpt::ExpTrajOpt(const traj_opt::Config &cfg, const ros_interface::RosInte
 
     opt_vars.magnitudeBounds.resize(6);
     opt_vars.penaltyWeights.resize(7);
-    opt_vars.magnitudeBounds << cfg_.max_vel, cfg_.max_acc, cfg_.max_jerk,
+    opt_vars.magnitudeBounds << .9*cfg_.max_vel, .9*cfg_.max_acc, .9*cfg_.max_jerk,
             cfg_.max_omg, cfg_.min_acc_thr * cfg_.mass, cfg_.max_acc_thr * cfg_.mass;
     opt_vars.penaltyWeights << cfg_.penna_pos, cfg_.penna_vel,
             cfg_.penna_acc, cfg_.penna_jerk,

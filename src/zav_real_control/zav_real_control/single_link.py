@@ -69,6 +69,7 @@ class SingleLink:
         self.last_clock=None
         self.ack=None
         self.counts=dict(rx=0,out=0,dropped=0,land_requests=0)
+        self.rate_samples=deque(maxlen=128)
         self.telemetry=FlightTelemetry()
         self.offboard=OffboardControl()
 
@@ -91,6 +92,16 @@ class SingleLink:
         if self.offboard.enabled:
             self.offboard.receive(msg,now)
         self.telemetry.receive(msg,now)
+        if kind in ('ATTITUDE','ATTITUDE_TARGET'):
+            fields=('rollspeed','pitchspeed','yawspeed') if kind=='ATTITUDE' else (
+                'body_roll_rate','body_pitch_rate','body_yaw_rate')
+            rates=[getattr(msg,key,None) for key in fields]
+            boot_ms=getattr(msg,'time_boot_ms',None)
+            if boot_ms is not None and all(v is not None and math.isfinite(v) for v in rates):
+                sample=dict(message=kind,fc_boot_ms=boot_ms,bridge_rx_ns=epoch_ns,rates_frd_rad_s=rates)
+                if kind=='ATTITUDE_TARGET':
+                    sample['type_mask']=msg.type_mask
+                self.rate_samples.append(sample)
         if kind=='HEARTBEAT':
             if msg.autopilot!=mav.MAV_AUTOPILOT_PX4:return
             self.buffer.queue.append(msg)
@@ -240,6 +251,9 @@ class SingleLink:
                     self.requests.append((mav.MAVLINK_MSG_ID_ATTITUDE,100000))
                     if getattr(self.offboard,'requires_hover_thrust',False):
                         self.requests.append((mav.MAVLINK_MSG_ID_ATTITUDE_TARGET,50000))
+                        self.requests.append((mav.MAVLINK_MSG_ID_MANUAL_CONTROL,50000))
+                    if getattr(self.offboard,'thrust_model',None) is not None:
+                        self.requests.append((mav.MAVLINK_MSG_ID_HIGHRES_IMU,10000))
             # React immediately to the FC's actual convergence diagnostic, not
             # a fixed five-second timer. Stale/lost sync returns to the fast rate.
             rate_key='timesync_steady_rate_hz' if self.clock_good(now) else 'timesync_initial_rate_hz'

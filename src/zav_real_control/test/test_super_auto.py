@@ -72,3 +72,21 @@ def test_no_liftoff_ground_abort_never_disarms_airborne_aircraft():
         step(a,g,c,10.)
         disarms=[x for x in calls if x[0]!='abort' and x[2]==mav.MAV_CMD_COMPONENT_ARM_DISARM and x[4]==0]
         assert bool(disarms)==(not in_air and landed and height==0.)
+
+
+def test_pilot_arm_waits_for_real_offboard_before_px4_climb():
+    _,g,c,calls=setup()
+    a=GroundTakeoff(True,.3,pilot_arm=True)
+    g.command['mission']={'rc_ground_seed':.3}
+    g.yaw=0.;g.sample_hover=lambda now,settled:None
+    g.throttle_low=lambda now:False
+    assert step(a,g,c,0) is None and a.stage=='PILOT_ARM'
+    assert step(a,g,c,60.) is None and not calls
+    c.armed=True
+    assert step(a,g,c,60.1)==0. and a.stage=='PRESTREAM'
+    assert step(a,g,c,61.4)==0. and calls[-1][2]==mav.MAV_CMD_DO_SET_MODE
+    c.mode=(6,0)
+    assert step(a,g,c,61.5) is None and a.stage=='PX4_HOVER'
+    assert a.position_target==(0.,0.,-.4,0.)
+    assert step(a,g,c,74.) is None and a.stage=='FAILED'
+    assert calls[-1]==('abort','SUPER_AUTO_NO_LIFTOFF')

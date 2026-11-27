@@ -139,6 +139,11 @@ install(DIRECTORY
 
 if(BUILD_TESTING)
   enable_testing()
+  add_executable(planning_safety_test test/planning_safety.cpp)
+  target_compile_options(planning_safety_test PRIVATE -UNDEBUG)
+  target_link_libraries(planning_safety_test PUBLIC super ${third_party_libs})
+  ament_target_dependencies(planning_safety_test PUBLIC ${ros_libs})
+  add_test(NAME planning_safety COMMAND planning_safety_test)
   add_executable(yaw_guidance_test test/yaw_guidance.cpp)
   target_link_libraries(yaw_guidance_test PUBLIC super ${third_party_libs})
   ament_target_dependencies(yaw_guidance_test PUBLIC ${ros_libs})

@@ -11,6 +11,9 @@
     # ROS 2 inputs for standalone use. The integrated launch supplies its topics.
     odometry_topic: /epic/odom
     cloud_topic: /cloud_registered
+    global_planning.right_hand_priority: true
+    # Use the established right-hand policy; disable experimental chain retention.
+    global_planning.connected_wall_traversal: false
     global_planning.w_vdir: 5.0
     global_planning.w_yawdir: 0.0
     view_graph: false

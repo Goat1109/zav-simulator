@@ -99,6 +99,12 @@ namespace super_planner {
 
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        void setFlightHeightBounds(double floor,double ceiling){cg_ptr_->setFlightHeightBounds(floor,ceiling);}
+        void setPlanningEnvelope(const std::shared_ptr<PlanningEnvelope>& e){
+            cg_ptr_->envelope_=e;
+            astar_ptr_->allowed_position=[e](const Vec3f& p){return e->contains(p);};
+            astar_ptr_->allowed_segment=[e](const Vec3f& a,const Vec3f& b){return e->commonBox(a,b)!=-1;};
+        }
 
         explicit SuperPlanner(const std::string &cfg_path,
                               const ros_interface::RosInterface::Ptr &ros_ptr,

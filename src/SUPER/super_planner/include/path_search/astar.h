@@ -28,6 +28,7 @@
 #include "vector"
 #include "rog_map_ros/rog_map_ros2.hpp"
 #include "queue"
+#include <functional>
 #include "path_search/config.hpp"
 #include "utils/header/type_utils.hpp"
 #include <ros_interface/ros_interface.hpp>
@@ -134,6 +135,8 @@ namespace path_search {
         void ConvertNodePathToPointPath(const vector<GridNodePtr> &node_path, rog_map::vec_Vec3f &point_path);
 
     public:
+        std::function<bool(const rog_map::Vec3f&)> allowed_position;
+        std::function<bool(const rog_map::Vec3f&,const rog_map::Vec3f&)> allowed_segment;
 
         Astar(const std::string & cfg_path,
               const ros_interface::RosInterface::Ptr &ros_ptr,

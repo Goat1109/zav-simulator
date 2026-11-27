@@ -5,7 +5,7 @@ from zav_real_control.geometry import rotate
 
 
 def test_first_floor_anchor_inverse_and_heading_alignment():
-    reference=[-3.26924,-.05305,.18920];heading=-172.3865*math.pi/180
+    reference=[-3.26924,-.05305,.18920];heading=-math.pi
     f=ProfileFrame(reference,heading,[1.,2.,.1],.4)
     assert f.forward((1.,2.,.1))==pytest.approx(reference)
     for point in ([0.,0.,0.],[2.,-5.,1.2],[-9.,6.,3.]):

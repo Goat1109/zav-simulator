@@ -5,13 +5,16 @@ profile can request normal mode/arm through the existing UART. RTH may request
 LAND after its final approach; actual AUTO.LAND owns descent/disarm.
 
 The existing EV/FC land handoff has priority. Position/Offboard ownership is
-exclusive: never mix legacy position setpoints with OMMPC body-rate setpoints.
+exclusive. A latched controller fault replaces rates with PX4 position hold
+while requesting Position; the EV-loss landing handoff always takes priority.
 """
 import math
+from .geometry import frd
 from .offboard import OffboardControl
 from .mavlink_parameters import decode
 from .hover_handoff import HoverHandoff
 from .super_auto import GroundTakeoff
+from .thrust_model import ThrustModel
 
 PARAMS = ('MPC_THR_HOVER', 'THR_MDL_FAC', 'RC_MAP_OFFB_SW', 'COM_OF_LOSS_T',
           'COM_OBL_RC_ACT', 'ZAV_EV_GUARD', 'MC_ROLLRATE_MAX', 'MC_PITCHRATE_MAX',
@@ -22,8 +25,12 @@ QUERY_PARAMS = PARAMS + ('COM_DISARM_LAND','RC_MAP_THROTTLE')
 class SuperRateGate(OffboardControl):
     requires_hover_thrust = True
 
-    def __init__(self, enabled=False, automatic_takeoff=False, hover_thrust=0., takeoff_height=.4):
+    def __init__(self, enabled=False, automatic_takeoff=False, hover_thrust=0., takeoff_height=.4, fresh_tracking_output=False, adaptive_thrust=False):
         super().__init__(enabled)
+        self.fresh_tracking_output = fresh_tracking_output
+        self.thrust_model = ThrustModel() if adaptive_thrust else None
+        self.next_rate_slot = None
+        self.last_sent_command = None
         self.cache = {}
         self.last_query = -math.inf
         self.query_index = 0
@@ -36,14 +43,105 @@ class SuperRateGate(OffboardControl):
         self.attitude_target = None
         self.roll_pitch = None
         self.reason = 'SUPER_WAITING' if enabled else 'disabled'
+        self.tracking_backend="ommpc"
+        self.px4_frame=None
+        self.last_px4_target=None
+        self.rc_ground = None
         self.automatic = GroundTakeoff(automatic_takeoff,hover_thrust,takeoff_height)
         self.landing_requested = self.landing_last_request = None
         self.landing_requests = 0
         self.rc_channels={}
+        self.pilot_axes = None
+        self.recovery = None
+
+    def tick(self, core, now):
+        self._tick(core, now)
+        if self.enabled and self.terminal:
+            self.recover_position(core, now)
+
+    def recover_position(self, core, now):
+        """Single owner, latched fault: replace rates before waiting for mode ACK.
+
+        Position setpoints enable PX4's position/attitude loops immediately in
+        Offboard. Never repeat the failed controller's last angular rates.
+        A mode heartbeat, rather than COMMAND_ACK alone, confirms handoff.
+        """
+        from pymavlink.dialects.v20 import common as mav
+        if self.recovery is None:
+            if (not self.in_offboard and self.prestream_since is None) or core.mode != (6, 0):
+                return
+            self.recovery = dict(stage='POSITION_REQUEST', started=now, last_send=None,
+                                 last_request=None, target=None, sent=0)
+        r = self.recovery
+        if r['stage'] in ('CONFIRMED', 'PILOT_MODE', 'EV_HANDOFF'):
+            return
+        if getattr(core.handoff,'pilot_takeover',False):
+            r['stage'] = 'PILOT_MODE'
+            return
+        # Preserve the existing higher-priority EV-loss LAND owner. Once it
+        # takes control this recovery cannot resume on a transient healthy sample.
+        flags = (mav.ESTIMATOR_ATTITUDE | mav.ESTIMATOR_VELOCITY_HORIZ |
+                 mav.ESTIMATOR_VELOCITY_VERT | mav.ESTIMATOR_POS_HORIZ_REL |
+                 mav.ESTIMATOR_POS_VERT_ABS)
+        healthy = (self.reason != 'fc_local_position_reset_or_jump' and
+                   core.writable() and core.snapshot(now)['ready'] and
+                   core.handoff.started is None and not core.motion.latched and
+                   all(v is not None and 0 <= now-v < .5 for v in
+                       (self.local_rx, self.att_rx, self.rc_rx, self.air_rx)) and
+                   core.fresh(core.est_rx, now, .5) and core.estimator_flags & flags == flags)
+        if not healthy:
+            r['stage'] = 'EV_HANDOFF'
+            return
+        if core.mode != (6, 0) or not core.armed or not self.in_air:
+            r['stage'] = 'CONFIRMED' if core.mode in ((3, 0), (4, 6)) else 'PILOT_MODE'
+            return
+        if r['target'] is None:
+            target = (*self.position, self.yaw) if self.position is not None else ()
+            if len(target) != 4 or not all(math.isfinite(v) for v in target):
+                r['stage'] = 'EV_HANDOFF'
+                return
+            r['target'] = target
+        if r['last_send'] is None or now-r['last_send'] >= .02-1e-9:
+            self.send_position(core,now,r['target'])
+            r['last_send'] = now
+            r['sent'] += 1
+        # If Position is denied for two seconds, request PX4 LAND while still
+        # stabilizing. Stop our stream only after the FC actually leaves Offboard.
+        mode = (3, 0) if now-r['started'] < 2. else (4, 6)
+        r['stage'] = 'POSITION_REQUEST' if mode == (3, 0) else 'LAND_REQUEST'
+        if r['last_request'] is None or now-r['last_request'] >= .5:
+            core.connection.mav.command_long_send(*core.parameters.target,
+                mav.MAV_CMD_DO_SET_MODE, 0, mav.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,
+                *mode, 0., 0., 0., 0.)
+            r['last_request'] = now
+
+    def send_position(self,core,now,target,velocity=None):
+        from pymavlink.dialects.v20 import common as mav
+        mask = (mav.POSITION_TARGET_TYPEMASK_VX_IGNORE | mav.POSITION_TARGET_TYPEMASK_VY_IGNORE |
+                mav.POSITION_TARGET_TYPEMASK_VZ_IGNORE | mav.POSITION_TARGET_TYPEMASK_AX_IGNORE |
+                mav.POSITION_TARGET_TYPEMASK_AY_IGNORE | mav.POSITION_TARGET_TYPEMASK_AZ_IGNORE |
+                mav.POSITION_TARGET_TYPEMASK_YAW_RATE_IGNORE)
+        if velocity is not None:
+            mask &= ~(mav.POSITION_TARGET_TYPEMASK_VX_IGNORE | mav.POSITION_TARGET_TYPEMASK_VY_IGNORE | mav.POSITION_TARGET_TYPEMASK_VZ_IGNORE)
+        else:velocity=(0.,0.,0.)
+        core.connection.mav.set_position_target_local_ned_send(
+            int(now*1000)&0xffffffff, *core.parameters.target, mav.MAV_FRAME_LOCAL_NED,
+            mask, *target[:3], *velocity, 0., 0., 0., target[3], 0.)
 
     def receive(self, msg, now):
         super().receive(msg, now)
         self.automatic.receive(msg, now)
+        if self.rc_ground is not None:self.rc_ground.receive(msg, now)
+        if self.thrust_model is not None:
+            if msg.get_type() == 'TIMESYNC' and msg.tc1 == 0:
+                self.thrust_model.sync(msg.ts1, now)
+            elif msg.get_type() == 'HIGHRES_IMU' and self.in_offboard and not self.terminal:
+                self.thrust_model.sample(msg, now)
+        if msg.get_type() == 'MANUAL_CONTROL':
+            # PX4 transmits calibrated pitch/roll/yaw in [-1000,1000] and throttle in [0,1000].
+            self.pilot_axes = None
+            if all(-1000 <= value <= 1000 for value in (msg.x,msg.y,msg.r)) and 0 <= msg.z <= 1000:
+                self.pilot_axes = (now, [msg.x/1000., -msg.y/1000., msg.z/500.-1., -msg.r/1000.])
         if msg.get_type() == 'RC_CHANNELS':
             for channel in range(1,19):
                 value=getattr(msg,f'chan{channel}_raw',65535)
@@ -83,7 +181,7 @@ class SuperRateGate(OffboardControl):
             return
         keys = {'session', 'sequence', 'stamp_ns', 'valid', 'rates_flu', 'acceleration',
                 'phase', 'solver_ms', 'position', 'goal'}
-        if not isinstance(p, dict) or not keys <= set(p) or set(p)-keys-{'mission','intent'}:
+        if not isinstance(p, dict) or not keys <= set(p) or set(p)-keys-{'mission','intent','tracking_backend','px4_reference','measured_yaw'}:
             raise ValueError('invalid SUPER schema')
         if p.get('intent','none') not in ('none','land'):
             raise ValueError('invalid SUPER intent')
@@ -101,10 +199,24 @@ class SuperRateGate(OffboardControl):
                 raise ValueError('nonfinite SUPER vector')
         if any(type(p[n]) not in (float, int) or not math.isfinite(p[n]) for n in ('acceleration','solver_ms')):
             raise ValueError('invalid SUPER scalar')
+        backend=p.get('tracking_backend','ommpc')
+        if backend not in ('px4','ommpc'):
+            raise ValueError('invalid tracking backend')
+        if backend=='px4':
+            ref=p.get('px4_reference')
+            if (not isinstance(ref,list) or len(ref)!=7 or
+                not all(type(v) in (int,float) and math.isfinite(v) for v in [*ref,p.get('measured_yaw')])):
+                raise ValueError('invalid PX4 reference')
+        elif 'px4_reference' in p or 'measured_yaw' in p:
+            raise ValueError('inconsistent tracking backend')
+        if self.session==p['session'] and self.tracking_backend!=backend:
+            self.abort('SUPER_BACKEND_CHANGED')
+            return
         if self.session is not None and (p['session'] != self.session or p['sequence'] <= self.sequence):
             if self.prestream_since is not None:
                 self.abort('SUPER_SESSION_CHANGED')
                 return
+        self.tracking_backend=backend
         self.session, self.sequence = p['session'], p['sequence']
         self.command, self.last_received = p, now
 
@@ -144,21 +256,35 @@ class SuperRateGate(OffboardControl):
         stationary = (health and self.rc8 is not None and self.rc8 <= 1300
                       and self.velocity is not None and math.hypot(*self.velocity) <= .15
                       and self.roll_pitch is not None)
-        target = self.attitude_target
-        if not stationary:
-            handoff.clear('waiting_for_stationary_level_position')
-        elif (target is not None and 0 <= now-target[0] < .2 and self.local_boot is not None
-              and -.15 <= (self.local_boot-target[1])/1000 <= .25):
-            handoff.sample(now,target[1],target[2],math.cos(self.roll_pitch[0])*math.cos(self.roll_pitch[1]))
+        self.sample_hover(now,stationary)
         if handoff.fresh(now):
             self.hover_thrust = handoff.value
             return True
         self.hover_thrust = None
         return False
 
-    def tick(self, core, now):
+    def sample_hover(self,now,stationary):
+        handoff=self.hover_handoff
+        target = self.attitude_target
+        if not stationary:
+            handoff.clear('waiting_for_stationary_level_position')
+        elif (target is not None and 0 <= now-target[0] < .2 and self.local_boot is not None
+              and -.15 <= (self.local_boot-target[1])/1000 <= .25):
+            handoff.sample(now,target[1],target[2],math.cos(self.roll_pitch[0])*math.cos(self.roll_pitch[1]))
+
+    def clear_rc_ground(self):
+        self.px4_frame=None
+        self.rc_ground=None
+        self.hover_handoff.reset()
+        self.hover_thrust=self.last_send=self.prestream_since=None
+        self.in_offboard=self.hover_ready=self.seen_low=False
+
+    def _tick(self, core, now):
         from pymavlink.dialects.v20 import common as mav
         self.observed_now, self.fc_mode = now, core.mode
+        if self.thrust_model is not None and self.thrust_model.coefficient is not None and (
+                not core.armed or core.mode != (6,0) or self.terminal):
+            self.thrust_model.reset()
         if not self.enabled or self.terminal:
             return
         # Reads only, paced on the same existing UART; never change flight gains
@@ -186,8 +312,35 @@ class SuperRateGate(OffboardControl):
         if self.automatic.enabled and self.automatic.stage != 'COMPLETE':
             scale = self.automatic.step(self,core,now,base_health,command_ok,issue)
             if scale is not None:
-                self.send_rates(core,now,scale,allow_zero=True)
+                self.send_tracking(core,now,scale,allow_zero=True)
             return
+        if not self.automatic.enabled:
+            seed=self.command.get('mission',{}).get('rc_ground_seed',0.) if command_ok else 0.
+            selected=self.rc8 is not None and self.rc8>=1700
+            on_ground=getattr(core,'landed',False) and not self.in_air
+            if self.rc_ground is not None and not core.armed and on_ground and (
+                    not selected or self.rc_ground.stage in ('PX4_HOVER','HANDOFF','COMPLETE')):
+                self.clear_rc_ground()
+            if (self.rc_ground is None and selected and on_ground and not core.armed and
+                    core.mode in ((3,0),(6,0)) and type(seed) in (float,int) and .1<=seed<=.8):
+                self.rc_ground=GroundTakeoff(True,seed,self.automatic.height,pilot_arm=True)
+            if self.rc_ground is not None and self.rc_ground.stage!='COMPLETE':
+                if not selected and core.mode==(3,0) and core.armed:
+                    # The pilot armed in Position or took Position back during climb.
+                    self.clear_rc_ground()
+                else:
+                    self.rc_ground.step(self,core,now,base_health,command_ok,issue)
+                    if self.terminal or self.rc_ground.stage!='COMPLETE':
+                        if (not self.terminal and self.rc_ground.stage in ('PRESTREAM','MODE','PX4_HOVER','HANDOFF')
+                                and (self.last_send is None or now-self.last_send>=.02-1e-9)):
+                            if self.last_send is not None and now-self.last_send>.15:
+                                self.abort('SUPER_OUTPUT_SCHEDULE_GAP')
+                                return
+                            self.send_position(core,now,self.rc_ground.position_target)
+                            self.sent+=1
+                            self.last_send=now
+                            if self.prestream_since is None:self.prestream_since=now
+                        return
         health = base_health and core.armed and self.in_air
         if not health or issue or not command_ok:
             if not self.hover_handoff.frozen:
@@ -199,12 +352,13 @@ class SuperRateGate(OffboardControl):
             else:
                 self.reason = cause
             return
+        if core.mode != (6,0):self.px4_frame=None
         if core.mode == (3,0) and self.in_offboard:
             self.in_offboard = self.seen_low = False
             self.prestream_since = self.last_send = None
             self.hover_handoff.reset()
             self.hover_thrust = None
-        if core.mode in ((3,0),(6,0)) and not self.prepare_hover_thrust(core,now,health):
+        if self.tracking_backend=="ommpc" and core.mode in ((3,0),(6,0)) and not self.prepare_hover_thrust(core,now,health):
             self.hover_ready = False
             if core.mode == (6,0):
                 self.abort('SUPER_HOVER_THRUST_NOT_READY')
@@ -238,11 +392,54 @@ class SuperRateGate(OffboardControl):
             self.hover_thrust = None
             self.reason = 'SUPER_PILOT_MODE'
             return
-        self.send_rates(core,now)
+        tracking = self.in_offboard
+        self.send_tracking(core,now,tracking=tracking)
 
-    def send_rates(self,core,now,scale=1.,allow_zero=False):
+    def send_tracking(self,core,now,scale=1.,allow_zero=False,tracking=False):
+        if self.tracking_backend=='ommpc':
+            return self.send_rates(core,now,scale,allow_zero,tracking)
+        if self.last_send is not None:
+            if now-self.last_send>.15:
+                self.abort('SUPER_OUTPUT_SCHEDULE_GAP')
+                return
+            if now-self.last_send<.02-1e-9:return
+        # Fix the relationship between the LIO world and the FC local frame
+        # once per Offboard entry. Re-anchoring each sample would erase tracking error.
+        cmd=self.command
+        if core.mode!=(6,0) or not core.armed or not self.in_offboard:
+            self.px4_frame=None
+            target=(*self.position,self.yaw)
+            velocity=(0.,0.,0.)
+        else:
+            if self.px4_frame is None:
+                # This vehicle fuses external-vision position and heading. Its
+                # horizontal axes are the same ones used by body_odometry().
+                # Anchor translation only: instantaneous attitude error is not
+                # a rotation of the map.
+                self.px4_frame=(tuple(cmd['position']),tuple(self.position))
+            origin,ned=self.px4_frame
+            x,y,z,yaw,vx,vy,vz=cmd['px4_reference']
+            dx,dy,dz=frd((x-origin[0],y-origin[1],z-origin[2]))
+            target=(ned[0]+dx,ned[1]+dy,ned[2]+dz,math.remainder(-yaw,2*math.pi))
+            velocity=frd((vx,vy,vz))
+        self.send_position(core,now,target,velocity)
+        self.last_px4_target=(*target,*velocity)
+        self.last_send=now
+        self.sent+=1
+        if self.prestream_since is None:self.prestream_since=now
+
+    def send_rates(self,core,now,scale=1.,allow_zero=False,tracking=False):
         from pymavlink.dialects.v20 import common as mav
-        if self.last_send is not None and now-self.last_send < .02:
+        fast = tracking and self.fresh_tracking_output
+        if fast and self.command is not self.last_sent_command:
+            # Carry the 100 Hz deadline across 1 ms poll jitter. Reset it on
+            # gaps so the UART never bursts to catch up old controller samples.
+            due = self.next_rate_slot
+            if due is None and self.last_send is not None:
+                due = self.last_send + .01
+            if due is not None and now + 1e-9 < due:
+                return
+        elif self.last_send is not None and now-self.last_send < (.04 if fast else .02):
             return
         if self.last_send is not None and now-self.last_send > .15:
             self.abort('SUPER_OUTPUT_SCHEDULE_GAP')
@@ -251,16 +448,33 @@ class SuperRateGate(OffboardControl):
             self.abort('SUPER_RATE_OUT_OF_BOUNDS')
             return
         acceleration = self.command['acceleration']
-        # Preserve the measured Position hover output for this entire entry.
-        # MPC_THR_HOVER can be an outdated HTE initial value (log_64: .18 vs .30).
+        # Seed each airborne entry from the measured Position hover handoff.
         thrust = self.hover_thrust*acceleration/9.81*scale
+        model = self.thrust_model
+        adaptive = (model is not None and self.in_offboard and core.armed and core.mode == (6,0)
+                    and self.in_air and not allow_zero)
+        learn = adaptive and self.command['phase'] not in ('TAKEOFF_CLIMB', 'RTH_LANDING')
+        if adaptive:
+            if model.coefficient is None:
+                model.coefficient = 9.81/self.hover_thrust
+            thrust = min(.9, max(.04, acceleration/model.coefficient))
         if not 0 < acceleration <= 30. or not (0 <= thrust <= 1. if allow_zero else 0 < thrust <= 1.):
             self.abort('SUPER_THRUST_OUT_OF_BOUNDS')
             return
-        r,p,y = self.command['rates_flu']
+        r,p,y = (0.,0.,0.) if allow_zero and scale==0. else self.command['rates_flu']
         core.connection.mav.set_attitude_target_send(
             int(now*1000)&0xffffffff,*core.parameters.target,
             mav.ATTITUDE_TARGET_TYPEMASK_ATTITUDE_IGNORE,[1.,0.,0.,0.],r,-p,-y,thrust)
+        if learn:
+            model.commands.append((now, thrust))
+        elif model is not None:
+            model.commands.clear()
+        if fast:
+            slot = self.next_rate_slot
+            self.next_rate_slot = slot+.01 if slot is not None and 0 <= now-slot < .002 else now+.01
+        else:
+            self.next_rate_slot = None
+        self.last_sent_command = self.command
         self.normalized_thrust = thrust
         self.last_send, self.sent = now, self.sent+1
         if self.prestream_since is None:
@@ -294,18 +508,25 @@ class SuperRateGate(OffboardControl):
                     0,0,0,math.nan,math.nan,math.nan,math.nan)
                 self.landing_requests+=1;self.landing_last_request=now
         self.reason='SUPER_RTH_LAND_REQUEST'
-        if self.command['valid']:self.send_rates(core,now)
+        if self.command['valid']:self.send_tracking(core,now)
 
     def snapshot(self, now=None):
         result = super().snapshot(now)
-        result.update(source='super',pattern='super',controller=self.command,
+        result.update(source='super',pattern='super',controller=self.command,tracking_backend=self.tracking_backend,
+                      px4_target_ned=self.last_px4_target,
                       controller_age_s=now-self.last_received if now is not None and self.last_received is not None else None,
                       px4_parameters={n:v[0] for n,v in self.cache.items()},
                       parameter_issue=self.audit(now) if now is not None else None,
                       thrust=self.normalized_thrust, hover_thrust=self.hover_thrust,
+                      thrust_to_acceleration=self.thrust_model.coefficient if self.thrust_model else None,
+                      thrust_fit_updates=self.thrust_model.updates if self.thrust_model else 0,
+                      thrust_fit_age_s=(now-self.thrust_model.updated_at if now is not None and
+                                        self.thrust_model and self.thrust_model.updated_at is not None else None),
                       hover_handoff=self.hover_handoff.snapshot(now) if now is not None else None,
                       parameter_hover_thrust=self.cache.get('MPC_THR_HOVER',(None,None))[0],
                       auto_land_disarm_s=self.cache.get('COM_DISARM_LAND',(0.,None))[0],
+                      rc_ground_stage=self.rc_ground.stage if self.rc_ground else "IDLE",
                       automatic_takeoff=self.automatic.snapshot(),
+                      fault_recovery=self.recovery,
                       rate_limits_rad_s=list(self.rate_limit))
         return result

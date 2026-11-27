@@ -1,3 +1,4 @@
+#include <epic_ros2/planning_budget.hpp>
 /***
  * @Author: ning-zelin && zl.ning@qq.com
  * @Date: 2024-07-12 10:30:16
@@ -49,12 +50,20 @@ private:
 
 
 void FrontierManager::generateTSPViewpoints(Eigen::Vector3f&center,  vector<TopoNode::Ptr> &viewpoints) {
+  epic_ros::PlanningBudget::Scope generation_budget(.25);
+  viewpoint_generation_incomplete_=false;
   observations_.clear();
   viewpoints.clear();
   vector<TopoNode::Ptr> wall_views;
   if (surface_continuity_) {
     cluster_list_.remove_if([&](const auto &cluster){return observedCluster(*cluster);});
-    appendSurfaceViewpoints(center,wall_views,true);
+    if (!retry_native_candidates_) appendSurfaceViewpoints(center,wall_views,true);
+  }
+  if (epic_ros::PlanningBudget::expired()) {
+    viewpoint_generation_incomplete_=true;
+    viewpoints=std::move(wall_views);
+    ROS_WARN_THROTTLE(1.,"Viewpoint generation yielded at shared deadline; completed candidates=%zu",viewpoints.size());
+    return;
   }
   unordered_set<ClusterInfo::Ptr> revp_clusters_set; // (re)-generate viewpoints clusters
   vector<float> distance_odom2cluster;
@@ -86,6 +95,17 @@ void FrontierManager::generateTSPViewpoints(Eigen::Vector3f&center,  vector<Topo
   sort(idx.begin(), idx.end(), [&](int a, int b) { return distance_odom2cluster[a] < distance_odom2cluster[b]; });
 
   int consider_range = min(vpp_.local_tsp_size_, (int)idx.size());
+  if (retry_native_candidates_ && consider_range>0) {
+    // The retry cursor uses persistent cluster IDs, since map updates can
+    // change the distance ordering and delete or insert clusters.
+    auto id=[&](int i){return old_clusters_within_consideration[i]->id_;};
+    std::sort(idx.begin(),idx.end(),[&](int a,int b){return id(a)<id(b);});
+    auto first=std::find_if(idx.begin(),idx.end(),[&](int i){return id(i)>last_retry_cluster_;});
+    if(first!=idx.end())std::rotate(idx.begin(),first,idx.end());
+    last_retry_cluster_=id(idx[consider_range-1]);
+    ROS_WARN_THROTTLE(1.,"Retrying native observation clusters %d through %d (%d candidates)",
+                      id(idx.front()),last_retry_cluster_,consider_range);
+  }
   // cout << "old_clusters_within_consideration num: " << consider_range << endl;
   for (int i = 0; i < consider_range; i++) {
     old_clusters_within_consideration[idx[i]]->is_new_cluster_ = false;
@@ -383,6 +403,8 @@ void FrontierManager::generateTSPViewpoints(Eigen::Vector3f&center,  vector<Topo
       if (observations_.at(node.get())->close_surface_sample_) shown.push_back(node->center_);
     viz_point(shown,"inspection_viewpoints");
   }
+  viewpoint_generation_incomplete_=epic_ros::PlanningBudget::expired();
+  if(viewpoint_generation_incomplete_) ROS_WARN_THROTTLE(1.,"Viewpoint generation yielded at shared deadline; completed candidates=%zu",viewpoints.size());
   ROS_INFO("vp cluster cost: %fms  ,remove unreachable cost: %fms, select vp cost: %fms", (t2 - t1).toSec() * 1000, (t3 - t2).toSec() * 1000,
            (t4 - t3).toSec() * 1000);
 }

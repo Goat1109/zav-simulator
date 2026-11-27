@@ -140,6 +140,8 @@ public:
   int frontierStatus(const Eigen::Vector3f &body,bool exhausted_recovery=false);
   int recoverOrWait(const Eigen::Vector3f &body,const Eigen::Vector3f &velocity);
   size_t next_repair_candidate_=0;
+  unsigned pending_search_pass_=0;
+  int planGlobalPathPass(const Vector3d &pos,const Vector3d &vel);
   double frontier_empty_since_ = -1.;
   vector<Eigen::Vector3f> exhausted_recovery_route_;
   vector<Eigen::Vector3f> opening_guide_;

@@ -1,3 +1,4 @@
+#include <epic_ros2/planning_budget.hpp>
 /***
  * @Author: ning-zelin && zl.ning@qq.com
  * @Date: 2024-04-14 21:44:58
@@ -23,6 +24,7 @@ void FrontierManager::init(epic_ros::NodeHandle &nh, LIOInterface::Ptr &lio_inte
   bool external;
   nh.param("fsm/external_local_planner",external,false);
   nh.param("global_planning/surface_continuity",surface_continuity_,external);
+  nh.param("global_planning/connected_wall_traversal",connected_wall_traversal_,true);
   nh.param("FrontierManager/preferred_ground_clearance",ground_clearance_,0.);
   lidar_map_interface_ = lio_interface;
   bool recovery;double hard,margin;
@@ -820,7 +822,7 @@ bool FrontierManager::connectObservedGrid(const Eigen::Vector3f &start,const Eig
     space.emplace(k,value);return value;
   };
   if (radius(last)<=.01f) return false;
-  const auto deadline=std::chrono::steady_clock::now()+std::chrono::duration<double>(budget);
+  const auto deadline=std::chrono::steady_clock::now()+std::chrono::duration<double>(epic_ros::PlanningBudget::remaining(budget));
   cost[first]=0.f;
   if (radius(first)>.01f) {
     open.push({first,0.f,(start-goal).norm()});
@@ -829,6 +831,7 @@ bool FrontierManager::connectObservedGrid(const Eigen::Vector3f &start,const Eig
     // deviation. Seed only edges that clear it under the normal departure test.
     if (!surface_body_ || (start-*surface_body_).norm()>.55f) return false;
     for (int x=-1;x<=1;++x) for (int y=-1;y<=1;++y) for (int z=-1;z<=1;++z) {
+      if (std::chrono::steady_clock::now()>=deadline) return false;
       if (!x && !y && !z) continue;
       const Eigen::Vector3i direction(x,y,z);
       for (int k=1;k*cell<=2.5f;++k) {
@@ -1462,6 +1465,7 @@ bool FrontierManager::observedBoundaryGuide(const Eigen::Vector3f &body,vector<E
                                            vector<Eigen::Vector3f> *prefix,std::optional<float> survey_level,
                                            std::optional<float> fork_distance,bool ascending) {
   route.clear();
+  if (epic_ros::PlanningBudget::expired()) return false;
   if (prefix) prefix->clear();
   surface_body_=body;
   const float cell=frtp_.cell_size_,radius=graph_->bubble_min_radius_;
@@ -1474,6 +1478,7 @@ bool FrontierManager::observedBoundaryGuide(const Eigen::Vector3f &body,vector<E
   // this search so new scans or a change of floor invalidate them.
   std::unordered_map<Eigen::Vector3i,float,Vector3i_Hash> same_floor_top;
   for (const auto &key:observed_air_) {
+    if (epic_ros::PlanningBudget::expired()) return false;
     const Eigen::Vector3f q=(key.cast<float>().array()+.5f)*cell;
     if (survey_level && std::abs(q.z()-*survey_level)>radius) continue;
     if (ascending && (q.z()<=body.z()+radius || q.z()>body.z()+trust)) continue;
@@ -1534,13 +1539,15 @@ bool FrontierManager::observedBoundaryGuide(const Eigen::Vector3f &body,vector<E
   int connections=0,unsupported=0;
   // Continue a bounded search after a failed solve at the same departure.
   // The score order is deterministic and the body can be stationary.
-  if (ascending && (!ascent_search_ || (body-ascent_search_->first).norm()>radius))
-    ascent_search_=std::make_pair(body,size_t(0));
-  const size_t first=ascending && !candidates.empty() ? ascent_search_->second%candidates.size() : 0;
+  auto &progress=ascending ? ascent_search_ : boundary_search_;
+  if (!progress || (body-progress->first).norm()>radius)
+    progress=std::make_pair(body,size_t(0));
+  const size_t first=candidates.empty() ? 0 : progress->second%candidates.size();
   for (size_t i=0;i<candidates.size();++i) {
+    if (epic_ros::PlanningBudget::expired()) {route.clear();return false;}
     const size_t index=(first+i)%candidates.size();
     const auto &candidate=candidates[index];
-    if (ascending) ++ascent_search_->second;
+    ++progress->second;
     const auto &q=candidate.position;
     // Nearby ascending cells can have different stair connections. A failed
     // connection certifies only its own endpoint.
@@ -1552,6 +1559,7 @@ bool FrontierManager::observedBoundaryGuide(const Eigen::Vector3f &body,vector<E
       if (++unsupported>=12) break;
       continue;
     }
+    if (epic_ros::PlanningBudget::expired()) {route.clear();return false;}
     vector<Eigen::Vector3f> partial,flown;
     if ((connectObserved(body,q,.025,route) ||
          ((survey_level || ascending) && connectFlightHistory(body,q,.025,route,ascending ? &flown : nullptr)) ||
@@ -1561,7 +1569,8 @@ bool FrontierManager::observedBoundaryGuide(const Eigen::Vector3f &body,vector<E
         })) &&
         (!ascending || !revisitsLowerPass(body,route)) && certifyFlightGuide(route)) {
       if (!ascending && !toward && !forward && surface_continuity_) preferRightBranch(body,route,false);
-      if (ascending) {ascent_search_.reset();untested_ascent_=false;}
+      progress.reset();
+      if (ascending) untested_ascent_=false;
       ROS_INFO("Connected unflown observation on measured-air boundary %.2fm away",(route.back()-body).norm());
       return true;
     }
@@ -2224,6 +2233,7 @@ bool FrontierManager::resumeSurveyThroughAperture(const Eigen::Vector3f &body,ve
 bool FrontierManager::connectDistantObserved(const Eigen::Vector3f &start,const Eigen::Vector3f &goal,
                                            vector<Eigen::Vector3f> &route,vector<Eigen::Vector3f> *prefix) const {
   if (prefix) prefix->clear();
+  if (epic_ros::PlanningBudget::expired()) {route.clear();return false;}
   const float cell=frtp_.cell_size_,safe=graph_->parallel_bubble_astar_->safe_distance_;
   if (connectObservedGrid(start,goal,cell,.14,route,true) && certifyFlightGuide(route)) return true;
   route.clear();
@@ -2245,7 +2255,7 @@ bool FrontierManager::connectDistantObserved(const Eigen::Vector3f &start,const 
   cost[first]=0.f;open.push({first,0.f,(goal-start).norm()});
   vector<Eigen::Vector3f> spine;
   const auto begin=std::chrono::steady_clock::now();
-  while (!open.empty() && std::chrono::steady_clock::now()-begin<std::chrono::milliseconds(250)) {
+  while (!open.empty() && !epic_ros::PlanningBudget::expired() && std::chrono::steady_clock::now()-begin<std::chrono::milliseconds(250)) {
     const auto top=open.top();open.pop();
     if (top.cost>cost.at(top.key)) continue;
     if (top.key==last) {
@@ -2279,6 +2289,7 @@ bool FrontierManager::connectDistantObserved(const Eigen::Vector3f &start,const 
     vector<Eigen::Vector3f> edge;
     bool connected=true;
     for (size_t j=1;j<spine.size() && connected;++j) {
+          if (epic_ros::PlanningBudget::expired()) {route.clear();return false;}
       const auto &nominal=spine[j];
       if (lidar_map_interface_->getDisToOcc(nominal)>safe+.3f*cell &&
           connectObserved(route.back(),nominal,0.,edge)) {
@@ -2332,6 +2343,7 @@ bool FrontierManager::connectDistantObserved(const Eigen::Vector3f &start,const 
         (route.back()-goal).norm()<(start-goal).norm()-safe && certifyFlightGuide(route)) *prefix=route;
     route={start};
     for (size_t i=1;i<spine.size();) {
+          if (epic_ros::PlanningBudget::expired()) {route.clear();return false;}
       size_t end=i;
       while (end+1<spine.size() && (spine[end]-spine[i-1]).norm()<6.f*cell) ++end;
       const bool endpoint=end+1==spine.size();
@@ -2349,11 +2361,13 @@ bool FrontierManager::connectDistantObserved(const Eigen::Vector3f &start,const 
       vector<Eigen::Vector3f> leg;
       bool linked=false;
       for (const auto &q:targets) {
+          if (epic_ros::PlanningBudget::expired()) {route.clear();return false;}
         if (connectObserved(route.back(),q,0.,leg)) {linked=true;break;}
       }
       if (!linked) {
         size_t attempts=0;
         for (const auto &q:targets) {
+          if (epic_ros::PlanningBudget::expired()) {route.clear();return false;}
           if (lidar_map_interface_->getDisToOcc(q)<safe+.01f) continue;
           if (connectObservedGrid(route.back(),q,.5f*cell,.06,leg,true) ||
               connectObservedGrid(route.back(),q,cell/3.f,.08,leg,true) ||
@@ -2503,6 +2517,7 @@ bool FrontierManager::needsOppositeTransit(const Eigen::Vector3f &point,const Ei
 }
 
 void FrontierManager::recordPassage(const Eigen::Vector3f &body) {
+  wall_traversal_.observe(body);
   const float safe=graph_->bubble_min_radius_;
   if (flight_history_.empty()) flight_history_.push_back(body);
   const Eigen::Vector3f travelled=body-flight_history_.back();
@@ -2665,8 +2680,10 @@ void FrontierManager::appendContourViewpoints(const Eigen::Vector3f &body, vecto
   // Avoid drawing a vehicle that has climbed back onto its launch plane.
   // Small height errors on level ground still share one stable scan slice.
   float z=std::abs(body.z()-vpp_.fixed_height_)<frtp_.cell_size_ ? vpp_.fixed_height_ : body.z();
-  survey_height_=measuredSurveyHeight(body,float(ground_clearance_));
-  if (survey_height_)
+  survey_height_=vpp_.fixed_height_enabled_ ? std::optional<float>(vpp_.fixed_height_) :
+      measuredSurveyHeight(body,float(ground_clearance_));
+  if(vpp_.fixed_height_enabled_) z=vpp_.fixed_height_;
+  else if (survey_height_)
     z=body.z()+std::clamp(*survey_height_-body.z(),-frtp_.cell_size_,frtp_.cell_size_);
   const int half=int(std::ceil((frtp_.update_length_+4.f*safe)/cell));
   const Eigen::Vector2i base=(body.head<2>()/cell).array().floor().cast<int>();
@@ -2863,7 +2880,8 @@ void FrontierManager::appendContourViewpoints(const Eigen::Vector3f &body, vecto
   std::optional<size_t> attached_curve;
   // Try the nearest wall normally, then a checked reattachment. Only when
   // that local outline ends can a forward seed bridge a break in the scan.
-  for (int pass=0;pass<3;++pass) for (const auto &start:pass==2 ? forward_starts : starts) {
+  for (int pass=0;pass<3 && !epic_ros::PlanningBudget::expired();++pass) for (const auto &start:pass==2 ? forward_starts : starts) {
+    if (epic_ros::PlanningBudget::expired()) break;
     const bool reattach=pass!=0;
     if (reattach && blocked_starts.empty()) break;
     const auto &seeds=pass==2 ? forward_starts : starts;
@@ -2935,14 +2953,16 @@ void FrontierManager::appendContourViewpoints(const Eigen::Vector3f &body, vecto
       // In a narrow return, the same body strip can put the other wall
       // on the right. Count that directed pass once using actual flight.
       const bool opposite=visitedStance(next) && needsOppositeTransit(next,tangent);
-      const bool unflown=opposite || !visitedStance(next);
+      const bool directed_unflown=connected_wall_traversal_ &&
+          !wall_traversal_.visited(next,Eigen::Vector3f(tangent.x(),tangent.y(),0.f));
+      const bool unflown=connected_wall_traversal_ ? directed_unflown : (opposite || !visitedStance(next));
       const bool unseen=unflown && unseen_arc>=2.f*frtp_.cell_size_;
       inspection.push_back(unseen);
       if (length<=1.1f*safe) continue;
       if (!unflown) continue;
       // Follow arc order around the right wall. After a right turn even a
       // forward stance can lie behind the original heading in Cartesian space.
-      if (opposite || unseen || !nearFlightPath(next,1.5f*safe)) {
+      if (connected_wall_traversal_ ? directed_unflown : (opposite || unseen || !nearFlightPath(next,1.5f*safe))) {
         end=route.size()-1;
       }
     }
@@ -3015,7 +3035,8 @@ void FrontierManager::appendContourViewpoints(const Eigen::Vector3f &body, vecto
       const float step=std::min((route[k]-route[k-1]).norm(),2.f*cell);
       const Eigen::Vector2f tangent=(route[k]-route[k-1]).head<2>();
       if (tangent.norm()<.05f) continue;
-      if (!visitedStance(route[k]) || needsOppositeTransit(route[k],tangent.normalized()))
+      if ((connected_wall_traversal_ && !wall_traversal_.visited(route[k],Eigen::Vector3f(tangent.x(),tangent.y(),0.f).normalized())) ||
+          !visitedStance(route[k]) || needsOppositeTransit(route[k],tangent.normalized()))
         unflown_length+=step;
       if (!inspection[k]) continue;
       obs->fresh_contour_length_+=step;
@@ -3126,8 +3147,12 @@ void FrontierManager::appendContourViewpoints(const Eigen::Vector3f &body, vecto
     }
     return false;
   };
+  const size_t first_trial=nearby.empty() ? 0 : surface_candidate_cursor_%nearby.size();
   for (size_t trial=0;trial<std::min<size_t>(4,nearby.size());++trial) {
-    const auto seed=nearby[trial];const auto &curve=outlines[seed.curve];
+    if (epic_ros::PlanningBudget::expired()) break;
+    const size_t selected=(first_trial+trial)%nearby.size();
+    surface_candidate_cursor_=selected+1;
+    const auto seed=nearby[selected];const auto &curve=outlines[seed.curve];
     vector<Eigen::Vector3f> edge;
     float length=0.f;
     for (size_t j=0;j<curve.size() && length<5.f*safe;j+=2) {
@@ -3402,6 +3427,7 @@ bool FrontierManager::opposesIssuedRightTurn(const Eigen::Vector3f &body,const E
 }
 
 TopoNode::Ptr FrontierManager::continueIssuedRightTurn(const Eigen::Vector3f &body,const Eigen::Vector3f &proposal) {
+  if (epic_ros::PlanningBudget::expired()) return {};
   if (!opposesIssuedRightTurn(body,proposal)) return {};
   const auto &[tip,outgoing]=*issued_right_turn_;
   const float radius=graph_->bubble_min_radius_;
@@ -3450,6 +3476,7 @@ void FrontierManager::confirmWallGuide(const vector<Eigen::Vector3f> &approach,
   previous_outline_=approach;
   if (preview.size()>1 && !approach.empty() && (approach.back()-preview.front()).norm()<.1f)
     previous_outline_.insert(previous_outline_.end(),preview.begin()+1,preview.end());
+  if(connected_wall_traversal_)wall_traversal_.commit(previous_outline_);
 }
 
 size_t FrontierManager::heightBoundedPrefix(const vector<Eigen::Vector3f> &path,double margin) {
@@ -3467,6 +3494,7 @@ size_t FrontierManager::heightBoundedPrefix(const vector<Eigen::Vector3f> &path,
 
 bool FrontierManager::centredForwardPass(const Eigen::Vector3f &body,const Eigen::Vector2f &along,
                                        vector<Eigen::Vector3f> &path) {
+  if (epic_ros::PlanningBudget::expired()) return false;
   const float cell=frtp_.cell_size_,radius=graph_->bubble_min_radius_,trust=frtp_.good_observation_trust_length_;
   auto flight=surveyFlightDirection(body);
   const bool short_history=!flight.has_value();
@@ -3532,6 +3560,7 @@ bool FrontierManager::centredForwardPass(const Eigen::Vector3f &body,const Eigen
     Eigen::Vector3f goal=centre;
     float best=-std::numeric_limits<float>::infinity();
     for (float side=-lateral_range;side<=lateral_range+.1f*step;side+=step) {
+      if (epic_ros::PlanningBudget::expired()) return false;
       for (float rise=-vertical_range;rise<=vertical_range+.1f*step;rise+=step) {
         Eigen::Vector3f q=centre;
         q.head<2>()+=side*left;q.z()+=rise;
@@ -3551,7 +3580,7 @@ bool FrontierManager::centredForwardPass(const Eigen::Vector3f &body,const Eigen
     // disconnected. Observe from its unflown near side before reversing.
     // The caller also requires distinct new surface or unknown-air samples.
     if (!reach_slice(trust,2.f*radius) && !reach_slice(.5f*trust,1.25f*radius)) {
-      failed_centred_pass_=std::make_pair(body,now);
+      if (!epic_ros::PlanningBudget::expired()) failed_centred_pass_=std::make_pair(body,now);
       return false;
     }
   }
@@ -3564,6 +3593,7 @@ bool FrontierManager::centredForwardPass(const Eigen::Vector3f &body,const Eigen
 // ends. The entire approach stays in lidar-confirmed air. A small sideways
 // displacement allows a continuous pass around a protruding measured obstacle.
 TopoNode::Ptr FrontierManager::forwardObservation(const Eigen::Vector3f &body,bool require_broad) {
+  if (epic_ros::PlanningBudget::expired()) return {};
   if (flight_history_.size()<3) return {};
   const float radius=graph_->bubble_min_radius_, cell=frtp_.cell_size_;
   Eigen::Vector2f along=Eigen::Vector2f::Zero();
@@ -3591,6 +3621,7 @@ TopoNode::Ptr FrontierManager::forwardObservation(const Eigen::Vector3f &body,bo
   float best_advance=0.f;
   vector<std::pair<float,float>> tested_offsets;
   for (const float offset:{0.f,-radius,radius,-1.75f*radius,1.75f*radius}) {
+    if (epic_ros::PlanningBudget::expired()) break;
     vector<Eigen::Vector3f> path{body};
     float fresh=0.f,total=0.f;
     for (float s=cell;s<=frtp_.update_length_;s+=cell) {
@@ -3668,6 +3699,7 @@ TopoNode::Ptr FrontierManager::forwardObservation(const Eigen::Vector3f &body,bo
 // Sample the unflown end of a measured strip even between updates of the
 // frontier clusters. All guide segments remain in the certified component.
 TopoNode::Ptr FrontierManager::rollingSurveyView(const Eigen::Vector3f &body,const Eigen::Vector2f &direction) {
+  if (epic_ros::PlanningBudget::expired()) return {};
   vector<Eigen::Vector3f> route;
   if (centredForwardPass(body,direction,route) && route.size()>1 && !visitedStance(route.back())) {
     if (auto pass=evaluateSurveyPath(body,direction,std::move(route),0.f,true,false)) return pass;
@@ -3715,6 +3747,7 @@ TopoNode::Ptr FrontierManager::rollingSurveyView(const Eigen::Vector3f &body,con
 // A cluster centroid can miss the sparse topology while an individual lidar
 // viewpoint has a connected approach. Keep one productive pass in the tour.
 TopoNode::Ptr FrontierManager::sampledSurveyPass(const Eigen::Vector3f &body,const PointVector &samples) {
+  if (epic_ros::PlanningBudget::expired()) return {};
   const float radius=graph_->bubble_min_radius_,cell=frtp_.cell_size_;
   if (samples.empty() || !survey_height_) return {};
   const float level=body.z()+std::clamp(*survey_height_-body.z(),-cell,cell);
@@ -3754,6 +3787,7 @@ TopoNode::Ptr FrontierManager::sampledSurveyPass(const Eigen::Vector3f &body,con
 // measured approach at survey height for observations of its own before
 // climbing. The elevated viewpoint remains a separate candidate in the tour.
 TopoNode::Ptr FrontierManager::surveyApproach(const Eigen::Vector3f &body,const Eigen::Vector3f &target) {
+  if (epic_ros::PlanningBudget::expired()) return {};
   const float radius=graph_->bubble_min_radius_,cell=frtp_.cell_size_;
   if (!survey_height_ || std::abs(body.z()-*survey_height_)>radius ||
       std::abs(target.z()-*survey_height_)<=radius) return {};
@@ -3802,6 +3836,7 @@ TopoNode::Ptr FrontierManager::surveyApproach(const Eigen::Vector3f &body,const 
 
 TopoNode::Ptr FrontierManager::evaluateSurveyPath(const Eigen::Vector3f &body,const Eigen::Vector2f &along,
     vector<Eigen::Vector3f> best,float bypass_tail,bool centred,bool require_broad) {
+  if (epic_ros::PlanningBudget::expired()) return {};
   const float cell=frtp_.cell_size_,radius=graph_->bubble_min_radius_,trust=frtp_.good_observation_trust_length_;
   const Eigen::Vector2f left(-along.y(),along.x());
   if (best.empty()) return {};
@@ -3910,6 +3945,7 @@ TopoNode::Ptr FrontierManager::evaluateSurveyPath(const Eigen::Vector3f &body,co
 // still a broad, unflown footprint alongside it. One rolling observation
 // covers the turn and the start of that neighbouring footprint.
 TopoNode::Ptr FrontierManager::parallelObservation(const Eigen::Vector3f &body,bool require_separator) {
+  if (epic_ros::PlanningBudget::expired()) return {};
   const float cell=frtp_.cell_size_, trust=frtp_.good_observation_trust_length_;
   const float radius=graph_->bubble_min_radius_;
   if (!survey_height_ || std::abs(*survey_height_-body.z())>radius || trust<=2.f*radius) return {};
@@ -3946,6 +3982,7 @@ TopoNode::Ptr FrontierManager::parallelObservation(const Eigen::Vector3f &body,b
   const float ahead=barrierRange(0.f);
   if (ahead<=0.f) return {};
   for (float sign:{1.f,-1.f}) for (float width:{1.1f*trust,trust,1.3f*trust,.8f*trust}) {
+    if (epic_ros::PlanningBudget::expired()) break;
     const float middle=barrierRange(sign*.5f*width),far=barrierRange(sign*width);
     if (far<=0.f) continue;
     bool wide=true,separated=true;
@@ -4047,6 +4084,7 @@ TopoNode::Ptr FrontierManager::parallelObservation(const Eigen::Vector3f &body,b
 // observed pocket. Test the outgoing direction of its wall preview for an
 // actual free/unknown boundary before commanding a round trip into the pocket.
 TopoNode::Ptr FrontierManager::initialBoundaryObservation(const Eigen::Vector3f &body,const TopoNode::Ptr &view) {
+  if (epic_ros::PlanningBudget::expired()) return {};
   const auto &wall=*observations_.at(view.get());
   const auto &preview=wall.contour_preview_;
   if (wall.contour_entry_ || preview.size()<2 || !unseenSupport(wall).empty() || followsRightWall(preview)) return {};
@@ -4146,6 +4184,7 @@ std::optional<Eigen::Vector3f> FrontierManager::preferRightBranch(const Eigen::V
 }
 
 TopoNode::Ptr FrontierManager::boundaryObservation(vector<Eigen::Vector3f> route) {
+  if (epic_ros::PlanningBudget::expired()) return {};
   if (route.size()<2) return {};
   const Eigen::Vector3f goal=route.back();
   auto observation=std::make_shared<ClusterInfo>();
@@ -5577,4 +5616,14 @@ bool FrontierManager::hasInspectionFrontiers() const {
   for(const auto &cluster:cluster_list_)
     if(cluster && !cluster->is_dormant_ && (!surface_continuity_ || !observedCluster(*cluster)))return true;
   return false;
+}
+
+void FrontierManager::preferLevelGuide(vector<Eigen::Vector3f>& path) const {
+  if(!vpp_.fixed_height_enabled_ || path.size()<2)return;
+  auto level=path;
+  for(size_t i=1;i<level.size();++i)level[i].z()=vpp_.fixed_height_;
+  // Do not collapse a vertical return/recovery leg into an empty route.
+  if(std::none_of(level.begin()+1,level.end(),[&](const auto& p){return (p-level.front()).norm()>.05f;}))return;
+  if(std::all_of(level.begin(),level.end(),[this](const auto& p){return withinFlightHeight(p);}) &&
+      lidar_map_interface_->IsPathInBox(level) && certifyFlightGuide(level))path.swap(level);
 }

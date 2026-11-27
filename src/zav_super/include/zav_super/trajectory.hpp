@@ -22,6 +22,18 @@ inline bool terminal_stop_reached(const Trajectory &trajectory, double elapsed,
          (position-p).norm()<=.3 && velocity.norm()<=.3;
 }
 
+// A pending request may outlive a short old reference, but never extend an
+// expired moving polynomial. Keep the measured stopping envelope unchanged.
+inline bool can_wait_for_replacement(const Trajectory &trajectory,double elapsed,
+                                     const Eigen::Vector3d& position,
+                                     const Eigen::Vector3d& velocity) {
+  if(trajectory.getPieceNum()==0 || !std::isfinite(elapsed) || elapsed<0. ||
+     !position.allFinite() || !velocity.allFinite())return false;
+  const double end=trajectory.getTotalDuration();
+  if(!std::isfinite(end) || end<=0.)return false;
+  return elapsed<end || terminal_stop_reached(trajectory,elapsed,position,velocity);
+}
+
 inline Trajectory decode(const mars_quadrotor_msgs::msg::PolynomialTrajectory &m, bool yaw=false) {
   const auto &times=yaw?m.time_yaw:m.time_pos;
   const auto order=yaw?m.order_yaw:m.order_pos;

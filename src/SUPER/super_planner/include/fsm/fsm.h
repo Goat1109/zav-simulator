@@ -42,6 +42,8 @@ namespace fsm {
     class Fsm {
     protected:
         std::atomic<bool> stop{false};
+        std::shared_ptr<super_planner::PlanningEnvelope> envelope_=std::make_shared<super_planner::PlanningEnvelope>();
+        bool snapGoal(const Vec3f& requested,Vec3f& corrected);
 
 
         vector<string> log_time_str{
@@ -166,7 +168,8 @@ namespace fsm {
 
         void ChangeState(const string &call_func, const MACHINE_STATE &new_state);
 
-        virtual void publishPolyTraj() = 0;
+        virtual void publishArrival() {}
+        virtual bool publishPolyTraj() = 0;
 
         virtual void publishCurPoseToPath() = 0;
 

@@ -43,9 +43,10 @@ traj_opt:
     save_log_en: false
     print_optimizer_log: false
   boundary:
-    max_vel: 1.0
-    max_acc: 6.0
-    max_jerk: 10.0
+    use_profile_max_vel: false  # All hardware profiles use the common speed.
+    max_vel: 3.0
+    max_acc: 1.5
+    max_jerk: 3.0
     max_omg: 5
     max_acc_thr: 25
     min_acc_thr: 6.0
@@ -60,7 +61,7 @@ traj_opt:
     scale_factor: 1.0
     integral_reso: 15
     smooth_eps: 0.01
-    penna_t: 50000000.0
+    penna_t: 500000.0
     penna_pos: 1000000000.0
     penna_vel: 500000000.0
     penna_acc: 500000000.0
@@ -120,7 +121,7 @@ rog_map:
   - 0
   - 0
   frontier_extraction_en: false
-  virtual_ceil_height: 1.5
+  virtual_ceil_height: 1.9
   virtual_ground_height: -0.6
   load_pcd_en: false
   map_sliding:
@@ -170,8 +171,17 @@ rog_map:
     unk_thresh: 1.0
 argo_ommpc_px4:
   ros__parameters:
-    control_period: 0.02
-    step_T: 0.02
+    # Simulator-compatible ordered preview; intermediate vertices do not stop.
+    epic_path_lookahead_m: 4.0
+    epic_path_lookahead_max_m: 15.0
+    epic_path_chord_error_m: 0.15
+    # Wait for the same outstanding request while its committed stop stays valid.
+    planner_response_timeout_s: 5.0
+    # EPIC starts its return after 15s; leave time for that return guide to arrive.
+    epic_guide_wait_timeout_s: 20.0
+    tracking_backend: px4  # px4 or ommpc
+    control_period: 0.01
+    step_T: 0.01
     Q_pos_xy: 600.0
     Q_velocity: 60.0
     R_pitchroll: 16.0

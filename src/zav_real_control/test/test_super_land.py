@@ -38,5 +38,8 @@ def test_no_land_command_for_invalid_or_overridden_return(case):
     if case=='RC8_low':g.rc8=1000
     if case=='wrong_intent':p['mission']['kind']='forward'
     g.accept(p,3.04,p['stamp_ns']);g.tick(c,3.04)
-    assert not any(name=='command_long_send' for name,_ in c.calls)
+    # Invalid RTH may initiate the controller-fault Position handoff, but must
+    # never authorize the requested mission LAND.
+    requests=[a for name,a in c.calls if name=='command_long_send']
+    assert all(a[2]==mav.MAV_CMD_DO_SET_MODE and a[5:7]==(3,0) for a in requests)
     assert g.terminal

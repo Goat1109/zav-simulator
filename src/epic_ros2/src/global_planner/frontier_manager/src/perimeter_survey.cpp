@@ -1,3 +1,4 @@
+#include <epic_ros2/planning_budget.hpp>
 #include <frontier_manager/frontier_manager.h>
 #include <opencv2/imgproc.hpp>
 
@@ -35,6 +36,7 @@ struct Boundary {
 // returns. The convex envelope orders headings; only measured free air, a
 // measured right face and a collision-checked connector may produce a goal.
 TopoNode::Ptr FrontierManager::exteriorViewpoint(const V3 &body,bool observe_only) {
+  if (epic_ros::PlanningBudget::expired()) return {};
   bool directional_priority;
   nh_.param("global_planning/right_hand_priority",directional_priority,false);
   if (directional_priority ||
@@ -309,6 +311,7 @@ TopoNode::Ptr FrontierManager::exteriorViewpoint(const V3 &body,bool observe_onl
   }
   vector<std::pair<float,int>> candidates;
   while (!queue.empty()) {
+    if (epic_ros::PlanningBudget::expired()) return {};
     const auto [score,k]=queue.top();queue.pop();if (cost[k]!=score) continue;
     const auto &at=locate(k);float progress=at.arc-departure.arc;
     if (progress<-.5f*boundary.cumulative.back()) progress+=boundary.cumulative.back();
@@ -337,6 +340,7 @@ TopoNode::Ptr FrontierManager::exteriorViewpoint(const V3 &body,bool observe_onl
   std::sort(candidates.rbegin(),candidates.rend());
   vector<bool> blocked_edge(n,false);
   for (const auto &[score,id]:candidates) {
+    if (epic_ros::PlanningBudget::expired()) return {};
     const V3 goal=poses[id];
     // Failed gain at one cell says nothing about its neighbour across a
     // doorway. Only a failed edge is shared by its descendants in this tree.

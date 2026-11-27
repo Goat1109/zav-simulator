@@ -26,6 +26,7 @@
 #include "memory"
 
 #include <super_core/config.hpp>
+#include <super_core/planning_envelope.hpp>
 #include <super_core/ciri.h>
 
 #include <data_structure/base/polytope.h>
@@ -68,6 +69,25 @@ namespace super_planner {
         double ciri_t{0};
         int ciri_cnt{0};
     public:
+        std::shared_ptr<PlanningEnvelope> envelope_;
+        bool clipMission(Polytope& poly,const Vec3f& a,const Vec3f& b)const{
+            if(!envelope_)return true;
+            auto planes=poly.GetPlanes();if(!envelope_->clip(planes,a,b))return false;
+            poly.SetPlanes(planes);return true;
+        }
+        bool flight_height_guard_=false;
+        double flight_floor_=0.,flight_ceiling_=0.;
+        void setFlightHeightBounds(double floor,double ceiling){
+            if(!std::isfinite(floor) || !std::isfinite(ceiling) || floor>=ceiling)
+                throw std::invalid_argument("Invalid flight height bounds");
+            flight_height_guard_=true;flight_floor_=floor;flight_ceiling_=ceiling;
+        }
+        bool boundFlightHeight(Vec3f& lo,Vec3f& hi,const Vec3f& a,const Vec3f& b)const{
+            if(!flight_height_guard_)return true;
+            lo.z()=std::max(lo.z(),flight_floor_);hi.z()=std::min(hi.z(),flight_ceiling_);
+            return (lo.array()<hi.array()).all() && a.z()>=lo.z() && a.z()<=hi.z() &&
+                   b.z()>=lo.z() && b.z()<=hi.z();
+        }
         vec_Vec3f getLatestCloud() {
             vec_Vec3f out = latest_pc;
             latest_pc.clear();

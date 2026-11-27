@@ -13,6 +13,7 @@ import rclpy
 from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy, qos_profile_sensor_data
 from ament_index_python.packages import get_package_prefix, get_package_share_directory
 from nav_msgs.msg import Odometry
+from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import PointCloud2, PointField
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
@@ -25,11 +26,19 @@ def run():
     odom=node.create_publisher(Odometry,'/argo/super/odom',10)
     cloud=node.create_publisher(PointCloud2,'/argo/super/cloud_world',1)
     bridge=node.create_publisher(String,'/zav_real/status',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL,reliability=ReliabilityPolicy.RELIABLE))
-    status=[];plans=[];beats=[]
+    status=[];plans=[];beats=[];goals=[];planner_events=[];packet_requests={};retagged=[]
+    node.create_subscription(String,"/zav/super/planner_status",lambda m:planner_events.append(json.loads(m.data)),10)
+    node.create_subscription(PoseStamped,'/zav/super/goal',goals.append,10)
+    goal_pub=node.create_publisher(PoseStamped,'/zav/super/goal',10)
+    cancel=node.create_publisher(String,'/zav/super/planner_cancel',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL,reliability=ReliabilityPolicy.RELIABLE))
     node.create_subscription(String,'/zav/super/controller_status',lambda m:status.append(json.loads(m.data)),10)
     def on_plan(m):
         now=time.monotonic()
-        if m.type & Poly.POSITION_TRAJ: plans.append((now,m))
+        if m.type & Poly.POSITION_TRAJ:
+            key=(m.start_wt_pos,m.start_wt_yaw,tuple(m.time_pos),tuple(m.time_yaw),tuple(m.coef_pos_x),tuple(m.coef_pos_y),tuple(m.coef_pos_z),tuple(m.coef_yaw))
+            request=json.loads(m.debug_info)['goal_request_stamp_ns']
+            if key in packet_requests and packet_requests[key]!=request:retagged.append((packet_requests[key],request))
+            packet_requests[key]=request;plans.append((now,m))
         if m.type & Poly.HEART_BEAT: beats.append(now)
     node.create_subscription(Poly,'/planning_cmd/poly_traj',on_plan,qos_profile_sensor_data)
     forward=node.create_client(GoForward,'/zav/super/go_forward')
@@ -65,8 +74,15 @@ def run():
         while time.monotonic()<end and not predicate():rclpy.spin_once(node,timeout_sec=.01)
         assert predicate(),('Timeout',status[-1] if status else None)
     def signature(m):return (m.start_wt_pos,tuple(m.time_pos))
-    def last_plan_after(index):
-        wait(lambda:len(plans)>index);return plans[-1][1]
+    def last_plan_after(index,requested_after):
+        # The transport may still deliver an old committed trajectory while a
+        # new goal is queued. Apply the controller's epoch/freshness gates;
+        # following that old packet would teleport scripted odometry.
+        def valid(m):
+            stamp=json.loads(m.debug_info)['goal_request_stamp_ns']
+            return stamp>=requested_after and m.start_wt_pos>=stamp/1e9-.1 and m.start_wt_pos+sum(m.time_pos)>node.get_clock().now().nanoseconds/1e9
+        wait(lambda:any(valid(m) for _,m in plans[index:]))
+        return next(m for _,m in reversed(plans[index:]) if valid(m))
     def follow(m):
         end=m.start_wt_pos+sum(m.time_pos)
         while node.get_clock().now().nanoseconds/1e9<end:
@@ -88,6 +104,8 @@ def run():
     share=Path(get_package_share_directory('zav_super'))
     config=yaml.safe_load((share/'config/common.yaml').read_text());config['super_planner']['visualization_en']=False
     config['fsm']['click_goal_topic']='/zav/super/goal'
+    # Synthetic room is 5m high; isolate fixture bounds from the 1.5m vehicle ceiling.
+    config['rog_map']['virtual_ceil_height']=6.
     config['rog_map']['ros_callback'].update(cloud_topic='/argo/super/cloud_world',odom_topic='/argo/super/odom')
     controller=dict(config['argo_ommpc_px4']['ros__parameters'])
     for key in ('use_px4_landing','allow_terminal_hold'):controller.pop(key,None)
@@ -103,8 +121,8 @@ def run():
                 processes.append(subprocess.Popen([str(binary),'--ros-args',*args],stdout=log,stderr=subprocess.STDOUT))
             wait(lambda:status and status[-1]['phase']=='PRESTREAM' and forward.service_is_ready());spin(3.)
             state.update(armed=True,landed=False,mode=[6,0]);wait(lambda:status[-1]['phase']=='HOVER' and status[-1]['mission']['home_valid'])
-            index=len(plans);future=forward.call_async(GoForward.Request(distance_m=7.));wait(future.done);assert future.result().success
-            m=last_plan_after(index);goal,end=follow(m);key=signature(m);index=len(plans);b0=len(beats)
+            index=len(plans);requested_after=node.get_clock().now().nanoseconds;future=forward.call_async(GoForward.Request(distance_m=2.));wait(future.done);assert future.result().success
+            m=last_plan_after(index,requested_after);goal,end=follow(m);key=signature(m);index=len(plans);b0=len(beats)
             spin(1.2)
             assert status[-1]['phase']=='ENDPOINT_SETTLING',status[-1]
             assert not status[-1]['mission']['complete']
@@ -116,8 +134,8 @@ def run():
             assert status[-1]['phase']=='ENDPOINT_HOLD'
             print('PASS: real planner waits at 15cm/0.2m/s, heartbeat continues; 8cm/0.12m/s is not arrival; 8cm/0.08m/s +1s completes',flush=True)
             # A second leg remains 15cm short: wait must expire and allow recovery.
-            state['v']=np.zeros(3);index=len(plans);future=forward.call_async(GoForward.Request(distance_m=2.));wait(future.done);assert future.result().success
-            m=last_plan_after(index);goal,end=follow(m);key=signature(m);index=len(plans)
+            state['v']=np.zeros(3);index=len(plans);requested_after=node.get_clock().now().nanoseconds;future=forward.call_async(GoForward.Request(distance_m=1.));wait(future.done);assert future.result().success
+            m=last_plan_after(index,requested_after);goal,end=follow(m);key=signature(m);index=len(plans)
             state['v']=np.zeros(3);spin(2.4)
             assert status[-1]['phase']=='ENDPOINT_SETTLING',status[-1]
             assert all(signature(x)==key for _,x in plans[index:]),'Recovery happened before the 3s deadline'
@@ -132,6 +150,24 @@ def run():
             assert status[-1]['mission']['kind']=='rth' and not status[-1]['mission']['complete'],status[-1]
             print('PASS: new RTH goal preempts terminal convergence and receives a newly correlated trajectory',flush=True)
             assert not any(s['phase'] in ('SOLVER_FAILURE','SUPER_EMERGENCY','ODOMETRY_JUMP','PLANNER_TIMEOUT') for s in status)
+            # Stop the synthetic controller, then exercise the actual planner's
+            # cancellation epoch independently of its heartbeat consumer.
+            processes[1].terminate();processes[1].wait(timeout=5.)
+            stale=goals[-1];stamp=node.get_clock().now().nanoseconds
+            cancel.publish(String(data=json.dumps({'stamp_ns':stamp,'reason':'OFFLINE_CANCEL_TEST'})))
+            spin(.5);count=len(plans);b0=len(beats);spin(1.2)
+            assert len(plans)==count and len(beats)==b0,'cancelled planner continued old-goal output'
+            assert any(e['event']=='CANCELLED' for e in planner_events),'missing planner cancellation acknowledgement'
+            goal_pub.publish(stale);spin(.4)
+            assert len(plans)==count,'stale goal revived cancelled mission'
+            fresh=PoseStamped();fresh.header.frame_id='world';fresh.header.stamp=node.get_clock().now().to_msg()
+            fresh.pose.position.x=float(state['p'][0]-.8);fresh.pose.position.y=float(state['p'][1]);fresh.pose.position.z=float(state['p'][2]);fresh.pose.orientation.w=1.
+            goal_pub.publish(fresh)
+            expected=fresh.header.stamp.sec*10**9+fresh.header.stamp.nanosec
+            wait(lambda:any(json.loads(x.debug_info)['goal_request_stamp_ns']==expected for _,x in plans[count:]),5.)
+            assert not retagged,('cached trajectory relabelled as a new goal response',retagged)
+            print('PASS: actual SUPER stops old goal/replanning/heartbeat after cancel; stale goal rejected; newer mission resumes; cached packets keep their request identity',flush=True)
+
         finally:
             for p in processes:
                 p.terminate()

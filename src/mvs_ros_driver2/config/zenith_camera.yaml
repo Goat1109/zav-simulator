@@ -10,22 +10,25 @@
 # Topic Name published to ROS 2
 TopicName: "/camera/image_raw"
 
-# Hardware Trigger: 0 for Free-run (Continuous USB 10Hz), 1 for Hardware Pin Trigger
+# Hardware Trigger: 0 for Free-run (Continuous USB), 1 for Hardware Pin Trigger
 TriggerEnable: 0
 
-# Frame Rate (Hz) for Free-run mode (10.0 Hz matches Livox LiDAR & FAST-LIVO2 paper)
-FrameRate: 10.0
+# Capture full resolution for the recorder; keep navigation matched to LiDAR.
+FrameRate: 30.0
+RawFrameRate: 10.0
+RecordingTopic: "/camera/full/image_raw/compressed"
+JpegQuality: 85
 
 # Exposure Settings
 # ExposureAutoMode: 0 = Off, 1 = Once, 2 = Continuous
 ExposureAutoMode: 2
 ExposureTime: 15000 # us (used when ExposureAutoMode is 0)
 AutoExposureTimeLower: 500
-AutoExposureTimeUpper: 20000
+AutoExposureTimeUpper: 10000 # us; limit motion blur during flight
 
 # Image & Gain Settings
-Binning: 2          # 2x2 Hardware Binning on camera sensor (transmits native 640x512 over USB, 75% bandwidth reduction)
-image_scale: 1.0    # 1.0 (Hardware binning directly outputs 640x512, no software downsampling needed)
+Binning: 1          # Preserve the full Bayer mosaic for colour reconstruction
+image_scale: 0.5    # Downsample RGB after demosaicing to the calibrated 640x512
 GainAuto: 2        # 0 = Off, 1 = Once, 2 = Continuous
 Gain: 6.0         # Used only when GainAuto is 0 (manual gain in dB)
 Gamma: 0.7         # Used only when GammaSelector is 1 (User)

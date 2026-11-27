@@ -8,6 +8,7 @@
  */
 #pragma once
 #include <optional>
+#include <epic_ros2/wall_traversal.hpp>
 #include "lidar_map/ikd_Tree.h"
 #include <bits/stdc++.h>
 #include <frontier_manager/raycast.h>
@@ -315,6 +316,7 @@ public:
                        vector<Eigen::Vector3f> &route) const;
   bool connectDistantObserved(const Eigen::Vector3f &start,const Eigen::Vector3f &goal,
                               vector<Eigen::Vector3f> &route,vector<Eigen::Vector3f> *prefix=nullptr) const;
+  void preferLevelGuide(vector<Eigen::Vector3f>& path) const;
   bool certifyFlightGuide(const vector<Eigen::Vector3f> &path) const;
   float measuredStanceClearance() const;
   bool withinFlightHeight(const Eigen::Vector3f &position) const;
@@ -337,6 +339,12 @@ public:
   static bool withinLevelApproach(float height,float body_height,float survey_height,float radius);
   std::optional<Eigen::Vector3f> perimeter_target_;
   bool surface_continuity_ = false;
+  bool connected_wall_traversal_ = true;
+  TopoNode::Ptr connectedWallViewpoint(const Eigen::Vector3f &body);
+  void resetWallTraversal() { wall_traversal_=epic_ros::WallTraversal(); wall_blocked_scans_=0; }
+  bool wallTraversalPending() const {return !wall_traversal_.branches().empty();}
+  bool viewpoint_generation_incomplete_ = false;
+  size_t surface_candidate_cursor_ = 0;
   bool observedCluster(const ClusterInfo &cluster) const;
   bool flownObservationStance(const Eigen::Vector3f &point) const;
   bool surveyedEnclosureStance(const Eigen::Vector3f &point) const;
@@ -373,6 +381,8 @@ public:
   bool pendingLevelGuide(const Eigen::Vector3f &body,vector<Eigen::Vector3f> &route);
   int unknownBoundaryFaces(const Eigen::Vector3i &key,vector<ObservationSample> *samples=nullptr);
   bool resumeSurveyThroughAperture(const Eigen::Vector3f &body,vector<Eigen::Vector3f> &route);
+  bool retry_native_candidates_=false;
+  int last_retry_cluster_=-1;
   bool previousOpening(const Eigen::Vector3f &body,vector<Eigen::Vector3f> &route);
   bool initialSurveyGuide(const Eigen::Vector3f &body,vector<Eigen::Vector3f> &route);
   bool sightlineGoal(const Eigen::Vector3f &body, vector<Eigen::Vector3f> &route);
@@ -387,6 +397,10 @@ public:
   float getCellSize() const { return frtp_.cell_size_; }
   std::unordered_map<const TopoNode*, ClusterInfo::Ptr> observations_;
 private:
+  epic_ros::WallTraversal wall_traversal_;
+  uint64_t wall_checked_scan_=0;
+  int wall_blocked_scans_=0;
+  std::string wall_traversal_reason_;
   std::unordered_set<Eigen::Vector3i,Vector3i_Hash> observed_air_;
   std::unordered_set<Eigen::Vector3i,Vector3i_Hash> visited_air_;
   // Upright-wall rasters consume only a horizontal slice of accumulated lidar hits.
@@ -423,6 +437,7 @@ private:
   vector<Eigen::Vector3f> branch_anchors_;
   size_t next_branch_anchor_=0;
   std::optional<std::pair<Eigen::Vector3f,size_t>> ascent_search_;
+  std::optional<std::pair<Eigen::Vector3f,size_t>> boundary_search_;
   bool untested_ascent_=false;
   std::optional<std::pair<Eigen::Vector3f,size_t>> residual_sweep_;
   bool connectObservedSections(const Eigen::Vector3f &start,const Eigen::Vector3f &goal,

@@ -461,6 +461,11 @@ namespace super_planner {
             vector<double> last_exp_traj_vel;
 
 
+            // A replacement cannot splice onto an exhausted reference. Let the
+            // FSM call PlanFromRest, which seeds position and velocity from odometry.
+            if (gi_.new_goal && (replan_state_TT >= cmd_traj_info_.getTotalDuration() ||
+                                 replan_state_TT >= last_exp_traj.getTotalDuration())) return NEW_TRAJ;
+
             // check early exit condition
             // 1) if the replan state is beyond the last cmd traj, return NO_NEED
             if (replan_state_TT >= cmd_traj_info_.getTotalDuration()) {
@@ -644,7 +649,8 @@ namespace super_planner {
             /// start point TT + exp_traj start_WT
 //            double path_search_start_point_WT = guide_stamp.back() + guide_pos_traj.start_WT;
             // if the goal is close to the last point of the guide path, just add the goal to the guide path
-            if ((guide_path.back() - gi_.goal_p).norm() < cfg_.resolution * 5) {
+            if ((guide_path.back() - gi_.goal_p).norm() < cfg_.resolution * 5 &&
+                (!cg_ptr_->envelope_ || cg_ptr_->envelope_->commonBox(guide_path.back(),gi_.goal_p)!=-1)) {
                 guide_stamp.push_back(guide_stamp.back() +
                                       (guide_path.back() - gi_.goal_p).norm() / cfg_.exp_traj_cfg.max_vel);
                 guide_path.push_back(gi_.goal_p);

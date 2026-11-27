@@ -1,6 +1,7 @@
 #include <epic_planner/fast_exploration_manager.h>
 #include <epic_planner/expl_data.h>
 #include <epic_ros2/lkh_tour.hpp>
+#include <epic_ros2/planning_budget.hpp>
 #include <plan_manage/planner_manager.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <cassert>
@@ -291,6 +292,16 @@ int main(int argc,char** argv) {
   goal->paths_[start]={goal->center_,start->center_};start->paths_[goal]={start->center_,goal->center_};
   goal->weight_[start]=1.;start->weight_[goal]=1.;
   FastExplorationManager manager;manager.ed_=std::make_shared<ExplorationData>();
+  {
+    // A depleted tick cannot claim that the map has no remaining frontiers.
+    // It also cannot leave an old candidate tour available for publication.
+    manager.ed_->global_tour_={{0,0,1},{1,0,1}};
+    epic_ros::PlanningBudget::Scope exhausted(0.);
+    assert(manager.planGlobalPath(Eigen::Vector3d::Zero(),Eigen::Vector3d::Zero())==FRONTIER_PENDING);
+    assert(manager.ed_->global_tour_.empty());
+    std::cout<<"PASS: exhausted planning budget yields pending, never exploration complete\n";
+  }
+
   manager.planner_manager_=std::make_shared<FastPlannerManager>();manager.planner_manager_->topo_graph_=graph;
   manager.planner_manager_->lidar_map_interface_=lio;
   {

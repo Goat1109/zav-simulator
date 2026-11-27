@@ -101,7 +101,7 @@ SUPER 전용 브리지에서 기존 6개 시험을 보내거나, 기존 시험 �
 
 ## Bag·zcomm
 
-Bag은 기존 `scripts/run_bag.sh`를 그대로 호출한다. **모드 선택은 폴더 이름 지정이며 센서 구성을 자동으로 바꾸지 않는다.** 저장 위치 `argo_ws/bags/YYMMDD_HHMMSS_fastlivo|fastlio|superlivo|superlio`, 토픽 `/livox/lidar`, `/livox/imu`, `/camera/image_raw`를 유지한다. 카메라가 발행되지 않으면 이미지 메시지는 기록되지 않는다.
+Bag은 기존 `scripts/run_bag.sh`를 그대로 호출한다. **모드 선택은 폴더 이름 지정이며 센서 구성을 자동으로 바꾸지 않는다.** 저장 위치 `argo_ws/bags/YYMMDD_HHMMSS_fastlivo|fastlio|superlivo|superlio`, LiDAR, IMU와 원본 해상도 JPEG 토픽 `/camera/full/image_raw/compressed`를 녹화한다. LIVO 모드는 시각 오도메트리 재생용 `/camera/image_raw`도 녹화한다. 카메라가 발행되지 않으면 이미지 메시지는 기록되지 않는다.
 
 **녹화 종료·저장**은 SIGINT를 보낸다. 종료·저장 대기 상태가 끝난 뒤 다운로드한다. metadata.yaml이 없는 진행 중 bag의 다운로드는 막는다. metadata.yaml과 모든 db3/mcap 파일을 같은 폴더에 받아야 한다. 큰 파일은 HTTP Range 이어받기를 지원한다.
 

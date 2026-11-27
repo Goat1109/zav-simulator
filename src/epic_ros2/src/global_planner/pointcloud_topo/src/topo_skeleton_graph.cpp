@@ -794,11 +794,16 @@ void TopoGraph::updateSkeleton() {
   for (auto &region_ptr : toponodes_update_region_arr_) {
     Eigen::Vector3f lb, hb;
     index2boundary(region_ptr->region_idx_, lb, hb);
+    // Build the graph in the same vertical envelope used to certify its edges.
+    const Eigen::Vector3f region_origin=lb;
+    lb.z()=std::max(lb.z(),float(parallel_bubble_astar_->flight_min_z_));
+    hb.z()=std::min(hb.z(),float(parallel_bubble_astar_->flight_max_z_));
+    if(lb.z()>=hb.z())continue;
     vector<BubbleNode::Ptr> tmp_bubbles;
     vector<bool> check_pt_flag(check_pts_.size(), false);
     for (int i = 0; i < check_pts_.size(); ++i) {
       Eigen::Vector3f pt = check_pts_[i].getArray3fMap();
-      pt += lb;
+      pt += region_origin;
       if (!lidar_map_interface_->IsInBox(pt))
         check_pt_flag[i] = true;
     }

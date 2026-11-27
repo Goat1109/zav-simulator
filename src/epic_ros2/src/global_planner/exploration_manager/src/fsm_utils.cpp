@@ -1,3 +1,4 @@
+#include <epic_planner/guide_continuity.h>
 #include <epic_planner/expl_data.h>
 #include <epic_planner/fast_exploration_fsm.h>
 
@@ -22,7 +23,16 @@ void FastExplorationFSM::pubState() {
   state_marker.header.frame_id = "world";
   state_marker.header.stamp = epic_ros::Time::now();
 
+  if(external_local_planner_)external_status_.update(state_marker);
   state_pub_.publish(state_marker);
+}
+
+// Snapshot only: never read mutable planner/odometry data from this callback
+// group. A 5s main-loop stall is a genuine failure, not an immortal heartbeat.
+void FastExplorationFSM::publishExternalStatus(){
+  auto marker=external_status_.snapshot();
+  if(!marker)return;
+  marker->header.stamp=epic_ros::Time::now();state_pub_.publish(*marker);
 }
 
 int FastExplorationFSM::callExplorationPlanner() {
@@ -221,6 +231,20 @@ int FastExplorationFSM::callExplorationPlanner() {
       first=last;
     }
     if (expl_manager_->guideSupported(smooth) && front.certifyFlightGuide(smooth)) path_next_goal.swap(smooth);
+  }
+  if(external_local_planner_ && expl_manager_->right_hand_priority_ && front.surface_continuity_ && front.connected_wall_traversal_) {
+    // The connected-wall journal owns continuity and deferred branches. Do
+    // not run the older, time-limited first-goal replacement policy as well.
+    if(!expl_manager_->guideSupported(path_next_goal) || !front.certifyFlightGuide(path_next_goal) ||
+       !externalInputsReady(false) || !publishExternalGuide(path_next_goal))return FRONTIER_PENDING;
+    expl_manager_->ed_->path_next_goal_=path_next_goal;
+    last_external_plan_=epic_ros::Time::now().toSec();
+    front.confirmWallGuide(path_next_goal,{});
+    if(!external_motion_started_){
+      const double reference=external_reference_imu_sub_ ? external_reference_imu_stamp_ : epic_ros::Time::now().toSec();
+      external_handoff_quiet_until_=reference+external_handoff_quiet_duration_;external_motion_started_=true;
+    }
+    visualizeDecision(true);return SUCCEED;
   }
   // Extend after smoothing so the selected observation stays on the guide.
   if (external_local_planner_ && expl_manager_->frontier_manager_ptr_->surface_continuity_) {
@@ -549,16 +573,25 @@ int FastExplorationFSM::callExplorationPlanner() {
 }
 
 void FastExplorationFSM::triggerCallback(const nav_msgs::msg::Path::ConstSharedPtr &msg) {
+  if(hardware_height_guard_ && (!hardware_height_ready_ ||
+     epic_ros::Time::now().toSec()-hardware_height_stamp_>.6)){
+    ROS_WARN_THROTTLE(1.,"EPIC trigger blocked: aligned height bounds not ready");return;
+  }
   if (msg->poses.empty() || msg->poses[0].pose.position.z < -0.1)
     return;
 
   if (state_ != WAIT_TRIGGER)
     return;
+  expl_manager_->frontier_manager_ptr_->resetWallTraversal();
   fd_->trigger_ = true;
   external_exploration_complete_=false;
   resetExternalPlanWait();
   if (external_local_planner_) {
     refreshExternalOdom();
+    corridor_phase_=CorridorPhase::Approach;
+    corridor_leg_.reset();
+    corridor_right_sign_=0.f;
+    return_after_complete_=false;
     external_home_.reset();
     if (external_state_received_ && fd_->odom_pos_.allFinite()) external_home_ = fd_->odom_pos_;
     external_complete_pub_.publish(std_msgs::msg::Bool{});
@@ -634,12 +667,15 @@ bool FastExplorationFSM::externalPlanTimedOut(bool begin_wait) {
       if (!expireExternalPlanWaitLocked(now)) return false;
     }
   }
-  startExternalReturn("external guide timeout");
+  startExternalReturn("external guide timeout",false);
   return true;
 }
 
 bool FastExplorationFSM::expireExternalPlanWaitLocked(double now) {
-  constexpr double plan_wait_limit = 5.;
+  double plan_wait_limit = 15.;
+  node_.param("exploration/external_guide_wait_timeout_s",plan_wait_limit,15.);
+  if(!std::isfinite(plan_wait_limit) || plan_wait_limit<=0. || plan_wait_limit>90.)
+    plan_wait_limit=15.;
   if (external_plan_expired_ || !external_plan_wait_since_ ||
       now - *external_plan_wait_since_ < plan_wait_limit) return external_plan_expired_;
 
@@ -654,11 +690,22 @@ void FastExplorationFSM::resetExternalPlanWait() {
   external_plan_expired_ = false;
 }
 
-bool FastExplorationFSM::publishExternalGuide(const vector<Vector3f> &route) {
+bool FastExplorationFSM::publishExternalGuide(const vector<Vector3f> &input) {
+  auto route=input;
+  auto& front=*expl_manager_->frontier_manager_ptr_;
+  front.preferLevelGuide(route);
+  // Remove a short obsolete backward entry ONLY when a new forward connector
+  // is certified against observed air, obstacles, height and box union.
+  forwardDeparture(route,fd_->odom_vel_,[&](const vector<Vector3f>& connector){
+    return expl_manager_->guideSupported(connector) && front.certifyFlightGuide(connector);
+  });
   if (!planner_manager_->lidar_map_interface_->IsPathInBox(route)) {
     ROS_WARN_THROTTLE(2., "Rejected EPIC guide outside exploration bounds");
     return false;
   }
+  // SUPER accepts guide edges of at most two metres. Keep the certified
+  // polyline and its corners intact when serializing longer direct edges.
+  boundGuideEdges(route);
   nav_msgs::msg::Path guide;
   guide.header.frame_id = "world";
   guide.header.stamp = epic_ros::Time::now();
@@ -684,13 +731,105 @@ bool FastExplorationFSM::publishExternalGuide(const vector<Vector3f> &route) {
   return true;
 }
 
-void FastExplorationFSM::startExternalReturn(const char *reason) {
+// The mission box defines which two ends must be covered. Every actual guide
+// is built from currently observed air and certified against the live map.
+void FastExplorationFSM::updateCorridorSurvey() {
+  if(!external_home_ || !externalInputsReady(false))return;
+  const auto map=planner_manager_->lidar_map_interface_;
+  const Vector3f lo=map->lp_->global_box_min_boundary_vec_.at(corridor_box_);
+  const Vector3f hi=map->lp_->global_box_max_boundary_vec_.at(corridor_box_);
+  const int along=hi.x()-lo.x()>hi.y()-lo.y() ? 0 : 1;
+  const int across=1-along;
+  const float mid=.5f*(lo[across]+hi[across]);
+  const Vector3f body=fd_->odom_pos_;
+  if(corridor_right_sign_==0.f) {
+    // The incoming direction is from the launch-side connector to the junction.
+    Eigen::Vector2f incoming=Eigen::Vector2f::Zero();
+    incoming[across]=mid-(*external_home_)[across];
+    if(std::abs(incoming[across])<.1f)
+      incoming={std::cos(fd_->odom_yaw_),std::sin(fd_->odom_yaw_)};
+    const Eigen::Vector2f right(incoming.y(),-incoming.x());
+    corridor_right_sign_=right[along]>=0.f ? 1.f : -1.f;
+  }
+  auto &front=*expl_manager_->frontier_manager_ptr_;
+  const float radius=planner_manager_->topo_graph_->bubble_min_radius_;
+  const float cell=front.getCellSize();
+  const float standoff=radius+cell;
+  if(corridor_phase_==CorridorPhase::Approach && std::abs(body[across]-mid)<radius) {
+    corridor_phase_=CorridorPhase::Right;corridor_leg_.reset();
+  }
+  const bool approach=corridor_phase_==CorridorPhase::Approach;
+  const float sign=corridor_phase_==CorridorPhase::Left ? -corridor_right_sign_ : corridor_right_sign_;
+  const float end=sign>0.f ? hi[along]-standoff : lo[along]+standoff;
+  // A certified endpoint may be one cell short of the nominal end. SUPER
+  // snaps that endpoint to its grid; use measured arrival at that issued goal.
+  const bool reached_terminal_leg = corridor_leg_ &&
+      std::abs((*corridor_leg_)[along] - end) <= cell + .001f &&
+      (body - *corridor_leg_).norm() <= .15f;
+  if(!approach && body[across]>=lo[across] && body[across]<=hi[across] &&
+     (std::abs(body[along]-end)<=cell || reached_terminal_leg) && fd_->odom_vel_.norm()<.35f) {
+    ROS_INFO("Corridor %s arm visited at %.2f %.2f",corridor_phase_==CorridorPhase::Right?"right":"left",body.x(),body.y());
+    corridor_leg_.reset();
+    if(corridor_phase_==CorridorPhase::Left) {
+      corridor_phase_=CorridorPhase::Done;
+      startExternalReturn("both corridor arms visited");return;
+    }
+    corridor_phase_=CorridorPhase::Left;
+    return;
+  }
+  if(corridor_leg_ && (body-*corridor_leg_).norm()>radius &&
+     front.certifyFlightGuide({body,*corridor_leg_}))return;
+  Vector3f goal=body;
+  goal[across]=mid;
+  goal.z()=corridor_height_;
+  if(!approach)goal[along]=end;
+  const Vector3f delta=goal-body;
+  if(delta.norm()<.05f)return;
+  const float horizon=std::min(front.sensorUpdateRange(),6.f*radius);
+  const float reach=std::min(delta.norm(),horizon);
+  std::vector<Vector3f> route;
+  for(float length=reach;length>=std::min(reach,cell);length-=cell) {
+    for(float side:{0.f,-cell,cell,-2.f*cell,2.f*cell}) {
+      Vector3f candidate=body+delta*(length/delta.norm());
+      candidate[approach ? along : across]+=side;
+      if(!front.observedAir(candidate) ||
+         !front.connectObserved(body,candidate,.012,route) || !front.certifyFlightGuide(route))continue;
+      if(corridor_leg_ && (*corridor_leg_-candidate).norm()<.1f)return;
+      if(!externalInputsReady(false) || (fd_->odom_pos_-body).norm()>.2f || !publishExternalGuide(route))return;
+      corridor_leg_=candidate;external_motion_started_=true;
+      if(state_!=EXEC_TRAJ)transitState(EXEC_TRAJ,"certified corridor guide");
+      return;
+    }
+  }
+  // The nominal centre line can pass close to a measured obstacle. Use the
+  // existing measured-space recovery and opening search before timing out.
+  bool escaping = front.clearanceDepartureGuide(body, route, &goal);
+  if (escaping && route.size() > 2) route.resize(2);
+  if (!escaping && !front.reachableOpening(body, route, &goal)) {
+    ROS_WARN_THROTTLE(1., "Corridor guide unavailable at %.2f %.2f, clearance %.2f",
+                      body.x(), body.y(), map->getDisToOcc(body));
+    return;
+  }
+  if (route.size() < 2 || !front.certifyFlightGuide(route) ||
+      (!escaping && (route.back()-goal).norm() >= delta.norm()) ||
+      !externalInputsReady(false) || (fd_->odom_pos_-body).norm() > .2f) return;
+  if (publishExternalGuide(route)) {
+    corridor_leg_ = route.back();
+    external_motion_started_ = true;
+    if (state_ != EXEC_TRAJ) transitState(EXEC_TRAJ, "corridor recovery");
+  }
+
+}
+
+void FastExplorationFSM::startExternalReturn(const char *reason,bool survey_complete) {
+  return_after_complete_=survey_complete && (corridor_box_<0 || corridor_phase_==CorridorPhase::Done);
   resetExternalPlanWait();
   external_return_target_.reset();
   external_return_wait_since_.reset();
   next_external_return_plan_ = 0.;
   planner_manager_->graph_visualizer_->vizTour({}, VizColor::RED, "global");
   if (!external_home_) {
+    return_after_complete_=false;
     finishExternalExploration("launch pose unavailable; hold position");
     return;
   }
@@ -722,6 +861,7 @@ void FastExplorationFSM::updateExternalReturn() {
   if (!external_return_wait_since_) external_return_wait_since_ = now;
   if (now - *external_return_wait_since_ >= 5.) {
     ROS_WARN("EPIC return stalled or has no verified connection to launch; holding position");
+    return_after_complete_=false;
     finishExternalExploration("return unavailable; hold position");
     return;
   }
@@ -745,10 +885,10 @@ void FastExplorationFSM::finishExternalExploration(const char *reason) {
   external_exploration_complete_ = true;
   resetExternalPlanWait();
   std_msgs::msg::Bool done;
-  done.data = true;
+  done.data = return_after_complete_;
   external_complete_pub_.publish(done);
   planner_manager_->graph_visualizer_->vizTour({}, VizColor::RED, "global");
-  transitState(FINISH, reason);
+  transitState(return_after_complete_ ? FINISH : CAUTION, reason);
 }
 
 bool FastExplorationFSM::externalInputsReady(bool settle) {
@@ -816,6 +956,7 @@ void FastExplorationFSM::transitState(EXPL_STATE new_state, string pos_call, boo
   if (!fd_->trigger_ && new_state == CAUTION) return;
   int pre_s = int(state_);
   state_ = new_state;
+  if(external_local_planner_)pubState();
   if (decision_pub_ && (new_state==WAIT_MAP ||
       (new_state!=pre_s && (new_state==FINISH || new_state==LAND || new_state==RETURN_HOME || new_state==WAIT_TRIGGER)))) {
     visualizeDecision(false);

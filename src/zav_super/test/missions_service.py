@@ -73,7 +73,7 @@ def run():
         spin(.3)
     binary=str(Path(get_package_prefix('zav_super'))/'lib/zav_super/super_ommpc')
     with tempfile.TemporaryFile(mode='w+') as log:
-        process=subprocess.Popen([binary,'--ros-args','-p','execute:=true'],stdout=log,stderr=subprocess.STDOUT)
+        process=subprocess.Popen([binary,'--ros-args','-p','execute:=true','-p','tracking_backend:='+os.environ.get('TRACKING_BACKEND','ommpc')],stdout=log,stderr=subprocess.STDOUT)
         try:
             wait(lambda:status and status[-1]['phase']=='PRESTREAM' and all(c.service_is_ready() for c in clients.values()))
             spin(.3);assert not call('return_home').success
@@ -127,7 +127,7 @@ def run():
     # The automatic takeoff controller is also exercised with synthetic FC state.
     state.update(p=[1.,2.,.1],yaw=.3,v=0.,armed=False,landed=True,mode=[3,0]);spin(.3);status.clear();goals.clear()
     with tempfile.TemporaryFile(mode='w+') as log:
-        process=subprocess.Popen([binary,'--ros-args','-p','execute:=true','-p','auto_takeoff:=true'],stdout=log,stderr=subprocess.STDOUT)
+        process=subprocess.Popen([binary,'--ros-args','-p','execute:=true','-p','tracking_backend:='+os.environ.get('TRACKING_BACKEND','ommpc'),'-p','auto_takeoff:=true'],stdout=log,stderr=subprocess.STDOUT)
         try:
             wait(lambda:status and status[-1]['phase']=='TAKEOFF_WAIT')
             spin(.3);state['mode']=[6,0];spin(.3);state['armed']=True

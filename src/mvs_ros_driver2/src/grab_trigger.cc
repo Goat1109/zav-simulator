@@ -1,6 +1,8 @@
 #include "MvCameraControl.h"
 #include "cv_bridge/cv_bridge.h"
 #include "sensor_msgs/msg/image.hpp"
+#include "sensor_msgs/msg/compressed_image.hpp"
+#include <thread>
 #include <atomic>
 #include <cerrno>
 #include <chrono>
@@ -75,6 +77,66 @@ std::mutex g_queue_mutex;
 std::condition_variable g_queue_cv;
 std::deque<sensor_msgs::msg::Image> g_image_queue;
 const size_t MAX_QUEUE_SIZE = 5;
+// Encoding and reliable DDS writes must not hold the SDK capture buffer.
+class JpegStream {
+public:
+  JpegStream(rclcpp::Node &node, const std::string &topic, int quality)
+      : publisher_(node.create_publisher<sensor_msgs::msg::CompressedImage>(topic, 5)),
+        params_{cv::IMWRITE_JPEG_QUALITY, quality}, worker_(&JpegStream::run, this) {}
+
+  ~JpegStream() {
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      stop_ = true;
+    }
+    wake_.notify_one();
+    worker_.join();
+  }
+
+  bool subscribed() const { return publisher_->get_subscription_count() > 0; }
+
+  void submit(const cv::Mat &bgr, const rclcpp::Time &stamp) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (queue_.size() >= MAX_QUEUE_SIZE) {
+      queue_.pop_front();
+      if (++dropped_ % 100 == 1) ROS_WARN("JPEG queue dropped %zu frames", dropped_);
+    }
+    queue_.emplace_back(bgr, stamp);
+    wake_.notify_one();
+  }
+
+private:
+  void run() {
+    for (;;) {
+      std::unique_lock<std::mutex> lock(mutex_);
+      wake_.wait(lock, [this] { return stop_ || !queue_.empty(); });
+      if (stop_) return;
+      auto frame = std::move(queue_.front());
+      queue_.pop_front();
+      lock.unlock();
+      sensor_msgs::msg::CompressedImage msg;
+      msg.header.stamp = frame.second;
+      msg.format = "bgr8; jpeg compressed bgr8";
+      try {
+        if (cv::imencode(".jpg", frame.first, msg.data, params_))
+          publisher_->publish(std::move(msg));
+      } catch (const std::exception &e) {
+        ROS_WARN("JPEG output failed: %s", e.what());
+      }
+    }
+  }
+
+  rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr publisher_;
+  std::vector<int> params_;
+  std::mutex mutex_;
+  std::condition_variable wake_;
+  std::deque<std::pair<cv::Mat, rclcpp::Time>> queue_;
+  size_t dropped_ = 0;
+  bool stop_ = false;
+  std::thread worker_;
+};
+std::unique_ptr<JpegStream> jpeg;
+double raw_rate = 0.;
 std::vector<PixelFormat> PIXEL_FORMAT = {RGB8, BayerRG8, BayerRG12Packed,
                                          BayerGB12Packed, BayerGB8};
 std::string ExposureAutoStr[3] = {"Off", "Once", "Continues"};
@@ -281,11 +343,11 @@ void setParams(void *handle, const std::string &params_file) {
   }
 }
 
+volatile sig_atomic_t stop_signal = 0;
+
 void SignalHandler(int signal) {
   if (signal == SIGINT || signal == SIGTERM) {
-    fprintf(stderr, "\nReceived shutdown signal (%d), exiting...\n", signal);
-    exit_flag.store(true);
-    g_queue_cv.notify_all();
+    stop_signal = signal;
   }
 }
 
@@ -301,8 +363,7 @@ void SetupSignalHandler() {
 static void *GrabThread(void *pUser) {
   int nRet = MV_OK;
 
-  std::vector<unsigned char> rgb_buffer;
-  unsigned char *pDataForRGB = NULL;
+  double next_raw = 0.;
   MVCC_INTVALUE stParam;
   memset(&stParam, 0, sizeof(MVCC_INTVALUE));
   nRet = MV_CC_GetIntValue(pUser, "PayloadSize", &stParam);
@@ -315,6 +376,7 @@ static void *GrabThread(void *pUser) {
   MV_CC_PIXEL_CONVERT_PARAM stConvertParam = {0};
   MV_FRAME_OUT stImageInfo = {0};
 
+  bool log_first_frame = true;
   int consecutive_timeouts = 0;
   ROS_INFO("GrabThread: Capture loop started.");
   while (!exit_flag.load() && rclcpp::ok()) {
@@ -338,21 +400,24 @@ static void *GrabThread(void *pUser) {
         rcv_time = rclcpp::Clock(RCL_SYSTEM_TIME).now();
       }
 
-      size_t needed_size = (size_t)stImageInfo.stFrameInfo.nExtendWidth *
-                           stImageInfo.stFrameInfo.nExtendHeight * 4 + 2048;
-      if (rgb_buffer.size() < needed_size) {
-        rgb_buffer.resize(needed_size);
+      const double frame_time = rcv_time.seconds();
+      const bool raw_due = raw_rate <= 0. || frame_time >= next_raw ||
+                           frame_time + 1. < next_raw;
+      const bool encode_jpeg = jpeg && jpeg->subscribed();
+      if (!raw_due && !encode_jpeg) {
+        MV_CC_FreeImageBuffer(pUser, &stImageInfo);
+        continue;
       }
-      pDataForRGB = rgb_buffer.data();
-
+      cv::Mat color(stImageInfo.stFrameInfo.nExtendHeight,
+                    stImageInfo.stFrameInfo.nExtendWidth, CV_8UC3);
       stConvertParam.nWidth = stImageInfo.stFrameInfo.nExtendWidth;
       stConvertParam.nHeight = stImageInfo.stFrameInfo.nExtendHeight;
       stConvertParam.pSrcData = stImageInfo.pBufAddr;
       stConvertParam.nSrcDataLen = stImageInfo.stFrameInfo.nFrameLenEx;
       stConvertParam.enSrcPixelType = stImageInfo.stFrameInfo.enPixelType;
-      stConvertParam.enDstPixelType = PixelType_Gvsp_RGB8_Packed;
-      stConvertParam.pDstBuffer = pDataForRGB;
-      stConvertParam.nDstBufferSize = rgb_buffer.size();
+      stConvertParam.enDstPixelType = jpeg ? PixelType_Gvsp_BGR8_Packed : PixelType_Gvsp_RGB8_Packed;
+      stConvertParam.pDstBuffer = color.data;
+      stConvertParam.nDstBufferSize = color.total() * color.elemSize();
 
       nRet = MV_CC_ConvertPixelType(pUser, &stConvertParam);
 
@@ -369,12 +434,30 @@ static void *GrabThread(void *pUser) {
       // Free hardware SDK buffer IMMEDIATELY after convert!
       MV_CC_FreeImageBuffer(pUser, &stImageInfo);
 
-      cv::Mat srcImage(frame_h, frame_w, CV_8UC3, pDataForRGB);
+      if (encode_jpeg) jpeg->submit(color, rcv_time);
+      if (!raw_due) continue;
+      if (raw_rate > 0.) {
+        const double period = 1. / raw_rate;
+        next_raw = (next_raw > frame_time - period && next_raw <= frame_time)
+                       ? next_raw + period : frame_time + period;
+      }
+      cv::Mat srcImage = color;
 
       if (image_scale > 0.0 && image_scale < 0.99f && (srcImage.cols > 640 || srcImage.rows > 512)) {
         cv::resize(srcImage, srcImage,
                    cv::Size(srcImage.cols * image_scale, srcImage.rows * image_scale),
-                   cv::INTER_LINEAR);
+                   cv::INTER_AREA);
+      }
+
+      if (jpeg) {
+        cv::Mat rgb;
+        cv::cvtColor(srcImage, rgb, cv::COLOR_BGR2RGB);
+        srcImage = std::move(rgb);
+      }
+      if (log_first_frame) {
+        ROS_INFO("Camera capture %dx%d, published RGB8 %dx%d",
+                 frame_w, frame_h, srcImage.cols, srcImage.rows);
+        log_first_frame = false;
       }
 
       sensor_msgs::msg::Image msg;
@@ -511,6 +594,13 @@ int main(int argc, char **argv) {
   rclcpp::QoS cam_pub_qos(10);
   cam_pub_qos.reliable();
   pub = node->create_publisher<sensor_msgs::msg::Image>(pub_topic, cam_pub_qos);
+
+  if (!Params["RecordingTopic"].empty()) {
+    cv::setNumThreads(2);
+    jpeg = std::make_unique<JpegStream>(*node, (std::string)Params["RecordingTopic"],
+                                        (int)Params["JpegQuality"]);
+    raw_rate = (double)Params["RawFrameRate"];
+  }
 
   if (trigger_enable) {
     const char *home_dir = std::getenv("HOME");
@@ -709,7 +799,7 @@ int main(int argc, char **argv) {
   }
   ROS_INFO("Start PublishThread Success, pid %ld", nPubThreadID);
 
-  while (!exit_flag.load() && rclcpp::ok()) {
+  while (!stop_signal && !exit_flag.load() && rclcpp::ok()) {
     rclcpp::spin_some(node);
     usleep(100000);
 
@@ -729,21 +819,11 @@ int main(int argc, char **argv) {
   exit_flag.store(true);
   g_queue_cv.notify_all();
 
-  if (nGrabThreadID) {
-    struct timespec ts;
-    clock_gettime(CLOCK_REALTIME, &ts);
-    ts.tv_sec += 2;
-    pthread_timedjoin_np(nGrabThreadID, NULL, &ts);
-    ROS_INFO("GrabThread joined.");
-  }
-
-  if (nPubThreadID) {
-    struct timespec ts;
-    clock_gettime(CLOCK_REALTIME, &ts);
-    ts.tv_sec += 2;
-    pthread_timedjoin_np(nPubThreadID, NULL, &ts);
-    ROS_INFO("PublishThread joined.");
-  }
+  pthread_join(nGrabThreadID, nullptr);
+  pthread_join(nPubThreadID, nullptr);
+  jpeg.reset();
+  pub.reset();
+  node.reset();
 
   nRet = MV_CC_StopGrabbing(handle);
   if (MV_OK != nRet) {
@@ -771,9 +851,9 @@ int main(int argc, char **argv) {
   }
 
   if (rclcpp::ok()) {
-    ROS_WARN("mvs_camera_node exited unexpectedly. Terminating for respawn.");
+    if (!stop_signal) ROS_WARN("Camera stream stopped. Terminating for respawn.");
     rclcpp::shutdown();
-    return 1;
+    return stop_signal ? 0 : 1;
   }
 
   return 0;

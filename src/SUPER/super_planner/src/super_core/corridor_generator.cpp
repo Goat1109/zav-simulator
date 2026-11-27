@@ -76,11 +76,12 @@ namespace super_planner {
         while(first_id < path.size() && map_ptr_->isOccupiedInflate(path[first_id])) {
             first_id++;
         }
+        if(first_id>=static_cast<int>(path.size()))return false;
 
         if(first_id!=0){
             shifted_start_pt = path[first_id];
             double dis = (path[first_id] - path[0]).norm() * 1.2;
-            GenerateEmptyPolytope(path[0], dis, temp_poly);
+            if(!GenerateEmptyPolytope(path[0], dis, temp_poly))return false;
             sfcs.emplace_back(temp_poly);
         }
 
@@ -88,7 +89,8 @@ namespace super_planner {
             second_id = first_id;
             for (int j = first_id + 1; j < path.size(); j++) {
                 bool reach_segment = false;
-                if (!map_ptr_->isLineFree(path[first_id], path[j], seed_line_max_length_,
+                if ((envelope_ && envelope_->commonBox(path[first_id],path[j])==-1) ||
+                    !map_ptr_->isLineFree(path[first_id], path[j], seed_line_max_length_,
                                           line_seed_neighbor_list)) {
                     reach_segment = true;
                 }
@@ -114,7 +116,9 @@ namespace super_planner {
                 return false;
             }
             if (!GeneratePolytopeFromLine(seed_lines.back(), temp_poly)) {
-                cout << YELLOW << " -- [SUPER] GeneratePolytopeFromLine failed." << RESET << endl;
+                cout << YELLOW << " -- [SUPER] GeneratePolytopeFromLine failed. Seed "
+                    <<seed_lines.back().first.transpose()<<" -> "<<seed_lines.back().second.transpose()
+                    <<"; mission box "<<(envelope_?envelope_->commonBox(seed_lines.back().first,seed_lines.back().second):-2)<< RESET << endl;
                 return false;
             }
 
@@ -213,6 +217,7 @@ namespace super_planner {
         map_ptr_->boxSearch(box_min, box_max, OCCUPIED, pc);
         box_min.z() += robot_r_;
         box_max.z() -= robot_r_;
+        if(!boundFlightHeight(box_min,box_max,pt,pt))return false;
         MatD4f planes;
         Eigen::Vector3d a = pt, b = pt;
         Eigen::Matrix<double, 6, 4> bd = Eigen::Matrix<double, 6, 4>::Zero();
@@ -241,7 +246,7 @@ namespace super_planner {
             planes.row(5) << 0, 0, -1, box_min.z();
             polytope.SetPlanes(planes);
             polytope.SetSeedLine(Line{pt, pt});
-            return true;
+            return clipMission(polytope,pt,pt);
         }
         latest_pc.insert(latest_pc.end(), pc.begin(), pc.end());
         Eigen::Map<const Eigen::Matrix<double, 3, -1, Eigen::ColMajor>> pp(pc[0].data(), 3, pc.size());
@@ -253,7 +258,7 @@ namespace super_planner {
             ciri_t += dt;
             ciri_->getPolytope(polytope);
             polytope.SetSeedLine(Line{pt, pt});
-            return true;
+            return clipMission(polytope,pt,pt);
         } else {
             cout << YELLOW << " -- [SUPER] CSpaceFiri failed." << RESET << endl;
             cout << YELLOW << "\t box_min =" << box_min.transpose() << endl;
@@ -273,6 +278,7 @@ namespace super_planner {
         box_max = pt;
         box_min -= Vec3f(dis, dis, dis);
         box_max += Vec3f(dis, dis, dis);
+        if(!boundFlightHeight(box_min,box_max,pt,pt))return false;
         MatD4f planes;
         Eigen::Matrix<double, 6, 4> bd = Eigen::Matrix<double, 6, 4>::Zero();
         bd(0, 0) = 1.0;
@@ -298,7 +304,7 @@ namespace super_planner {
         planes.row(5) << 0, 0, -1, box_min.z();
         polytope.SetPlanes(planes);
         polytope.SetSeedLine(Line{pt, pt});
-        return true;
+        return clipMission(polytope,pt,pt);
     }
 
     bool CorridorGenerator::GeneratePolytopeFromLine(Line &line, Polytope &polytope) {
@@ -309,6 +315,7 @@ namespace super_planner {
         map_ptr_->boxSearch(box_min, box_max, OCCUPIED, pc);
         box_min.z() += robot_r_;
         box_max.z() -= robot_r_;
+        if(!boundFlightHeight(box_min,box_max,line.first,line.second))return false;
         MatD4f planes;
         Eigen::Vector3d a = line.first, b = line.second;
         Eigen::Matrix<double, 6, 4> bd = Eigen::Matrix<double, 6, 4>::Zero();
@@ -337,7 +344,7 @@ namespace super_planner {
             planes.row(5) << 0, 0, -1, box_min.z();
             polytope.SetPlanes(planes);
             polytope.SetSeedLine(line);
-            return true;
+            return clipMission(polytope,line.first,line.second);
         }
         // save to latest pc
         latest_pc.insert(latest_pc.end(), pc.begin(), pc.end());
@@ -350,7 +357,7 @@ namespace super_planner {
             ciri_t += dt;
             ciri_->getPolytope(polytope);
             polytope.SetSeedLine(line);
-            return true;
+            return clipMission(polytope,line.first,line.second);
         } else {
             polytope.Reset();
             cout << YELLOW << "\t box_min = " << box_min.transpose() << RESET << endl;

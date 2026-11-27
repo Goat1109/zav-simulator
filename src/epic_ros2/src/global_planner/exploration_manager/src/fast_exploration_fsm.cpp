@@ -51,6 +51,7 @@ void FastExplorationFSM::FSMCallback(const epic_ros::TimerEvent &e) {
   }
 
   case PLAN_TRAJ: {
+    if(corridor_box_>=0)break; // The global planning timer issues the ordered corridor guides.
     if (!fd_->trigger_)
       return;
     const bool selected_surface=external_local_planner_ && expl_manager_->frontier_manager_ptr_->surface_continuity_ &&
@@ -159,6 +160,7 @@ void FastExplorationFSM::FSMCallback(const epic_ros::TimerEvent &e) {
 
   case EXEC_TRAJ: {
     if (external_local_planner_) {
+      if(corridor_box_>=0)break;
       const double now=epic_ros::Time::now().toSec();
       if (now-last_external_plan_<.5*external_replan_period_ ||
           !expl_manager_->ed_->next_goal_node_) break;
@@ -221,6 +223,16 @@ void FastExplorationFSM::init(epic_ros::NodeHandle &nh,
 
   nh.param("fsm/external_local_planner", external_local_planner_, false);
   if (external_local_planner_) {
+    nh.param("global_planning/right_hand_corridor_box",corridor_box_,-1);
+    if(corridor_box_>=0) {
+      bool fixed=false,right=false;
+      nh.param("ViewpointManager/fixed_height_enabled",fixed,false);
+      nh.param("ViewpointManager/fixed_height",corridor_height_,1.4);
+      nh.param("global_planning/right_hand_priority",right,false);
+      if(!fixed || !right || !std::isfinite(corridor_height_) ||
+         size_t(corridor_box_)>=explorer->planner_manager_->lidar_map_interface_->lp_->global_box_min_boundary_vec_.size())
+        throw std::invalid_argument("Right-hand corridor survey requires a valid corridor box, fixed height and right-hand priority");
+    }
     external_path_pub_ = nh.advertise<nav_msgs::msg::Path>("/mission/exploration_path", 1, true);
     decision_pub_=nh.native()->create_publisher<MarkerArray>("/epic/decision",rclcpp::QoS(1).transient_local());
     external_complete_pub_ = nh.advertise<std_msgs::msg::Bool>("/mission/exploration_complete", 1, true);
@@ -233,6 +245,9 @@ void FastExplorationFSM::init(epic_ros::NodeHandle &nh,
           std::lock_guard<std::mutex> lock(external_plan_mutex_);
           expireExternalPlanWaitLocked(epic_ros::Time::now().toSec());
         }, external_deadline_group_);
+    external_status_timer_ = rclcpp::create_timer(node->get_node_base_interface(),
+        node->get_node_timers_interface(), node->get_clock(), std::chrono::milliseconds(100),
+        [this](){publishExternalStatus();}, external_deadline_group_);
     st10_manual_sub_ = nh.native()->create_subscription<std_msgs::msg::Bool>(
         "/mission/st10_manual", 1, [this](const std_msgs::msg::Bool &msg) {
           if (!msg.data || state_ == INIT) return;
@@ -254,6 +269,38 @@ void FastExplorationFSM::init(epic_ros::NodeHandle &nh,
   // expl_manager_->initialize(nh);
   expl_manager_ = explorer;
   planner_manager_ = expl_manager_->planner_manager_;
+  nh.param("fsm/hardware_height_guard",hardware_height_guard_,false);
+  if(hardware_height_guard_){
+    if(!external_local_planner_)throw std::invalid_argument("Hardware height guard requires external planner");
+    double floor,ceiling,margin;
+    nh.param("fsm/world_floor",floor,-.4);nh.param("fsm/world_ceiling",ceiling,9.5);
+    nh.param("fsm/height_margin",margin,.03);
+    if(!std::isfinite(floor) || !std::isfinite(ceiling) || !std::isfinite(margin) ||
+       margin<.01 || floor+2*margin>=ceiling)throw std::invalid_argument("Invalid hardware height guard");
+    const auto astar=planner_manager_->topo_graph_->parallel_bubble_astar_;
+    const double requested_min=astar->flight_min_z_,requested_max=astar->flight_max_z_;
+    auto node=nh.native();
+    hardware_height_sub_=node->create_subscription<geometry_msgs::msg::PoseStamped>(
+        "/zav/epic/profile_transform",rclcpp::QoS(1).reliable().transient_local(),
+        [this,node,astar,floor,ceiling,margin,requested_min,requested_max](geometry_msgs::msg::PoseStamped::SharedPtr m){
+          const auto& p=m->pose.position;const auto& q=m->pose.orientation;
+          const double stamp=rclcpp::Time(m->header.stamp).seconds(),age=node->now().seconds()-stamp;
+          const double norm=q.w*q.w+q.x*q.x+q.y*q.y+q.z*q.z;
+          if(m->header.frame_id!="epic_profile" || age<-.02 || age>.25 ||
+             !std::isfinite(p.z) || !std::isfinite(norm) || std::abs(norm-1.)>.01 ||
+             std::abs(q.x)+std::abs(q.y)>1.e-6 || node->count_publishers("/zav/epic/profile_transform")!=1)return;
+          if(hardware_height_ready_){
+            if(std::abs(p.z-hardware_height_translation_)<1.e-6)hardware_height_stamp_=stamp;
+            return;
+          }
+          const double low=std::max(requested_min,floor+p.z+margin);
+          const double high=std::min(requested_max,ceiling+p.z-margin);
+          if(low>=high){ROS_WARN_THROTTLE(1.,"EPIC height band has no overlap with SUPER world bounds; trigger blocked");return;}
+          astar->flight_min_z_=low;astar->flight_max_z_=high;
+          hardware_height_translation_=p.z;hardware_height_stamp_=stamp;hardware_height_ready_=true;
+          ROS_INFO("EPIC aligned PROFILE flight Z %.6f..%.6f; WORLD %.6f..%.6f (3cm planning reserve)",low,high,low-p.z,high-p.z);
+        });
+  }
 
   state_ = EXPL_STATE::INIT;
   fd_->have_odom_ = false;
@@ -372,6 +419,12 @@ void FastExplorationFSM::updateTopoAndGlobalPath() {
   planner_manager_->topo_graph_->updateOdomNode(fd_->odom_pos_, fd_->odom_yaw_);
   planner_manager_->topo_graph_->updateHistoricalOdoms();
   if (external_local_planner_ && state_==WAIT_TRIGGER && !fd_->trigger_) {
+    global_path_update_timer_.start();
+    return;
+  }
+
+  if(corridor_box_>=0 && fd_->trigger_) {
+    updateCorridorSurvey();
     global_path_update_timer_.start();
     return;
   }

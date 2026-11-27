@@ -501,8 +501,17 @@ struct SurfaceVisibilityRegression {
       }
       assert(moving.y()<9.f && moving.x()>11.f && moving.x()<14.f);
       m.visited_air_=m.observed_air_;candidates.clear();
+      // Legacy positional coverage still retires the sampled outline.
+      m.connected_wall_traversal_=false;
       m.appendContourViewpoints(moving,candidates);
       assert(candidates.empty());
+      // Seeing free air (or setting a positional visited voxel) is not
+      // measured travel along every directed wall in that air component.
+      m.connected_wall_traversal_=true;candidates.clear();
+      m.appendContourViewpoints(moving,candidates);
+      assert(!candidates.empty());
+      for(const auto& candidate:candidates)
+        assert(m.wall_traversal_.freshLength(m.observations_.at(candidate.get())->contour_approach_)>0.f);
     }
     {
       const Eigen::Vector3f opening(12.5f,9.5f,1.7f);

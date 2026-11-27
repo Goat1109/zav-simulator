@@ -32,4 +32,14 @@ int main(){
   assert(!bounds.contains({0.,0.,10.}));
   assert(!bounds.contains({std::numeric_limits<double>::quiet_NaN(),0.,1.}));
   assert(!bounds.segment({0.,0.,1.},{3.,0.,1.}));
+  argo_super::EpicBounds joined;joined.lower={{-1.,-1.,0.},{1.,-1.,0.}};joined.upper={{1.,1.,2.},{5.,1.,2.}};
+  assert(!joined.segment({0.,0.,1.},{4.,0.,1.})); // raw guide packet length cap
+  assert(joined.segment({0.,0.,1.},{4.,0.,1.},10.)); // rolling target is separate
+  std::array<argo_super::EpicPoint,8> c;
+  for(size_t i=0;i<8;++i)c[i]={-.1+1.6*i/7.,0.,1.};
+  int budget=10000;assert(joined.bezierInside(c,budget)); // shared face at a non-dyadic time
+  c[4][1]=20.;budget=10000;assert(!joined.bezierInside(c,budget)); // endpoints remain inside
+  argo_super::EpicBounds gap;gap.lower={{-1.,-1.,0.},{1.0001,-1.,0.}};gap.upper={{1.,1.,2.},{5.,1.,2.}};
+  for(size_t i=0;i<8;++i)c[i]={-.1+1.6*i/7.,0.,1.};
+  budget=10000;assert(!gap.bezierInside(c,budget));
 }

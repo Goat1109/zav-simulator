@@ -1,5 +1,6 @@
 #include <algorithm>
 #include "ommpc_core/controller_core.hpp"
+#include "ommpc_core/command_bounds.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -111,12 +112,19 @@ bool OMMPCControllerCore::execMPC(const ControllerState &odom, double now_s, Con
   }
 
   // 3. take the first predicted control as output
-  u.bodyrates(0) = u_des_start(1) - solution.delta_u[0](1);
-  u.bodyrates(1) = u_des_start(2) - solution.delta_u[0](2);
-  u.bodyrates(2) = u_des_start(3) - solution.delta_u[0](3);
+  ControlCommand bounded;
+  bounded.bodyrates(0) = u_des_start(1) - solution.delta_u[0](1);
+  bounded.bodyrates(1) = u_des_start(2) - solution.delta_u[0](2);
+  bounded.bodyrates(2) = u_des_start(3) - solution.delta_u[0](3);
 
   // thrustacc -> normalized thrust signal
-  const double thrustacc = u_des_start(0) - solution.delta_u[0](0);
+  bounded.collective_acceleration = u_des_start(0) - solution.delta_u[0](0);
+  if (!enforceCommandBounds(bounded, param_.mpc)) {
+    setError("MPC output violates command bounds beyond numerical tolerance.");
+    return false;
+  }
+  u = bounded;
+  const double thrustacc = u.collective_acceleration;
   u.thrust = thrustacc / thr2acc_;
   u.collective_acceleration = thrustacc;
 

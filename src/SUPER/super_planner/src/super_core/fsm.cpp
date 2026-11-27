@@ -42,6 +42,15 @@ namespace fsm {
         write_time_ << endl;
     }
 
+    bool Fsm::snapGoal(const Vec3f& requested,Vec3f& corrected){
+        const auto map=planner_ptr_->getMap();
+        if(!envelope_->enabled)return map->getNearestInfCellNot(GridType::OCCUPIED,requested,corrected,cfg_.goal_snap_max_distance);
+        Vec3i centre;map->infMapPosToGlobalIndex(requested,centre);
+        return super_planner::boundedGridGoal(requested,centre,map->getInfResolution(),cfg_.goal_snap_max_distance,
+            [&](const Vec3i& id){Vec3f p;map->infMapGlobalIndexToPos(id,p);return p;},
+            [&](const Vec3f& p){const auto type=map->getInfGridType(p);return envelope_->contains(p) && type!=GridType::OCCUPIED && type!=GridType::OUT_OF_MAP;},corrected);
+    }
+
     void Fsm::callReplanOnce() {
         if (stop) {
             return;
@@ -65,8 +74,7 @@ namespace fsm {
         // Anchor snapping to the upstream request. Repeatedly snapping the last
         // corrected goal can walk it through a wall as occupancy changes.
         Vec3f corrected_goal;
-        if (planner_ptr_->getMap()->getNearestInfCellNot(GridType::OCCUPIED, requested_goal_p_,
-                                                        corrected_goal, cfg_.goal_snap_max_distance) &&
+        if (snapGoal(requested_goal_p_,corrected_goal) &&
             corrected_goal.allFinite()) {
             gi_.goal_p = corrected_goal;
         }
@@ -86,8 +94,7 @@ namespace fsm {
         } else if (ret_code == NEW_TRAJ) {
             ChangeState("ReplanTimerCallback", GENERATE_TRAJ);
         } else if (ret_code == SUCCESS || ret_code == FINISH) {
-            gi_.new_goal = false;
-            publishPolyTraj();
+            if (publishPolyTraj()) gi_.new_goal = false;
         }
 
         planner_ptr_->getModuleTimeConsuming(log_module_time);
@@ -142,8 +149,11 @@ namespace fsm {
                 break;
             }
             case GENERATE_TRAJ: {
-                if (closeToGoal(cfg_.goal_position_tolerance) && robot_state_.v.allFinite() &&
+                if (robot_state_.rcv && ros_ptr_->getSimTime()-robot_state_.rcv_time >= 0. &&
+                    ros_ptr_->getSimTime()-robot_state_.rcv_time < .1 &&
+                    closeToGoal(cfg_.goal_position_tolerance) && robot_state_.v.allFinite() &&
                     robot_state_.v.norm()<cfg_.goal_speed_tolerance) {
+                    publishArrival();
                     ChangeState("MainFsmCallback", WAIT_GOAL);
                     gi_.new_goal = false;
                     finish_plan = true;
@@ -158,14 +168,13 @@ namespace fsm {
                 if ((retcode == SUCCESS || retcode == FINISH) && !planner_ptr_->initialPlanReadyToPublish())
                     retcode = FAILED;
                 if (retcode == SUCCESS || retcode == FINISH) {
+                    if (!publishPolyTraj()) return;
                     gi_.new_goal = false;
                     plan_from_rest_ = true;
                     finish_plan = false;
                     if (retcode == FINISH) {
                         finish_plan = true;
                     }
-
-                    publishPolyTraj();
 
                     ChangeState("MainFsmCallback", FOLLOW_TRAJ);
                 } else {
@@ -204,14 +213,8 @@ namespace fsm {
         }
 
         Vec3f corrected_goal;
-        if (!planner_ptr_->getMap()->getNearestInfCellNot(GridType::OCCUPIED, click_point, corrected_goal,
-                                                        cfg_.goal_snap_max_distance)) {
+        if (!snapGoal(click_point,corrected_goal)) {
             fmt::print(fg(fmt::color::indian_red), "Goal is deeply occupied, skip this goal.\n");
-            return false;
-        }
-
-        if ((robot_state_.p - corrected_goal).norm() < cfg_.goal_position_tolerance) {
-            //                print(fg(color::gray), " -- [Rviz] Too close to goal, skip this target.\n");
             return false;
         }
 

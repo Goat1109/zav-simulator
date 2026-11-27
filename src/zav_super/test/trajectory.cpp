@@ -10,6 +10,14 @@ int main(){
   assert(argo_super::terminal_stop_reached(t,2.1,{7,0,2},{0,0,0}));
   assert(!argo_super::terminal_stop_reached(t,1.,{7,0,2},{0,0,0}));
   assert(!argo_super::terminal_stop_reached(t,3.,{5,0,2},{0,0,0}));
+  assert(argo_super::can_wait_for_replacement(t,1.5,{6,0,2},{1,0,0}));
+  assert(argo_super::can_wait_for_replacement(t,4.5,{7,0,2},{0,0,0}));
+  assert(!argo_super::can_wait_for_replacement(t,4.5,{5,0,2},{0,0,0}));
+  assert(!argo_super::can_wait_for_replacement(t,4.5,{7,0,2},{1,0,0}));
+  assert(!argo_super::can_wait_for_replacement(Trajectory{},1.,{7,0,2},{0,0,0}));
+  auto moving=m;moving.coef_pos_x[6]=1.;auto linear=argo_super::decode(moving);
+  assert(argo_super::can_wait_for_replacement(linear,1.5,{8.5,0,2},{1,0,0}));
+  assert(!argo_super::can_wait_for_replacement(linear,2.1,{9,0,2},{0,0,0}));
   m.coef_pos_x.pop_back();bool caught=false;try{argo_super::decode(m);}catch(const std::invalid_argument&){caught=true;}assert(caught);
   ommpc_core::ParameterSet p;p.mpc.step_T=.02;p.mpc.Q_pos_xy=600;p.mpc.Q_pos_z=800;p.mpc.Q_velocity=60;
   p.mpc.Q_attitude_rp=p.mpc.Q_attitude_yaw=80;p.mpc.R_thrust=.5;p.mpc.R_pitchroll=16;p.mpc.R_yaw=3;

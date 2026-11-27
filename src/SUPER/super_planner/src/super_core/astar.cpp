@@ -427,7 +427,9 @@ namespace path_search {
                         neighborIdx(2) = (current->id_g)(2) + dz;
                         globalIndexToPos(neighborIdx, neighborPos);
 
-                        if (!insideLocalMap(neighborIdx)) {
+                        rog_map::Vec3f currentPos;globalIndexToPos(current->id_g,currentPos);
+                        if ((allowed_position && !allowed_position(neighborPos)) ||
+                            (allowed_segment && !allowed_segment(currentPos,neighborPos)) || !insideLocalMap(neighborIdx)) {
                             continue;
                         }
 

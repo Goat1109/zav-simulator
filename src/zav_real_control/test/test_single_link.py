@@ -110,12 +110,14 @@ def test_hover_output_readback_is_requested_only_for_super(super_source):
     from zav_real_control.super_gate import SuperRateGate
     s,c=make();prepared(s)
     s.offboard.enabled=True
-    if super_source:s.offboard=SuperRateGate(True)
+    if super_source:s.offboard=SuperRateGate(True,adaptive_thrust=True)
     for i in range(12):s.update(i*.01,(EPOCH+int(i*.01*1e6))*1000)
     requests=sent(c,'command_long_send')
     target=[a for a in requests if a[2]==mav.MAV_CMD_SET_MESSAGE_INTERVAL and a[4]==mav.MAVLINK_MSG_ID_ATTITUDE_TARGET]
     assert bool(target)==super_source
     if target:assert target[0][5]==50000
+    imu=[a[5] for a in requests if a[2]==mav.MAV_CMD_SET_MESSAGE_INTERVAL and a[4]==mav.MAVLINK_MSG_ID_HIGHRES_IMU]
+    assert imu == ([10000] if super_source else [])
 
 
 def test_super_hover_calibration_cannot_use_an_echo_from_the_companion():
@@ -434,3 +436,15 @@ def test_input_watchdog_allows_short_gap_and_requires_prior_ev():
     s,c=make();prepared(s)
     s.update(.4,EPOCH*1000+400_000_000)
     assert not s.motion.latched
+
+
+def test_fc_rate_samples_keep_boot_time_mask_and_source():
+    link,_=make()
+    fields=dict(time_boot_ms=345,body_roll_rate=.2,body_pitch_rate=-.7,body_yaw_rate=.1,type_mask=128)
+    link.receive(msg('ATTITUDE_TARGET',source=(255,1),**fields),0,EPOCH*1000)
+    receive(link,0,'ATTITUDE_TARGET',**fields)
+    receive(link,.1,'ATTITUDE',time_boot_ms=400,roll=0,pitch=0,yaw=0,rollspeed=.1,pitchspeed=-.4,yawspeed=.2)
+    target,actual=link.rate_samples
+    assert target==dict(message='ATTITUDE_TARGET',fc_boot_ms=345,bridge_rx_ns=EPOCH*1000,
+                        rates_frd_rad_s=[.2,-.7,.1],type_mask=128)
+    assert actual['fc_boot_ms']==400 and actual['rates_frd_rad_s']==[.1,-.4,.2]

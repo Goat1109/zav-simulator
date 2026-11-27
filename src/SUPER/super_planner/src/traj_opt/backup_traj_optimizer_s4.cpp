@@ -22,6 +22,7 @@
 */
 
 #include <traj_opt/backup_traj_optimizer_s4.h>
+#include <data_structure/base/curve_certificate.hpp>
 #include <traj_opt/backup_initial_guess.hpp>
 #include <utils/header/color_msg_utils.hpp>
 
@@ -599,7 +600,7 @@ BackupTrajOpt::BackupTrajOpt(const traj_opt::Config &cfg, const ros_interface::R
     }
     opt_vars.magnitudeBounds.resize(6);
     opt_vars.penaltyWeights.resize(7);
-    opt_vars.magnitudeBounds << cfg_.max_vel, cfg_.max_acc, cfg_.max_jerk,
+    opt_vars.magnitudeBounds << .9*cfg_.max_vel, .9*cfg_.max_acc, .9*cfg_.max_jerk,
             cfg_.max_omg, cfg_.min_acc_thr * cfg_.mass, cfg_.max_acc_thr * cfg_.mass;
     opt_vars.penaltyWeights << cfg_.penna_pos, cfg_.penna_vel,
             cfg_.penna_acc, cfg_.penna_jerk,
@@ -619,19 +620,11 @@ BackupTrajOpt::BackupTrajOpt(const traj_opt::Config &cfg, const ros_interface::R
 }
 
 bool BackupTrajOpt::checkTrajMagnitudeBound(Trajectory &out_traj) {
-    if (cfg_.penna_vel > 0 && out_traj.getMaxVelRate() > 1.2 * cfg_.max_vel) {
-        std::cout << YELLOW << " -- [TrajOpt] Minco backup opt failed." << RESET << std::endl;
-        std::cout << YELLOW << "\t\tBackend Max vel:\t" << out_traj.getMaxVelRate() << " m/s" << RESET
-                  << std::endl;
-        return false;
-    }
-    if (cfg_.penna_acc > 0 && out_traj.getMaxAccRate() > 1.2 * cfg_.max_acc) {
-        std::cout << YELLOW << " -- [TrajOpt] Minco backup opt failed." << RESET << std::endl;
-        std::cout << YELLOW << "\t\tBackend Max Acc:\t" << out_traj.getMaxAccRate() << " m/s" << RESET
-                  << std::endl;
-        return false;
-    }
-    return true;
+    int certificate_budget=10000;
+    for(int i=0;i<out_traj.getPieceNum();++i)
+        if(!super_utils::hullInsidePlanes(super_utils::positionControls(out_traj[i].getCoeffMat(),out_traj[i].getDuration()),
+            opt_vars.hPolytope,certificate_budget))return false;
+    return super_utils::certifyKinematics(out_traj,cfg_.max_vel,cfg_.max_acc,cfg_.max_jerk);
 }
 
 bool

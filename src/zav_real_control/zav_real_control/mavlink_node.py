@@ -11,6 +11,7 @@ from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 from rclpy.executors import ExternalShutdownException
 from rclpy.signals import SignalHandlerOptions
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import Joy
 from std_msgs.msg import String
 from .config import load_config
 
@@ -46,7 +47,9 @@ class MavlinkBridge(Node):
                 from .super_gate import SuperRateGate
                 self.core.offboard=SuperRateGate(automatic_takeoff=bool(self.declare_parameter('automatic_takeoff',False).value),
                     hover_thrust=float(self.declare_parameter('takeoff_hover_thrust',0.).value),
-                    takeoff_height=float(self.declare_parameter('takeoff_height',.4).value))
+                    takeoff_height=float(self.declare_parameter('takeoff_height',.4).value),
+                    fresh_tracking_output=bool(self.declare_parameter('fresh_tracking_output',True).value),
+                    adaptive_thrust=bool(self.declare_parameter('adaptive_thrust',True).value))
             self.offboard_source=source
             self.core.offboard.enabled=bool(self.declare_parameter('offboard_enabled',False).value)
             if self.core.offboard.enabled:
@@ -55,6 +58,8 @@ class MavlinkBridge(Node):
             qos=QoSProfile(depth=10,reliability=ReliabilityPolicy.BEST_EFFORT)
             reliable=QoSProfile(depth=1,reliability=ReliabilityPolicy.RELIABLE,
                                 durability=DurabilityPolicy.TRANSIENT_LOCAL)
+            self.stick_pub = self.create_publisher(Joy,'/zav_real/pilot_sticks',qos) if source=='super' else None
+            self.rate_log=self.create_publisher(String,'/zav_real/fc_rate_samples',qos)
             self.pub=self.create_publisher(String,self.c['status_prefix']+'/status',reliable)
             self.create_subscription(Odometry,self.c['odom_topic'],self.odometry,qos)
             self.super_sub=self.create_subscription(String,'/zav/super/rates',self.super_request,
@@ -107,6 +112,19 @@ class MavlinkBridge(Node):
     def tick(self):
         now=time.monotonic()
         data=self.core.update(now,time.time_ns())
+        gate=self.core.offboard
+        if self.stick_pub is not None and gate.pilot_axes is not None:
+            received,axes=gate.pilot_axes
+            gate.pilot_axes=None
+            if (0<=now-received<.1 and self.core.mode==(6,0) and gate.in_offboard and not gate.terminal
+                    and gate.rc_rx is not None and 0<=now-gate.rc_rx<.3 and (gate.rc8 or 0)>=1700):
+                msg=Joy(axes=axes)
+                msg.header.stamp=self.get_clock().now().to_msg()
+                self.stick_pub.publish(msg)
+        while self.core.rate_samples:
+            sample=self.core.rate_samples.popleft()
+            if self.rate_log.get_subscription_count():
+                self.rate_log.publish(String(data=json.dumps(sample,allow_nan=False)))
         if now-self.last_report>=.2:
             self.pub.publish(String(data=json.dumps(data,allow_nan=False)))
             state=(data['mode'],data['phase'],tuple(data['blocked_by']))
